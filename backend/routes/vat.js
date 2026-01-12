@@ -23,6 +23,7 @@ const {
   deleteVatReturnById,
   updateVatReturnStatus,
   previewVatReturn,
+  exportVatReturnPdf,
   // VAT Return Breakdown operations
   getVatReturnBreakdown,
   getVatReturnBoxBreakdown,

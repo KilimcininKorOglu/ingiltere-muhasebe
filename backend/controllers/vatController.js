@@ -24,6 +24,10 @@ const {
   getBreakdownByVatRate,
   getAvailableVatRates
 } = require('../services/vatBreakdownService');
+const {
+  generateVatReturnPdf,
+  validateVatReturnForPdf
+} = require('../services/pdfGenerator');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -1618,6 +1622,99 @@ async function getVatReturnAvailableRates(req, res) {
   }
 }
 
+/**
+ * Exports a VAT return as a PDF document.
+ * 
+ * GET /api/vat/returns/:id/pdf
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function exportVatReturnPdf(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    // Find the VAT return
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Validate VAT return for PDF generation
+    const validationResult = validateVatReturnForPdf(vatReturn);
+    if (!validationResult.valid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'PDF_VALIDATION_ERROR',
+          message: {
+            en: 'VAT return is not valid for PDF generation',
+            tr: 'KDV beyannamesi PDF oluşturma için geçerli değil'
+          },
+          details: validationResult.errors
+        }
+      });
+    }
+    
+    // Get user/business details
+    const user = findById(userId);
+    const businessDetails = {
+      businessName: user?.businessName || 'Business',
+      vatNumber: user?.vatNumber || '',
+      address: user?.address || ''
+    };
+    
+    // Generate PDF
+    const pdfBuffer = await generateVatReturnPdf(vatReturn, businessDetails, { language: lang });
+    
+    // Set response headers for PDF download
+    const filename = `vat-return-${vatReturn.periodStart}-to-${vatReturn.periodEnd}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    res.send(pdfBuffer);
+    
+  } catch (error) {
+    console.error('Export VAT return PDF error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   getThresholdStatus,
   getThresholdConfig,
@@ -1631,6 +1728,7 @@ module.exports = {
   deleteVatReturnById,
   updateVatReturnStatus,
   previewVatReturn,
+  exportVatReturnPdf,
   // VAT Return Breakdown operations
   getVatReturnBreakdown,
   getVatReturnBoxBreakdown,

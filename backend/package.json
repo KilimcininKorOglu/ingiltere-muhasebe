@@ -2,10 +2,10 @@
   "name": "uk-preaccounting-backend",
   "version": "1.0.0",
   "description": "Backend for UK Pre-Accounting Application for Turkish Entrepreneurs",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "migrate": "node database/migrate.js",
