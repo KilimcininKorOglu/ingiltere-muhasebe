@@ -1,0 +1,241 @@
+{
+  "helpIcon": {
+    "ariaLabel": "Click for more information",
+    "title": "Help",
+    "close": "Close"
+  },
+  "transaction": {
+    "vatRate": {
+      "short": "Select the VAT rate for this transaction. Most goods and services are 20%.",
+      "detailed": "VAT (Value Added Tax) rates in the UK: Standard rate (20%) applies to most goods and services. Reduced rate (5%) applies to some goods like home energy. Zero rate (0%) applies to essentials like food and children's clothing. Exempt items are not subject to VAT."
+    },
+    "amount": {
+      "short": "Enter the transaction amount excluding VAT.",
+      "detailed": "Enter the net amount of the transaction before VAT is applied. VAT will be calculated automatically based on the rate selected."
+    },
+    "date": {
+      "short": "The date when the transaction occurred.",
+      "detailed": "Enter the date of the transaction. This is important for tax reporting as transactions must be recorded in the correct tax period."
+    },
+    "reference": {
+      "short": "A unique reference number for this transaction.",
+      "detailed": "Enter a reference number to help identify this transaction. This could be an invoice number, receipt number, or your own internal reference."
+    },
+    "description": {
+      "short": "A brief description of the transaction.",
+      "detailed": "Provide a clear description of what this transaction is for. This helps with record-keeping and makes it easier to understand your accounts."
+    },
+    "category": {
+      "short": "Select the appropriate expense or income category.",
+      "detailed": "Categories help organize your transactions for tax reporting. Choose the category that best describes the nature of this transaction."
+    }
+  },
+  "invoice": {
+    "dueDate": {
+      "short": "The date by which payment should be received. Standard is 30 days.",
+      "detailed": "Set the payment deadline for this invoice. UK standard payment terms are typically 30 days, but you can set custom terms. Late payments may incur interest under the Late Payment of Commercial Debts Act."
+    },
+    "invoiceNumber": {
+      "short": "A unique number to identify this invoice.",
+      "detailed": "Invoice numbers must be unique and sequential. HMRC requires invoices to be numbered for VAT purposes. Format examples: INV-001, 2024/001."
+    },
+    "invoiceDate": {
+      "short": "The date the invoice is issued.",
+      "detailed": "The invoice date is important for VAT accounting. For cash accounting, this determines when VAT is due. It also affects payment terms calculation."
+    },
+    "customer": {
+      "short": "Select the customer for this invoice.",
+      "detailed": "Choose the customer who will receive this invoice. Customer details including address will be automatically populated."
+    },
+    "reference": {
+      "short": "Add a reference like a PO number.",
+      "detailed": "Optional reference field for purchase order numbers, project codes, or other references that help identify this invoice."
+    },
+    "currency": {
+      "short": "The currency for this invoice.",
+      "detailed": "Select the currency in which the invoice will be issued. If different from GBP, exchange rates will apply for VAT reporting."
+    },
+    "discount": {
+      "short": "Apply a discount to this invoice.",
+      "detailed": "Discounts can be applied as a percentage or fixed amount. Early payment discounts should follow HMRC guidelines for VAT calculation."
+    },
+    "notes": {
+      "short": "Add notes that will appear on the invoice.",
+      "detailed": "Use this field for payment instructions, bank details, or any other information you want to include on the invoice."
+    }
+  },
+  "expense": {
+    "vendor": {
+      "short": "The supplier or vendor for this expense.",
+      "detailed": "Select or enter the business or person from whom you purchased goods or services. This is important for tracking spending and tax deductions."
+    },
+    "category": {
+      "short": "Categorize this expense for tax purposes.",
+      "detailed": "Choose the appropriate expense category. This helps with tax deductions and financial reporting. Common categories include office supplies, travel, utilities, etc."
+    },
+    "receipt": {
+      "short": "Upload a receipt for this expense.",
+      "detailed": "Keep receipts for all business expenses. HMRC may request proof of expenses during an audit. Original receipts should be retained for 6 years."
+    },
+    "billable": {
+      "short": "Mark if this expense can be billed to a client.",
+      "detailed": "Enable this if the expense should be recharged to a client. Billable expenses can be added to invoices for reimbursement."
+    },
+    "paymentMethod": {
+      "short": "How was this expense paid?",
+      "detailed": "Select the payment method used. This helps reconcile your bank statements and track cash flow."
+    }
+  },
+  "company": {
+    "vatNumber": {
+      "short": "Your company's VAT registration number.",
+      "detailed": "UK VAT numbers start with 'GB' followed by 9 digits (e.g., GB123456789). You can verify VAT numbers on the HMRC website. Required if registered for VAT."
+    },
+    "companyNumber": {
+      "short": "Your Companies House registration number.",
+      "detailed": "The 8-digit company number assigned by Companies House when your company was incorporated. Required for limited companies."
+    },
+    "utr": {
+      "short": "Your Unique Taxpayer Reference for Self Assessment.",
+      "detailed": "A 10-digit number issued by HMRC for self-assessment tax returns. Keep this confidential as it's used to identify you to HMRC."
+    },
+    "nino": {
+      "short": "National Insurance number for the employee or director.",
+      "detailed": "Format: AB123456C. Used for National Insurance contributions and tax purposes. Never share this publicly."
+    },
+    "payeReference": {
+      "short": "Your PAYE scheme reference.",
+      "detailed": "Format: 123/AB12345. Issued by HMRC when you register as an employer. Required for payroll submissions."
+    },
+    "fiscalYearEnd": {
+      "short": "Your company's financial year end date.",
+      "detailed": "The date your company's financial year ends. Company accounts must be filed within 9 months of this date. Most UK companies use 31 March or 31 December."
+    },
+    "vatScheme": {
+      "short": "The VAT accounting scheme used by your company.",
+      "detailed": "Options include Standard VAT, Flat Rate Scheme, Cash Accounting, and Annual Accounting. Each has different rules for when VAT is reported and paid."
+    },
+    "accountingMethod": {
+      "short": "Cash basis or accrual accounting method.",
+      "detailed": "Cash basis: Record income when received and expenses when paid. Accrual: Record when invoiced/billed regardless of payment. Small businesses may choose either."
+    },
+    "sicCode": {
+      "short": "Standard Industrial Classification code.",
+      "detailed": "A 5-digit code that describes your company's main business activity. Required for Companies House filings. Find your code on the Companies House website."
+    }
+  },
+  "payment": {
+    "paymentDate": {
+      "short": "The date the payment was made or received.",
+      "detailed": "Record the actual date of payment, not the invoice date. Important for cash accounting and bank reconciliation."
+    },
+    "paymentMethod": {
+      "short": "How the payment was made.",
+      "detailed": "Track payment methods for accurate bank reconciliation. Options include bank transfer, card payment, cash, cheque, etc."
+    },
+    "bankAccount": {
+      "short": "Which bank account was used for this payment.",
+      "detailed": "Select the bank account used for this transaction. This helps with account reconciliation and cash flow tracking."
+    },
+    "transactionId": {
+      "short": "Reference number from the bank or payment provider.",
+      "detailed": "Enter the transaction reference from your bank statement or payment processor. Useful for matching and reconciliation."
+    }
+  },
+  "tax": {
+    "taxYear": {
+      "short": "The UK tax year runs from 6 April to 5 April.",
+      "detailed": "UK tax years run from 6 April to 5 April the following year. For example, tax year 2024/25 runs from 6 April 2024 to 5 April 2025."
+    },
+    "vatPeriod": {
+      "short": "The VAT reporting period (usually quarterly).",
+      "detailed": "VAT returns are typically filed quarterly. Monthly or annual filing may apply depending on your VAT scheme. Check your stagger group for due dates."
+    },
+    "taxCode": {
+      "short": "The employee's tax code determines tax deductions.",
+      "detailed": "Tax codes like 1257L indicate tax-free allowance. Letters mean different things: L = standard, BR = basic rate only, K = negative allowance. Check HMRC for code meanings."
+    },
+    "outputVat": {
+      "short": "VAT charged on sales.",
+      "detailed": "Output VAT is the VAT you charge customers on sales. This is the VAT you owe to HMRC, minus input VAT you can reclaim."
+    },
+    "inputVat": {
+      "short": "VAT paid on purchases.",
+      "detailed": "Input VAT is the VAT you pay on business purchases. You can reclaim this from HMRC if you're VAT registered (with some exceptions)."
+    }
+  },
+  "employee": {
+    "firstName": {
+      "short": "Employee's first name as shown on official documents.",
+      "detailed": "Enter the employee's legal first name as it appears on their passport or driving licence. Used for payroll and HMRC submissions."
+    },
+    "lastName": {
+      "short": "Employee's surname as shown on official documents.",
+      "detailed": "Enter the employee's legal surname. Must match their official documents for HMRC RTI submissions."
+    },
+    "nino": {
+      "short": "Employee's National Insurance number.",
+      "detailed": "Format: AB123456C. Required for payroll. New employees should provide this from their P45 or by requesting a National Insurance number if they don't have one."
+    },
+    "startDate": {
+      "short": "The employee's first day of work.",
+      "detailed": "The date employment begins. Important for calculating service length, holiday entitlement, and P45/P46 processing."
+    },
+    "salary": {
+      "short": "The employee's annual gross salary.",
+      "detailed": "Enter the total annual salary before tax and other deductions. This is used to calculate monthly/weekly pay, tax, and National Insurance."
+    },
+    "taxCode": {
+      "short": "The tax code for calculating income tax.",
+      "detailed": "Use the tax code from the employee's P45 or the starter checklist. HMRC may issue a different code which you must apply from the effective date."
+    },
+    "pensionContribution": {
+      "short": "Workplace pension contribution percentage.",
+      "detailed": "Auto-enrolment requires minimum 5% total contribution (3% employer, 2% employee) since April 2019. You may offer higher contributions."
+    }
+  },
+  "bank": {
+    "sortCode": {
+      "short": "6-digit bank sort code (e.g., 12-34-56).",
+      "detailed": "The sort code identifies the bank and branch. Format: XX-XX-XX or XXXXXX. Required for BACS payments and direct debits."
+    },
+    "accountNumber": {
+      "short": "8-digit bank account number.",
+      "detailed": "Your bank account number. Together with the sort code, this uniquely identifies your bank account in the UK."
+    },
+    "iban": {
+      "short": "International Bank Account Number for overseas transfers.",
+      "detailed": "UK IBANs start with GB and are 22 characters long. Required for international payments and some SEPA transactions."
+    },
+    "bic": {
+      "short": "Bank Identifier Code (also known as SWIFT code).",
+      "detailed": "8 or 11 character code identifying your bank internationally. Required for international transfers. Find it on your bank statement or online banking."
+    }
+  },
+  "general": {
+    "email": {
+      "short": "Enter a valid email address.",
+      "detailed": "Email addresses are used for communication and notifications. Ensure this is checked regularly for important updates."
+    },
+    "phone": {
+      "short": "Contact phone number.",
+      "detailed": "Enter a phone number including country code for international numbers (e.g., +44 20 1234 5678)."
+    },
+    "address": {
+      "short": "Enter the full postal address.",
+      "detailed": "Include building number/name, street, city, and postcode. Accurate addresses are important for invoicing and legal correspondence."
+    },
+    "postcode": {
+      "short": "UK postcode (e.g., SW1A 1AA).",
+      "detailed": "Enter the full UK postcode in the standard format. Postcodes are used for address verification and geographic reporting."
+    },
+    "date": {
+      "short": "Select or enter a date.",
+      "detailed": "Dates are displayed in UK format (DD/MM/YYYY). Use the calendar picker or type the date directly."
+    },
+    "currency": {
+      "short": "Select the currency for this amount.",
+      "detailed": "If using a currency other than GBP, exchange rates will be applied for reporting. HMRC requires GBP values for tax purposes."
+    }
+  }
+}

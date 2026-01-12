@@ -1,0 +1,241 @@
+{
+  "helpIcon": {
+    "ariaLabel": "Daha fazla bilgi için tıklayın",
+    "title": "Yardım",
+    "close": "Kapat"
+  },
+  "transaction": {
+    "vatRate": {
+      "short": "Bu işlem için KDV oranını seçin. Çoğu mal ve hizmet için %20'dir.",
+      "detailed": "İngiltere'de KDV (Katma Değer Vergisi) oranları: Standart oran (%20) çoğu mal ve hizmet için geçerlidir. İndirimli oran (%5) ev enerjisi gibi bazı mallar için geçerlidir. Sıfır oran (%0) gıda ve çocuk giyim gibi temel ihtiyaçlar için geçerlidir. Muaf ürünler KDV'ye tabi değildir."
+    },
+    "amount": {
+      "short": "KDV hariç işlem tutarını girin.",
+      "detailed": "KDV uygulanmadan önceki net işlem tutarını girin. KDV, seçilen orana göre otomatik olarak hesaplanacaktır."
+    },
+    "date": {
+      "short": "İşlemin gerçekleştiği tarih.",
+      "detailed": "İşlem tarihini girin. İşlemler doğru vergi döneminde kaydedilmesi gerektiğinden bu vergi raporlaması için önemlidir."
+    },
+    "reference": {
+      "short": "Bu işlem için benzersiz bir referans numarası.",
+      "detailed": "Bu işlemi tanımlamaya yardımcı olacak bir referans numarası girin. Bu bir fatura numarası, makbuz numarası veya kendi iç referansınız olabilir."
+    },
+    "description": {
+      "short": "İşlemin kısa bir açıklaması.",
+      "detailed": "Bu işlemin ne için olduğuna dair net bir açıklama sağlayın. Bu kayıt tutmaya yardımcı olur ve hesaplarınızı anlamayı kolaylaştırır."
+    },
+    "category": {
+      "short": "Uygun gider veya gelir kategorisini seçin.",
+      "detailed": "Kategoriler, işlemlerinizi vergi raporlaması için düzenlemeye yardımcı olur. Bu işlemin niteliğini en iyi tanımlayan kategoriyi seçin."
+    }
+  },
+  "invoice": {
+    "dueDate": {
+      "short": "Ödemenin alınması gereken tarih. Standart 30 gündür.",
+      "detailed": "Bu fatura için ödeme son tarihini belirleyin. İngiltere'de standart ödeme koşulları genellikle 30 gündür, ancak özel koşullar belirleyebilirsiniz. Geç ödemeler, Ticari Borçların Geç Ödenmesi Yasası kapsamında faiz gerektirebilir."
+    },
+    "invoiceNumber": {
+      "short": "Bu faturayı tanımlamak için benzersiz bir numara.",
+      "detailed": "Fatura numaraları benzersiz ve sıralı olmalıdır. HMRC, KDV amaçları için faturaların numaralandırılmasını gerektirir. Format örnekleri: INV-001, 2024/001."
+    },
+    "invoiceDate": {
+      "short": "Faturanın düzenlendiği tarih.",
+      "detailed": "Fatura tarihi KDV muhasebesi için önemlidir. Nakit muhasebesinde bu, KDV'nin ne zaman ödeneceğini belirler. Ayrıca ödeme koşulları hesaplamasını etkiler."
+    },
+    "customer": {
+      "short": "Bu fatura için müşteriyi seçin.",
+      "detailed": "Bu faturayı alacak müşteriyi seçin. Adres dahil müşteri bilgileri otomatik olarak doldurulacaktır."
+    },
+    "reference": {
+      "short": "Sipariş numarası gibi bir referans ekleyin.",
+      "detailed": "Satın alma sipariş numaraları, proje kodları veya bu faturayı tanımlamaya yardımcı olan diğer referanslar için isteğe bağlı referans alanı."
+    },
+    "currency": {
+      "short": "Bu fatura için para birimi.",
+      "detailed": "Faturanın düzenleneceği para birimini seçin. GBP'den farklıysa, KDV raporlaması için döviz kurları uygulanacaktır."
+    },
+    "discount": {
+      "short": "Bu faturaya indirim uygulayın.",
+      "detailed": "İndirimler yüzde veya sabit tutar olarak uygulanabilir. Erken ödeme indirimleri, KDV hesaplaması için HMRC kurallarına uymalıdır."
+    },
+    "notes": {
+      "short": "Faturada görünecek notlar ekleyin.",
+      "detailed": "Ödeme talimatları, banka bilgileri veya faturaya eklemek istediğiniz diğer bilgiler için bu alanı kullanın."
+    }
+  },
+  "expense": {
+    "vendor": {
+      "short": "Bu gider için tedarikçi veya satıcı.",
+      "detailed": "Mal veya hizmet satın aldığınız işletme veya kişiyi seçin veya girin. Harcamaları takip etmek ve vergi indirimleri için önemlidir."
+    },
+    "category": {
+      "short": "Bu gideri vergi amaçları için kategorize edin.",
+      "detailed": "Uygun gider kategorisini seçin. Bu, vergi indirimleri ve finansal raporlama için yardımcı olur. Yaygın kategoriler arasında ofis malzemeleri, seyahat, faturalar vb. bulunur."
+    },
+    "receipt": {
+      "short": "Bu gider için makbuz yükleyin.",
+      "detailed": "Tüm iş giderleri için makbuzları saklayın. HMRC denetim sırasında gider kanıtı isteyebilir. Orijinal makbuzlar 6 yıl süreyle saklanmalıdır."
+    },
+    "billable": {
+      "short": "Bu gider bir müşteriye faturalanabiliyorsa işaretleyin.",
+      "detailed": "Gider bir müşteriye yansıtılacaksa bunu etkinleştirin. Faturalanabilir giderler, geri ödeme için faturalara eklenebilir."
+    },
+    "paymentMethod": {
+      "short": "Bu gider nasıl ödendi?",
+      "detailed": "Kullanılan ödeme yöntemini seçin. Bu, banka hesap özetlerinizi uzlaştırmanıza ve nakit akışını takip etmenize yardımcı olur."
+    }
+  },
+  "company": {
+    "vatNumber": {
+      "short": "Şirketinizin KDV kayıt numarası.",
+      "detailed": "İngiltere KDV numaraları 'GB' ile başlar ve ardından 9 rakam gelir (örn., GB123456789). KDV numaralarını HMRC web sitesinden doğrulayabilirsiniz. KDV'ye kayıtlıysa gereklidir."
+    },
+    "companyNumber": {
+      "short": "Companies House kayıt numaranız.",
+      "detailed": "Şirketiniz kurulduğunda Companies House tarafından atanan 8 haneli şirket numarası. Limited şirketler için gereklidir."
+    },
+    "utr": {
+      "short": "Kendi Kendine Değerlendirme için Benzersiz Vergi Mükellefi Referansınız.",
+      "detailed": "HMRC tarafından kendi kendine değerlendirme vergi beyannameleri için verilen 10 haneli numara. HMRC'ye kendinizi tanımlamak için kullanıldığından bunu gizli tutun."
+    },
+    "nino": {
+      "short": "Çalışan veya yönetici için Ulusal Sigorta numarası.",
+      "detailed": "Format: AB123456C. Ulusal Sigorta primleri ve vergi amaçları için kullanılır. Bunu asla kamuya açıklamayın."
+    },
+    "payeReference": {
+      "short": "PAYE plan referansınız.",
+      "detailed": "Format: 123/AB12345. İşveren olarak kayıt olduğunuzda HMRC tarafından verilir. Bordro gönderileri için gereklidir."
+    },
+    "fiscalYearEnd": {
+      "short": "Şirketinizin mali yıl sonu tarihi.",
+      "detailed": "Şirketinizin mali yılının bittiği tarih. Şirket hesapları bu tarihten itibaren 9 ay içinde dosyalanmalıdır. Çoğu İngiltere şirketi 31 Mart veya 31 Aralık kullanır."
+    },
+    "vatScheme": {
+      "short": "Şirketiniz tarafından kullanılan KDV muhasebe planı.",
+      "detailed": "Seçenekler arasında Standart KDV, Sabit Oran Planı, Nakit Muhasebe ve Yıllık Muhasebe bulunur. Her birinin KDV'nin ne zaman raporlanacağı ve ödeneceği konusunda farklı kuralları vardır."
+    },
+    "accountingMethod": {
+      "short": "Nakit esası veya tahakkuk muhasebe yöntemi.",
+      "detailed": "Nakit esası: Geliri alındığında ve giderleri ödendiğinde kaydedin. Tahakkuk: Ödemeye bakılmaksızın fatura kesildiğinde/faturalandırıldığında kaydedin. Küçük işletmeler her ikisini de seçebilir."
+    },
+    "sicCode": {
+      "short": "Standart Endüstriyel Sınıflandırma kodu.",
+      "detailed": "Şirketinizin ana iş faaliyetini tanımlayan 5 haneli kod. Companies House dosyalamaları için gereklidir. Kodunuzu Companies House web sitesinde bulun."
+    }
+  },
+  "payment": {
+    "paymentDate": {
+      "short": "Ödemenin yapıldığı veya alındığı tarih.",
+      "detailed": "Fatura tarihi değil, gerçek ödeme tarihini kaydedin. Nakit muhasebe ve banka mutabakatı için önemlidir."
+    },
+    "paymentMethod": {
+      "short": "Ödeme nasıl yapıldı.",
+      "detailed": "Doğru banka mutabakatı için ödeme yöntemlerini takip edin. Seçenekler arasında banka havalesi, kart ödemesi, nakit, çek vb. bulunur."
+    },
+    "bankAccount": {
+      "short": "Bu ödeme için hangi banka hesabı kullanıldı.",
+      "detailed": "Bu işlem için kullanılan banka hesabını seçin. Bu, hesap mutabakatı ve nakit akışı takibi için yardımcı olur."
+    },
+    "transactionId": {
+      "short": "Banka veya ödeme sağlayıcısından referans numarası.",
+      "detailed": "Banka hesap özetinizden veya ödeme işlemcinizden işlem referansını girin. Eşleştirme ve mutabakat için kullanışlıdır."
+    }
+  },
+  "tax": {
+    "taxYear": {
+      "short": "İngiltere vergi yılı 6 Nisan'dan 5 Nisan'a kadar sürer.",
+      "detailed": "İngiltere vergi yılları 6 Nisan'dan ertesi yıl 5 Nisan'a kadar sürer. Örneğin, 2024/25 vergi yılı 6 Nisan 2024'ten 5 Nisan 2025'e kadar sürer."
+    },
+    "vatPeriod": {
+      "short": "KDV raporlama dönemi (genellikle üç aylık).",
+      "detailed": "KDV beyannameleri genellikle üç ayda bir verilir. KDV planınıza bağlı olarak aylık veya yıllık dosyalama uygulanabilir. Son tarihler için kademeli grubunuzu kontrol edin."
+    },
+    "taxCode": {
+      "short": "Çalışanın vergi kodu vergi kesintilerini belirler.",
+      "detailed": "1257L gibi vergi kodları vergiden muaf miktarı gösterir. Harfler farklı anlamlar taşır: L = standart, BR = yalnızca temel oran, K = negatif muafiyet. Kod anlamları için HMRC'yi kontrol edin."
+    },
+    "outputVat": {
+      "short": "Satışlardan alınan KDV.",
+      "detailed": "Çıktı KDV, müşterilerden satışlar üzerinden aldığınız KDV'dir. Bu, HMRC'ye borçlu olduğunuz KDV'dir, eksi geri talep edebileceğiniz girdi KDV."
+    },
+    "inputVat": {
+      "short": "Alışverişlerde ödenen KDV.",
+      "detailed": "Girdi KDV, iş alımlarında ödediğiniz KDV'dir. KDV'ye kayıtlıysanız bunu HMRC'den geri talep edebilirsiniz (bazı istisnalar hariç)."
+    }
+  },
+  "employee": {
+    "firstName": {
+      "short": "Çalışanın resmi belgelerde gösterildiği şekliyle adı.",
+      "detailed": "Çalışanın pasaport veya ehliyetinde göründüğü şekliyle yasal adını girin. Bordro ve HMRC gönderileri için kullanılır."
+    },
+    "lastName": {
+      "short": "Çalışanın resmi belgelerde gösterildiği şekliyle soyadı.",
+      "detailed": "Çalışanın yasal soyadını girin. HMRC RTI gönderileri için resmi belgelerle eşleşmelidir."
+    },
+    "nino": {
+      "short": "Çalışanın Ulusal Sigorta numarası.",
+      "detailed": "Format: AB123456C. Bordro için gereklidir. Yeni çalışanlar bunu P45'lerinden sağlamalı veya yoksa Ulusal Sigorta numarası talep etmelidir."
+    },
+    "startDate": {
+      "short": "Çalışanın ilk iş günü.",
+      "detailed": "İstihdamın başladığı tarih. Hizmet süresini, izin hakkını ve P45/P46 işlemesini hesaplamak için önemlidir."
+    },
+    "salary": {
+      "short": "Çalışanın yıllık brüt maaşı.",
+      "detailed": "Vergi ve diğer kesintilerden önceki toplam yıllık maaşı girin. Bu, aylık/haftalık ödeme, vergi ve Ulusal Sigorta hesaplamak için kullanılır."
+    },
+    "taxCode": {
+      "short": "Gelir vergisi hesaplamak için vergi kodu.",
+      "detailed": "Çalışanın P45'inden veya başlangıç kontrol listesinden vergi kodunu kullanın. HMRC, yürürlük tarihinden itibaren uygulamanız gereken farklı bir kod verebilir."
+    },
+    "pensionContribution": {
+      "short": "İşyeri emeklilik katkı yüzdesi.",
+      "detailed": "Otomatik kayıt, Nisan 2019'dan bu yana minimum %5 toplam katkı (%3 işveren, %2 çalışan) gerektirir. Daha yüksek katkılar sunabilirsiniz."
+    }
+  },
+  "bank": {
+    "sortCode": {
+      "short": "6 haneli banka sort kodu (örn., 12-34-56).",
+      "detailed": "Sort kodu bankayı ve şubeyi tanımlar. Format: XX-XX-XX veya XXXXXX. BACS ödemeleri ve doğrudan borçlar için gereklidir."
+    },
+    "accountNumber": {
+      "short": "8 haneli banka hesap numarası.",
+      "detailed": "Banka hesap numaranız. Sort kodu ile birlikte, bu İngiltere'deki banka hesabınızı benzersiz şekilde tanımlar."
+    },
+    "iban": {
+      "short": "Yurt dışı transferler için Uluslararası Banka Hesap Numarası.",
+      "detailed": "İngiltere IBAN'ları GB ile başlar ve 22 karakter uzunluğundadır. Uluslararası ödemeler ve bazı SEPA işlemleri için gereklidir."
+    },
+    "bic": {
+      "short": "Banka Tanımlayıcı Kodu (SWIFT kodu olarak da bilinir).",
+      "detailed": "Bankanızı uluslararası olarak tanımlayan 8 veya 11 karakterlik kod. Uluslararası transferler için gereklidir. Banka hesap özetinizde veya çevrimiçi bankacılıkta bulun."
+    }
+  },
+  "general": {
+    "email": {
+      "short": "Geçerli bir e-posta adresi girin.",
+      "detailed": "E-posta adresleri iletişim ve bildirimler için kullanılır. Önemli güncellemeler için bunun düzenli olarak kontrol edildiğinden emin olun."
+    },
+    "phone": {
+      "short": "İletişim telefon numarası.",
+      "detailed": "Uluslararası numaralar için ülke kodunu içeren bir telefon numarası girin (örn., +44 20 1234 5678)."
+    },
+    "address": {
+      "short": "Tam posta adresini girin.",
+      "detailed": "Bina numarası/adı, sokak, şehir ve posta kodunu ekleyin. Faturalama ve yasal yazışmalar için doğru adresler önemlidir."
+    },
+    "postcode": {
+      "short": "İngiltere posta kodu (örn., SW1A 1AA).",
+      "detailed": "Standart formatta tam İngiltere posta kodunu girin. Posta kodları adres doğrulama ve coğrafi raporlama için kullanılır."
+    },
+    "date": {
+      "short": "Bir tarih seçin veya girin.",
+      "detailed": "Tarihler İngiltere formatında (GG/AA/YYYY) görüntülenir. Takvim seçiciyi kullanın veya tarihi doğrudan yazın."
+    },
+    "currency": {
+      "short": "Bu tutar için para birimini seçin.",
+      "detailed": "GBP dışında bir para birimi kullanılıyorsa, raporlama için döviz kurları uygulanacaktır. HMRC vergi amaçları için GBP değerlerini gerektirir."
+    }
+  }
+}
