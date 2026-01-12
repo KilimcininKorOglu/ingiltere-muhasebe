@@ -21,7 +21,7 @@ const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
 const categoriesRoutes = require('./routes/categories');
-const settingsRoutes = require('./routes/settings');
+const transactionsRoutes = require('./routes/transactions');
 
 // Initialize Express app
 const app = express();
@@ -83,6 +83,7 @@ app.get('/api', (req, res) => {
       employees: '/api/employees',
       suppliers: '/api/suppliers',
       invoices: '/api/invoices',
+      transactions: '/api/transactions',
       health: '/health'
     },
     documentation: {
@@ -155,6 +156,18 @@ app.get('/api', (req, res) => {
         byType: 'GET /api/categories/type/:type',
         byCode: 'GET /api/categories/code/:code',
         getById: 'GET /api/categories/:id'
+      },
+      transactions: {
+        list: 'GET /api/transactions',
+        search: 'GET /api/transactions/search?q=:query',
+        stats: 'GET /api/transactions/stats',
+        summary: 'GET /api/transactions/summary?startDate=:date&endDate=:date',
+        vatSummary: 'GET /api/transactions/vat-summary?startDate=:date&endDate=:date',
+        getById: 'GET /api/transactions/:id',
+        create: 'POST /api/transactions',
+        update: 'PUT /api/transactions/:id',
+        updateStatus: 'PATCH /api/transactions/:id/status',
+        delete: 'DELETE /api/transactions/:id'
       }
     }
   });
@@ -173,6 +186,7 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/invoices', invoicesRoutes);
+app.use('/api/transactions', transactionsRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
