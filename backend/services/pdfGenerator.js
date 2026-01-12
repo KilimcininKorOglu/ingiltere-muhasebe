@@ -676,482 +676,610 @@ function validateInvoiceForPdf(invoice) {
   };
 }
 
-// ========================================
-// VAT RETURN PDF GENERATION
-// ========================================
+// ==========================================
+// Reconciliation Report PDF Generation
+// ==========================================
 
-const vatReturnTemplate = require('../templates/vatReturn');
-
-/**
- * Gets VAT return labels for a specific language.
- * 
- * @param {string} [lang='en'] - Language code ('en' or 'tr')
- * @returns {Object} Labels for the specified language
- */
-function getVatReturnLabels(lang = 'en') {
-  return vatReturnTemplate.getLabels(lang);
-}
+const reconciliationTemplate = require('../templates/reconciliationReport');
 
 /**
- * Draws horizontal line for VAT return PDF.
+ * Draws the reconciliation report header.
  * 
  * @param {PDFDocument} doc - PDF document instance
- * @param {number} y - Y position
- * @param {Object} [options={}] - Line options
- */
-function drawVatReturnLine(doc, y, options = {}) {
-  const {
-    startX = vatReturnTemplate.layout.margins.left,
-    endX = doc.page.width - vatReturnTemplate.layout.margins.right,
-    color = vatReturnTemplate.colors.border,
-    width = 0.5
-  } = options;
-  
-  doc.strokeColor(color)
-     .lineWidth(width)
-     .moveTo(startX, y)
-     .lineTo(endX, y)
-     .stroke();
-}
-
-/**
- * Draws the VAT return header with title and period info.
- * 
- * @param {PDFDocument} doc - PDF document instance
- * @param {Object} vatReturn - VAT return data
+ * @param {Object} reportData - Report data
  * @param {Object} labels - Language-specific labels
  * @returns {number} Y position after header
  */
-function drawVatReturnHeader(doc, vatReturn, labels) {
-  let y = vatReturnTemplate.layout.margins.top;
-  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+function drawReconciliationHeader(doc, reportData, labels) {
+  const { bankAccount, reportInfo } = reportData;
+  let y = reconciliationTemplate.layout.margins.top;
+  const pageWidth = doc.page.width - reconciliationTemplate.layout.margins.left - reconciliationTemplate.layout.margins.right;
   
   // Title
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(22)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(labels.title, vatReturnTemplate.layout.margins.left, y, { align: 'center', width: pageWidth });
-  
-  y += 30;
-  
-  // Subtitle
-  doc.font(vatReturnTemplate.fonts.italic)
-     .fontSize(10)
-     .fillColor(vatReturnTemplate.colors.textLight)
-     .text(labels.subtitle, vatReturnTemplate.layout.margins.left, y, { align: 'center', width: pageWidth });
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.title)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.title, reconciliationTemplate.layout.margins.left, y);
   
   y += 25;
   
-  // Draw separator
-  drawVatReturnLine(doc, y, { color: vatReturnTemplate.colors.primary, width: 2 });
+  // Subtitle
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.subtitle)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(labels.subtitle, reconciliationTemplate.layout.margins.left, y);
   
-  y += 15;
+  y += 30;
   
-  // Period information box
-  const boxWidth = 250;
-  const boxX = vatReturnTemplate.layout.margins.left + (pageWidth - boxWidth) / 2;
-  const boxHeight = 50;
+  // Bank account info box
+  const boxWidth = 280;
+  const boxHeight = 80;
   
-  doc.rect(boxX, y, boxWidth, boxHeight)
-     .fillColor(vatReturnTemplate.colors.background)
+  doc.rect(reconciliationTemplate.layout.margins.left, y, boxWidth, boxHeight)
+     .fillColor(reconciliationTemplate.colors.background)
      .fill();
   
-  doc.rect(boxX, y, boxWidth, boxHeight)
-     .strokeColor(vatReturnTemplate.colors.border)
+  doc.rect(reconciliationTemplate.layout.margins.left, y, boxWidth, boxHeight)
+     .strokeColor(reconciliationTemplate.colors.border)
      .lineWidth(1)
      .stroke();
   
-  // Period label
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(10)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(labels.periodLabel, boxX + 10, y + 10, { width: boxWidth - 20, align: 'center' });
+  let boxY = y + 8;
+  const boxX = reconciliationTemplate.layout.margins.left + 10;
   
-  // Period dates
-  const periodStart = formatPdfDate(vatReturn.periodStart);
-  const periodEnd = formatPdfDate(vatReturn.periodEnd);
-  doc.font(vatReturnTemplate.fonts.regular)
-     .fontSize(11)
-     .fillColor(vatReturnTemplate.colors.text)
-     .text(`${periodStart}  -  ${periodEnd}`, boxX + 10, y + 28, { width: boxWidth - 20, align: 'center' });
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.bankAccountDetails, boxX, boxY);
   
-  y += boxHeight + 15;
+  boxY += 16;
   
-  // Status and reference row
-  const statusColor = vatReturnTemplate.getStatusColor(vatReturn.status);
-  const statusText = labels.statuses[vatReturn.status] || vatReturn.status?.toUpperCase() || 'DRAFT';
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
   
-  // Left side: status
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(9)
-     .fillColor(vatReturnTemplate.colors.textLight)
-     .text(`${labels.status}: `, vatReturnTemplate.layout.margins.left, y, { continued: true });
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fillColor(statusColor)
-     .text(statusText);
+  doc.text(`${labels.accountName}: ${bankAccount.accountName}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.bankName}: ${bankAccount.bankName}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.sortCode}: ${bankAccount.sortCodeFormatted || '-'} | ${labels.accountNumber}: ${bankAccount.accountNumber}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.currency}: ${bankAccount.currency || 'GBP'}`, boxX, boxY);
   
-  // Right side: reference number
-  if (vatReturn.id) {
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(`${labels.referenceNumber}: VAT-${String(vatReturn.id).padStart(6, '0')}`, 
-             vatReturnTemplate.layout.margins.left, y, 
-             { align: 'right', width: pageWidth });
+  // Report info box (right side)
+  const rightBoxX = reconciliationTemplate.layout.margins.left + boxWidth + 20;
+  const rightBoxWidth = pageWidth - boxWidth - 20;
+  
+  doc.rect(rightBoxX, y, rightBoxWidth, boxHeight)
+     .fillColor(reconciliationTemplate.colors.background)
+     .fill();
+  
+  doc.rect(rightBoxX, y, rightBoxWidth, boxHeight)
+     .strokeColor(reconciliationTemplate.colors.border)
+     .lineWidth(1)
+     .stroke();
+  
+  boxY = y + 8;
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.reportPeriod, rightBoxX + 10, boxY);
+  
+  boxY += 16;
+  
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
+  
+  const periodStart = reportInfo.dateRange.startDate || labels.allDates;
+  const periodEnd = reportInfo.dateRange.endDate || labels.allDates;
+  
+  if (reportInfo.filterApplied) {
+    doc.text(`${labels.from}: ${formatPdfDate(periodStart)}`, rightBoxX + 10, boxY);
+    boxY += 12;
+    doc.text(`${labels.to}: ${formatPdfDate(periodEnd)}`, rightBoxX + 10, boxY);
+  } else {
+    doc.text(labels.allDates, rightBoxX + 10, boxY);
   }
   
-  y += 20;
+  boxY += 12;
+  doc.font(reconciliationTemplate.fonts.italic)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(`${labels.generatedOn}: ${formatPdfDate(reportInfo.generatedAt.split('T')[0])}`, rightBoxX + 10, boxY + 12);
   
-  return y;
+  return y + boxHeight + reconciliationTemplate.layout.sectionSpacing;
 }
 
 /**
- * Draws the business details section.
+ * Draws the reconciliation summary section.
  * 
  * @param {PDFDocument} doc - PDF document instance
- * @param {Object} businessDetails - Business details from user
+ * @param {Object} summary - Summary data
  * @param {Object} labels - Language-specific labels
  * @param {number} startY - Starting Y position
- * @returns {number} Y position after section
+ * @returns {number} Y position after summary
  */
-function drawBusinessDetailsSection(doc, businessDetails, labels, startY) {
+function drawReconciliationSummary(doc, summary, labels, startY) {
   let y = startY;
-  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
   
   // Section header
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(12)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(labels.businessDetails, vatReturnTemplate.layout.margins.left, y);
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.reconciliationSummary, reconciliationTemplate.layout.margins.left, y);
   
   y += 18;
   
-  // Draw separator
-  drawVatReturnLine(doc, y, { color: vatReturnTemplate.colors.border });
+  // Summary grid
+  const colWidth = 150;
+  const rowHeight = 35;
+  let x = reconciliationTemplate.layout.margins.left;
   
-  y += 10;
+  // Total transactions
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.totalTransactions, summary.totalTransactions.toString(), reconciliationTemplate.colors.primary);
+  x += colWidth + 10;
   
-  // Business details in two columns
-  const colWidth = pageWidth / 2 - 10;
-  const leftColX = vatReturnTemplate.layout.margins.left;
-  const rightColX = vatReturnTemplate.layout.margins.left + colWidth + 20;
+  // Reconciled
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.reconciledTransactions, summary.reconciledCount.toString(), reconciliationTemplate.colors.success);
+  x += colWidth + 10;
   
-  // Left column
-  if (businessDetails.businessName || businessDetails.name) {
-    doc.font(vatReturnTemplate.fonts.bold)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(labels.businessName, leftColX, y);
-    y += 12;
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(10)
-       .fillColor(vatReturnTemplate.colors.text)
-       .text(businessDetails.businessName || businessDetails.name, leftColX, y, { width: colWidth });
-    y += 15;
-  }
+  // Unreconciled
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.unreconciledTransactions, summary.unreconciledCount.toString(), reconciliationTemplate.colors.warning);
+  x += colWidth + 10;
   
-  if (businessDetails.businessAddress) {
-    doc.font(vatReturnTemplate.fonts.bold)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(labels.businessAddress, leftColX, y);
-    y += 12;
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.text)
-       .text(businessDetails.businessAddress, leftColX, y, { width: colWidth });
-    y += doc.heightOfString(businessDetails.businessAddress, { width: colWidth }) + 5;
-  }
+  // Excluded
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.excludedTransactions, summary.excludedCount.toString(), reconciliationTemplate.colors.muted);
+  x += colWidth + 10;
   
-  // Right column - reset Y for right column
-  let rightY = startY + 28;
+  // Progress
+  const progressColor = summary.progressPercentage === 100 ? reconciliationTemplate.colors.success : 
+                        summary.progressPercentage >= 80 ? reconciliationTemplate.colors.warning : 
+                        reconciliationTemplate.colors.error;
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.reconciliationProgress, `${summary.progressPercentage}%`, progressColor);
   
-  if (businessDetails.vatNumber) {
-    doc.font(vatReturnTemplate.fonts.bold)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(labels.vatNumber, rightColX, rightY);
-    rightY += 12;
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(10)
-       .fillColor(vatReturnTemplate.colors.text)
-       .text(businessDetails.vatNumber, rightColX, rightY);
-    rightY += 15;
-  }
-  
-  if (businessDetails.companyNumber) {
-    doc.font(vatReturnTemplate.fonts.bold)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(labels.companyNumber, rightColX, rightY);
-    rightY += 12;
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(10)
-       .fillColor(vatReturnTemplate.colors.text)
-       .text(businessDetails.companyNumber, rightColX, rightY);
-    rightY += 15;
-  }
-  
-  if (businessDetails.email) {
-    doc.font(vatReturnTemplate.fonts.bold)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.textLight)
-       .text(labels.email, rightColX, rightY);
-    rightY += 12;
-    doc.font(vatReturnTemplate.fonts.regular)
-       .fontSize(9)
-       .fillColor(vatReturnTemplate.colors.text)
-       .text(businessDetails.email, rightColX, rightY);
-    rightY += 15;
-  }
-  
-  // Use the maximum of left and right column positions
-  y = Math.max(y, rightY) + vatReturnTemplate.layout.sectionSpacing;
-  
-  return y;
+  return y + rowHeight + reconciliationTemplate.layout.sectionSpacing;
 }
 
 /**
- * Draws a single VAT box row.
+ * Helper function to draw a statistics box.
+ */
+function drawStatBox(doc, x, y, width, height, label, value, color) {
+  doc.rect(x, y, width, height)
+     .fillColor(reconciliationTemplate.colors.background)
+     .fill();
+  
+  doc.rect(x, y, width, height)
+     .strokeColor(color)
+     .lineWidth(1)
+     .stroke();
+  
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(label, x + 5, y + 5, { width: width - 10 });
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(14)
+     .fillColor(color)
+     .text(value, x + 5, y + 18, { width: width - 10 });
+}
+
+/**
+ * Draws the balance summary section.
  * 
  * @param {PDFDocument} doc - PDF document instance
- * @param {string} boxLabel - Box label (e.g., "Box 1")
- * @param {string} description - Box description
- * @param {number} amount - Amount in pence
- * @param {number} y - Y position
- * @param {Object} [options={}] - Drawing options
- * @returns {number} Y position after row
+ * @param {Object} balances - Balance data
+ * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after balances
  */
-function drawVatBoxRow(doc, boxLabel, description, amount, y, options = {}) {
-  const {
-    isHighlighted = false,
-    isPositive = true,
-    currency = 'GBP'
-  } = options;
+function drawBalanceSummary(doc, balances, labels, currency, startY) {
+  let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
   
-  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
-  const rowHeight = vatReturnTemplate.layout.boxRowHeight;
-  const leftMargin = vatReturnTemplate.layout.margins.left;
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.balanceSummary, reconciliationTemplate.layout.margins.left, y);
   
-  // Background for highlighted rows (Box 3 and Box 5)
-  if (isHighlighted) {
-    doc.rect(leftMargin, y, pageWidth, rowHeight)
-       .fillColor(vatReturnTemplate.colors.headerBg)
+  y += 18;
+  
+  // Create balance table
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [200, 100, 100, 100];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  // Header
+  doc.rect(tableX, y, tableWidth, 20)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .fill();
+  
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.white);
+  
+  doc.text('', colX + 5, y + 6, { width: colWidths[0] - 10 });
+  colX += colWidths[0];
+  doc.text(labels.credits, colX + 5, y + 6, { width: colWidths[1] - 10, align: 'right' });
+  colX += colWidths[1];
+  doc.text(labels.debits, colX + 5, y + 6, { width: colWidths[2] - 10, align: 'right' });
+  colX += colWidths[2];
+  doc.text(labels.netBalance, colX + 5, y + 6, { width: colWidths[3] - 10, align: 'right' });
+  
+  y += 20;
+  
+  // Bank statement row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.bankStatementTotals, 
+    `${symbol}${balances.bank.credits}`, `${symbol}${balances.bank.debits}`, `${symbol}${balances.bank.net}`, false);
+  
+  // Reconciled row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.reconciledTotals, 
+    `${symbol}${balances.reconciled.credits}`, `${symbol}${balances.reconciled.debits}`, `${symbol}${balances.reconciled.net}`, true);
+  
+  // Unreconciled row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.unreconciledTotals, 
+    `${symbol}${balances.unreconciled.credits}`, `${symbol}${balances.unreconciled.debits}`, `${symbol}${balances.unreconciled.net}`, false);
+  
+  // Discrepancy row
+  const discrepancyColor = balances.isBalanced ? reconciliationTemplate.colors.success : reconciliationTemplate.colors.error;
+  
+  doc.rect(tableX, y, tableWidth, 22)
+     .fillColor(reconciliationTemplate.colors.headerBg)
+     .fill();
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text)
+     .text(labels.discrepancy, tableX + 5, y + 6, { width: colWidths[0] - 10 });
+  
+  doc.fillColor(discrepancyColor)
+     .text(`${symbol}${balances.discrepancy}`, tableX + colWidths[0] + colWidths[1] + colWidths[2] + 5, y + 6, 
+       { width: colWidths[3] - 10, align: 'right' });
+  
+  // Balanced status
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(discrepancyColor)
+     .text(balances.isBalanced ? `✓ ${labels.balanced}` : `✗ ${labels.notBalanced}`, 
+       tableX + tableWidth + 20, y + 6);
+  
+  return y + 22 + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Helper function to draw a balance table row.
+ */
+function drawBalanceRow(doc, tableX, y, colWidths, label, credits, debits, net, alternate) {
+  const rowHeight = 18;
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  if (alternate) {
+    doc.rect(tableX, y, tableWidth, rowHeight)
+       .fillColor(reconciliationTemplate.colors.background)
        .fill();
   }
   
-  // Box label column
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(10)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(boxLabel, leftMargin + 10, y + 12, { width: 60 });
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
   
-  // Description column
-  doc.font(vatReturnTemplate.fonts.regular)
-     .fontSize(9)
-     .fillColor(vatReturnTemplate.colors.text)
-     .text(description, leftMargin + 75, y + 12, { width: pageWidth - 200 });
-  
-  // Amount column
-  const formattedAmount = formatMoney(Math.abs(amount), currency);
-  const displayAmount = amount < 0 ? `(${formattedAmount})` : formattedAmount;
-  const amountColor = amount < 0 ? vatReturnTemplate.colors.danger : 
-                       (isPositive ? vatReturnTemplate.colors.text : vatReturnTemplate.colors.success);
-  
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(10)
-     .fillColor(amountColor)
-     .text(displayAmount, leftMargin + pageWidth - 120, y + 12, { width: 110, align: 'right' });
-  
-  // Draw bottom border
-  drawVatReturnLine(doc, y + rowHeight, { color: vatReturnTemplate.colors.border });
+  doc.text(label, colX + 5, y + 4, { width: colWidths[0] - 10 });
+  colX += colWidths[0];
+  doc.fillColor(reconciliationTemplate.colors.credit)
+     .text(credits, colX + 5, y + 4, { width: colWidths[1] - 10, align: 'right' });
+  colX += colWidths[1];
+  doc.fillColor(reconciliationTemplate.colors.debit)
+     .text(debits, colX + 5, y + 4, { width: colWidths[2] - 10, align: 'right' });
+  colX += colWidths[2];
+  doc.fillColor(reconciliationTemplate.colors.text)
+     .text(net, colX + 5, y + 4, { width: colWidths[3] - 10, align: 'right' });
   
   return y + rowHeight;
 }
 
 /**
- * Draws a section header for VAT boxes.
+ * Draws the reconciled pairs section.
  * 
  * @param {PDFDocument} doc - PDF document instance
- * @param {string} title - Section title
- * @param {number} y - Y position
- * @returns {number} Y position after header
+ * @param {Array} pairs - Reconciled pairs data
+ * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after pairs
  */
-function drawVatSectionHeader(doc, title, y) {
-  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
-  const headerHeight = vatReturnTemplate.layout.sectionHeaderHeight;
-  const leftMargin = vatReturnTemplate.layout.margins.left;
+function drawReconciledPairs(doc, pairs, labels, currency, startY) {
+  let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
   
-  doc.rect(leftMargin, y, pageWidth, headerHeight)
-     .fillColor(vatReturnTemplate.colors.primary)
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(`${labels.reconciledPairs} (${pairs.length})`, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  if (pairs.length === 0) {
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.normal)
+       .fillColor(reconciliationTemplate.colors.textLight)
+       .text('No reconciled transactions', reconciliationTemplate.layout.margins.left, y);
+    return y + 20;
+  }
+  
+  // Table header
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [70, 140, 50, 65, 70, 140, 50, 65, 70];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  doc.rect(tableX, y, tableWidth, 20)
+     .fillColor(reconciliationTemplate.colors.primary)
      .fill();
   
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(10)
-     .fillColor(vatReturnTemplate.colors.white)
-     .text(title, leftMargin + 10, y + 8);
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.white);
   
-  return y + headerHeight;
-}
-
-/**
- * Draws all nine VAT boxes.
- * 
- * @param {PDFDocument} doc - PDF document instance
- * @param {Object} vatReturn - VAT return data
- * @param {Object} labels - Language-specific labels
- * @param {number} startY - Starting Y position
- * @returns {number} Y position after boxes
- */
-function drawVatBoxes(doc, vatReturn, labels, startY) {
-  let y = startY;
+  // Bank transaction headers
+  doc.text(labels.date, colX + 2, y + 6, { width: colWidths[0] - 4 });
+  colX += colWidths[0];
+  doc.text(labels.description, colX + 2, y + 6, { width: colWidths[1] - 4 });
+  colX += colWidths[1];
+  doc.text(labels.type, colX + 2, y + 6, { width: colWidths[2] - 4, align: 'center' });
+  colX += colWidths[2];
+  doc.text(labels.amount, colX + 2, y + 6, { width: colWidths[3] - 4, align: 'right' });
+  colX += colWidths[3];
   
-  // Main title
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(12)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(labels.vatBoxesTitle, vatReturnTemplate.layout.margins.left, y);
+  // Matched transaction headers
+  doc.text(labels.date, colX + 2, y + 6, { width: colWidths[4] - 4 });
+  colX += colWidths[4];
+  doc.text(labels.description, colX + 2, y + 6, { width: colWidths[5] - 4 });
+  colX += colWidths[5];
+  doc.text(labels.type, colX + 2, y + 6, { width: colWidths[6] - 4, align: 'center' });
+  colX += colWidths[6];
+  doc.text(labels.amount, colX + 2, y + 6, { width: colWidths[7] - 4, align: 'right' });
+  colX += colWidths[7];
+  doc.text(labels.matchType, colX + 2, y + 6, { width: colWidths[8] - 4, align: 'center' });
   
   y += 20;
   
-  // VAT Output Section (Boxes 1-3)
-  y = drawVatSectionHeader(doc, labels.vatOutputSection, y);
-  y = drawVatBoxRow(doc, labels.box1Label, labels.box1Description, vatReturn.box1 || 0, y);
-  y = drawVatBoxRow(doc, labels.box2Label, labels.box2Description, vatReturn.box2 || 0, y);
-  y = drawVatBoxRow(doc, labels.box3Label, labels.box3Description, vatReturn.box3 || 0, y, { isHighlighted: true });
+  // Draw rows
+  let alternate = false;
+  for (const pair of pairs) {
+    // Check for page break
+    if (y + 16 > doc.page.height - reconciliationTemplate.layout.margins.bottom - 30) {
+      doc.addPage({ layout: 'landscape' });
+      y = reconciliationTemplate.layout.margins.top;
+    }
+    
+    if (alternate) {
+      doc.rect(tableX, y, tableWidth, 16)
+         .fillColor(reconciliationTemplate.colors.background)
+         .fill();
+    }
+    
+    colX = tableX;
+    doc.font(reconciliationTemplate.fonts.regular)
+       .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+       .fillColor(reconciliationTemplate.colors.text);
+    
+    // Bank transaction
+    doc.text(formatPdfDate(pair.bankDate), colX + 2, y + 4, { width: colWidths[0] - 4 });
+    colX += colWidths[0];
+    doc.text(truncateText(pair.bankDescription, 25), colX + 2, y + 4, { width: colWidths[1] - 4 });
+    colX += colWidths[1];
+    const bankTypeColor = pair.bankType === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(bankTypeColor)
+       .text(pair.bankType.charAt(0).toUpperCase(), colX + 2, y + 4, { width: colWidths[2] - 4, align: 'center' });
+    colX += colWidths[2];
+    doc.text(`${symbol}${pair.bankAmount}`, colX + 2, y + 4, { width: colWidths[3] - 4, align: 'right' });
+    colX += colWidths[3];
+    
+    // Matched transaction
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(formatPdfDate(pair.appDate), colX + 2, y + 4, { width: colWidths[4] - 4 });
+    colX += colWidths[4];
+    doc.text(truncateText(pair.appDescription, 25), colX + 2, y + 4, { width: colWidths[5] - 4 });
+    colX += colWidths[5];
+    const appTypeColor = pair.appType === 'income' || pair.appType === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(appTypeColor)
+       .text(pair.appType.charAt(0).toUpperCase(), colX + 2, y + 4, { width: colWidths[6] - 4, align: 'center' });
+    colX += colWidths[6];
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(`${symbol}${pair.appAmount}`, colX + 2, y + 4, { width: colWidths[7] - 4, align: 'right' });
+    colX += colWidths[7];
+    doc.fillColor(reconciliationTemplate.colors.success)
+       .text(reconciliationTemplate.getMatchTypeName(pair.matchType, 'en').split(' ')[0], colX + 2, y + 4, 
+         { width: colWidths[8] - 4, align: 'center' });
+    
+    y += 16;
+    alternate = !alternate;
+  }
   
-  y += 10;
-  
-  // VAT Input Section (Box 4)
-  y = drawVatSectionHeader(doc, labels.vatInputSection, y);
-  y = drawVatBoxRow(doc, labels.box4Label, labels.box4Description, vatReturn.box4 || 0, y);
-  
-  y += 10;
-  
-  // VAT Summary Section (Box 5)
-  y = drawVatSectionHeader(doc, labels.vatSummarySection, y);
-  const box5Value = vatReturn.box5 || 0;
-  const box5Label = box5Value >= 0 ? labels.netVatPayable : labels.netVatRefund;
-  y = drawVatBoxRow(doc, labels.box5Label, labels.box5Description, box5Value, y, { 
-    isHighlighted: true,
-    isPositive: box5Value >= 0
-  });
-  
-  y += 10;
-  
-  // Sales and Purchases Section (Boxes 6-7)
-  y = drawVatSectionHeader(doc, labels.salesPurchasesSection, y);
-  y = drawVatBoxRow(doc, labels.box6Label, labels.box6Description, vatReturn.box6 || 0, y);
-  y = drawVatBoxRow(doc, labels.box7Label, labels.box7Description, vatReturn.box7 || 0, y);
-  
-  y += 10;
-  
-  // EU Trade Section (Boxes 8-9)
-  y = drawVatSectionHeader(doc, labels.euTradeSection, y);
-  y = drawVatBoxRow(doc, labels.box8Label, labels.box8Description, vatReturn.box8 || 0, y);
-  y = drawVatBoxRow(doc, labels.box9Label, labels.box9Description, vatReturn.box9 || 0, y);
-  
-  return y + vatReturnTemplate.layout.sectionSpacing;
+  return y + reconciliationTemplate.layout.sectionSpacing;
 }
 
 /**
- * Draws the notes section.
+ * Draws the unreconciled items section.
  * 
  * @param {PDFDocument} doc - PDF document instance
- * @param {string} notes - Notes text
+ * @param {Array} items - Unreconciled items data
  * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
  * @param {number} startY - Starting Y position
- * @returns {number} Y position after notes
+ * @returns {number} Y position after items
  */
-function drawVatReturnNotes(doc, notes, labels, startY) {
-  if (!notes) return startY;
-  
+function drawUnreconciledItems(doc, items, labels, currency, startY) {
   let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
   
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(10)
-     .fillColor(vatReturnTemplate.colors.primary)
-     .text(labels.notes, vatReturnTemplate.layout.margins.left, y);
+  // Check for page break
+  if (y + 50 > doc.page.height - reconciliationTemplate.layout.margins.bottom) {
+    doc.addPage({ layout: 'landscape' });
+    y = reconciliationTemplate.layout.margins.top;
+  }
   
-  y += 15;
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.warning)
+     .text(`${labels.unreconciledItems} (${items.length})`, reconciliationTemplate.layout.margins.left, y);
   
-  doc.font(vatReturnTemplate.fonts.regular)
-     .fontSize(9)
-     .fillColor(vatReturnTemplate.colors.text)
-     .text(notes, vatReturnTemplate.layout.margins.left, y, { 
-       width: doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right 
-     });
+  y += 18;
   
-  y += doc.heightOfString(notes, { 
-    width: doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right 
-  }) + vatReturnTemplate.layout.sectionSpacing;
+  if (items.length === 0) {
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.normal)
+       .fillColor(reconciliationTemplate.colors.success)
+       .text(labels.noUnreconciled, reconciliationTemplate.layout.margins.left, y);
+    return y + 20;
+  }
   
-  return y;
-}
-
-/**
- * Draws the disclaimer footer.
- * 
- * @param {PDFDocument} doc - PDF document instance
- * @param {Object} labels - Language-specific labels
- */
-function drawVatReturnFooter(doc, labels) {
-  const bottomY = doc.page.height - vatReturnTemplate.layout.margins.bottom;
-  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  // Table header
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [80, 200, 80, 60, 80, 200];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
   
-  // Draw separator
-  drawVatReturnLine(doc, bottomY - 55, { color: vatReturnTemplate.colors.warning, width: 1 });
-  
-  // Disclaimer box
-  doc.rect(vatReturnTemplate.layout.margins.left, bottomY - 52, pageWidth, 45)
-     .fillColor('#fff8f0')  // Light warning background
+  doc.rect(tableX, y, tableWidth, 18)
+     .fillColor(reconciliationTemplate.colors.warning)
      .fill();
   
-  doc.font(vatReturnTemplate.fonts.bold)
-     .fontSize(7)
-     .fillColor(vatReturnTemplate.colors.warning)
-     .text(labels.disclaimer, vatReturnTemplate.layout.margins.left + 10, bottomY - 48, {
-       width: pageWidth - 20,
-       align: 'justify'
-     });
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.white);
   
-  // Generation timestamp
-  const timestamp = new Date().toISOString().split('T')[0];
-  doc.font(vatReturnTemplate.fonts.regular)
-     .fontSize(7)
-     .fillColor(vatReturnTemplate.colors.textLight)
-     .text(`${labels.generatedOn}: ${formatPdfDate(timestamp)} | ${labels.thankYou}`, 
-           vatReturnTemplate.layout.margins.left, bottomY - 5, {
-             width: pageWidth,
-             align: 'center'
-           });
+  doc.text(labels.date, colX + 2, y + 5, { width: colWidths[0] - 4 });
+  colX += colWidths[0];
+  doc.text(labels.description, colX + 2, y + 5, { width: colWidths[1] - 4 });
+  colX += colWidths[1];
+  doc.text(labels.reference, colX + 2, y + 5, { width: colWidths[2] - 4 });
+  colX += colWidths[2];
+  doc.text(labels.type, colX + 2, y + 5, { width: colWidths[3] - 4, align: 'center' });
+  colX += colWidths[3];
+  doc.text(labels.amount, colX + 2, y + 5, { width: colWidths[4] - 4, align: 'right' });
+  colX += colWidths[4];
+  doc.text(labels.notes, colX + 2, y + 5, { width: colWidths[5] - 4 });
+  
+  y += 18;
+  
+  // Draw rows (limit to first 50 to avoid overly long PDFs)
+  const displayItems = items.slice(0, 50);
+  let alternate = false;
+  
+  for (const item of displayItems) {
+    if (y + 14 > doc.page.height - reconciliationTemplate.layout.margins.bottom - 30) {
+      doc.addPage({ layout: 'landscape' });
+      y = reconciliationTemplate.layout.margins.top;
+    }
+    
+    if (alternate) {
+      doc.rect(tableX, y, tableWidth, 14)
+         .fillColor(reconciliationTemplate.colors.background)
+         .fill();
+    }
+    
+    colX = tableX;
+    doc.font(reconciliationTemplate.fonts.regular)
+       .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+       .fillColor(reconciliationTemplate.colors.text);
+    
+    doc.text(formatPdfDate(item.date), colX + 2, y + 3, { width: colWidths[0] - 4 });
+    colX += colWidths[0];
+    doc.text(truncateText(item.description, 35), colX + 2, y + 3, { width: colWidths[1] - 4 });
+    colX += colWidths[1];
+    doc.text(truncateText(item.reference, 12), colX + 2, y + 3, { width: colWidths[2] - 4 });
+    colX += colWidths[2];
+    const typeColor = item.type === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(typeColor)
+       .text(item.type.charAt(0).toUpperCase(), colX + 2, y + 3, { width: colWidths[3] - 4, align: 'center' });
+    colX += colWidths[3];
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(`${symbol}${item.amount}`, colX + 2, y + 3, { width: colWidths[4] - 4, align: 'right' });
+    colX += colWidths[4];
+    doc.text(truncateText(item.notes, 35), colX + 2, y + 3, { width: colWidths[5] - 4 });
+    
+    y += 14;
+    alternate = !alternate;
+  }
+  
+  if (items.length > 50) {
+    y += 5;
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.small)
+       .fillColor(reconciliationTemplate.colors.textLight)
+       .text(`... and ${items.length - 50} more unreconciled items`, reconciliationTemplate.layout.margins.left, y);
+    y += 12;
+  }
+  
+  return y + reconciliationTemplate.layout.sectionSpacing;
 }
 
 /**
- * Generates a PDF document for a VAT return.
+ * Draws the report footer.
  * 
- * @param {Object} vatReturn - VAT return data with all nine boxes
- * @param {Object} businessDetails - Business/company details from user profile
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} labels - Language-specific labels
+ */
+function drawReconciliationFooter(doc, labels) {
+  const bottomY = doc.page.height - reconciliationTemplate.layout.margins.bottom - 20;
+  
+  doc.moveTo(reconciliationTemplate.layout.margins.left, bottomY)
+     .lineTo(doc.page.width - reconciliationTemplate.layout.margins.right, bottomY)
+     .strokeColor(reconciliationTemplate.colors.border)
+     .lineWidth(0.5)
+     .stroke();
+  
+  doc.font(reconciliationTemplate.fonts.italic)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(labels.auditPurpose, reconciliationTemplate.layout.margins.left, bottomY + 5, {
+       width: doc.page.width - reconciliationTemplate.layout.margins.left - reconciliationTemplate.layout.margins.right,
+       align: 'center'
+     });
+}
+
+/**
+ * Helper function to truncate text.
+ */
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+}
+
+/**
+ * Generates a PDF document for a reconciliation report.
+ * 
+ * @param {Object} reportData - Report data from reconciliationReportService.getReportDataForPdf()
  * @param {Object} [options={}] - Generation options
  * @param {string} [options.lang='en'] - Language code ('en' or 'tr')
  * @returns {Promise<Buffer>} PDF document as a buffer
  */
-async function generateVatReturnPdf(vatReturn, businessDetails, options = {}) {
+async function generateReconciliationReportPdf(reportData, options = {}) {
   const { lang = 'en' } = options;
-  const labels = getVatReturnLabels(lang);
+  const labels = reconciliationTemplate.getLabels(lang);
   
   return new Promise((resolve, reject) => {
     try {
-      // Create PDF document
+      // Create PDF document in landscape orientation for better table display
       const doc = new PDFDocument({
-        size: vatReturnTemplate.layout.pageSize,
-        margins: vatReturnTemplate.layout.margins,
+        size: reconciliationTemplate.layout.pageSize,
+        layout: 'landscape',
+        margins: reconciliationTemplate.layout.margins,
         info: {
-          Title: `${labels.title} - ${formatPdfDate(vatReturn.periodStart)} to ${formatPdfDate(vatReturn.periodEnd)}`,
-          Author: businessDetails.businessName || businessDetails.name || 'Company',
-          Subject: `VAT Return for period ${vatReturn.periodStart} to ${vatReturn.periodEnd}`,
-          Keywords: 'vat, return, hmrc, uk, tax',
-          Creator: 'UK Pre-Accounting System'
+          Title: `${labels.title} - ${reportData.bankAccount.accountName}`,
+          Author: 'UK Accounting System',
+          Subject: labels.subtitle,
+          Keywords: 'reconciliation, bank, audit, report',
+          Creator: 'UK Accounting System'
         }
       });
       
@@ -1161,14 +1289,24 @@ async function generateVatReturnPdf(vatReturn, businessDetails, options = {}) {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
       
-      // Draw VAT return sections
-      let y = drawVatReturnHeader(doc, vatReturn, labels);
-      y = drawBusinessDetailsSection(doc, businessDetails, labels, y);
-      y = drawVatBoxes(doc, vatReturn, labels, y);
-      y = drawVatReturnNotes(doc, vatReturn.notes, labels, y);
+      const currency = reportData.bankAccount.currency || 'GBP';
+      
+      // Draw report sections
+      let y = drawReconciliationHeader(doc, reportData, labels);
+      y = drawReconciliationSummary(doc, reportData.summary, labels, y);
+      y = drawBalanceSummary(doc, reportData.balances, labels, currency, y);
+      
+      // New page for reconciled pairs if needed
+      if (reportData.reconciledPairs.length > 0 && y > doc.page.height - 200) {
+        doc.addPage({ layout: 'landscape' });
+        y = reconciliationTemplate.layout.margins.top;
+      }
+      
+      y = drawReconciledPairs(doc, reportData.reconciledPairs, labels, currency, y);
+      y = drawUnreconciledItems(doc, reportData.unreconciledTransactions, labels, currency, y);
       
       // Draw footer on last page
-      drawVatReturnFooter(doc, labels);
+      drawReconciliationFooter(doc, labels);
       
       // Finalize the document
       doc.end();
@@ -1180,33 +1318,29 @@ async function generateVatReturnPdf(vatReturn, businessDetails, options = {}) {
 }
 
 /**
- * Validates that a VAT return has all required data for PDF generation.
+ * Validates that report data has all required fields for PDF generation.
  * 
- * @param {Object} vatReturn - VAT return data to validate
+ * @param {Object} reportData - Report data to validate
  * @returns {{isValid: boolean, errors: string[]}} Validation result
  */
-function validateVatReturnForPdf(vatReturn) {
+function validateReportDataForPdf(reportData) {
   const errors = [];
   
-  if (!vatReturn) {
-    errors.push('VAT return data is required');
+  if (!reportData) {
+    errors.push('Report data is required');
     return { isValid: false, errors };
   }
   
-  if (!vatReturn.periodStart) {
-    errors.push('Period start date is required');
+  if (!reportData.bankAccount) {
+    errors.push('Bank account data is required');
   }
   
-  if (!vatReturn.periodEnd) {
-    errors.push('Period end date is required');
+  if (!reportData.summary) {
+    errors.push('Summary data is required');
   }
   
-  // Check that at least box values are present (can be 0)
-  const boxKeys = ['box1', 'box2', 'box3', 'box4', 'box5', 'box6', 'box7', 'box8', 'box9'];
-  for (const key of boxKeys) {
-    if (vatReturn[key] === undefined || vatReturn[key] === null) {
-      errors.push(`${key} value is required`);
-    }
+  if (!reportData.balances) {
+    errors.push('Balance data is required');
   }
   
   return {
@@ -1216,15 +1350,17 @@ function validateVatReturnForPdf(vatReturn) {
 }
 
 module.exports = {
+  // Invoice PDF
   generateInvoicePdf,
   validateInvoiceForPdf,
   
-  // VAT Return PDF functions
-  generateVatReturnPdf,
-  validateVatReturnForPdf,
+  // Reconciliation Report PDF
+  generateReconciliationReportPdf,
+  validateReportDataForPdf,
   
   // Export helper functions for testing
   formatMoney,
   formatPdfDate,
-  calculateVatBreakdown
+  calculateVatBreakdown,
+  truncateText
 };
