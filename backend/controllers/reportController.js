@@ -1,13 +1,14 @@
 /**
  * Report Controller
- * Handles report generation operations including PAYE summary reports
- * and Profit & Loss (Income Statement) reports.
+ * Handles report generation operations including PAYE summary reports,
+ * Profit & Loss (Income Statement) reports, and Balance Sheet reports.
  * 
  * @module controllers/reportController
  */
 
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
+const balanceSheetService = require('../services/balanceSheetService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -647,6 +648,323 @@ function getProfitLossByQuarter(req, res) {
   }
 }
 
+// =====================================
+// Balance Sheet Report Functions
+// =====================================
+
+/**
+ * Generates a Balance Sheet report for a specific as-of date.
+ * GET /api/reports/balance-sheet
+ * 
+ * Query Parameters:
+ * - asOfDate: The as-of date in YYYY-MM-DD format (required)
+ * - includeComparison: Whether to include previous period comparison (optional, default: false)
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.query - Query parameters
+ * @param {Object} res - Express response object
+ */
+function getBalanceSheet(req, res) {
+  try {
+    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const userId = req.user.id;
+    
+    const { asOfDate } = req.query;
+    
+    // Validate required parameters
+    if (!asOfDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'As-of date is required',
+            tr: 'Bilanço tarihi gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate date format
+    const validation = balanceSheetService.validateAsOfDate(asOfDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: validation.error,
+            tr: validation.error
+          }
+        }
+      });
+    }
+    
+    // Generate the Balance Sheet report
+    const report = balanceSheetService.generateBalanceSheetReport(userId, asOfDate, {
+      includeComparison: includeComparison === 'true' || includeComparison === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'balance-sheet'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Balance Sheet error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Balance Sheet report for a specific tax year end.
+ * GET /api/reports/balance-sheet/tax-year/:taxYear
+ * 
+ * URL Parameters:
+ * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getBalanceSheetByTaxYear(req, res) {
+  try {
+    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const userId = req.user.id;
+    
+    const { taxYear } = req.params;
+    
+    // Validate tax year format
+    const taxYearRegex = /^\d{4}-\d{2}$/;
+    if (!taxYear || !taxYearRegex.test(taxYear)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid tax year format. Use YYYY-YY (e.g., 2025-26)',
+            tr: 'Geçersiz vergi yılı formatı. YYYY-YY kullanın (örn. 2025-26)'
+          }
+        }
+      });
+    }
+    
+    // Validate tax year parts
+    const [startYear, endYearPart] = taxYear.split('-');
+    const expectedEndYear = String(parseInt(startYear, 10) + 1).slice(-2);
+    if (endYearPart !== expectedEndYear) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: `Invalid tax year. Expected ${startYear}-${expectedEndYear}`,
+            tr: `Geçersiz vergi yılı. Beklenen: ${startYear}-${expectedEndYear}`
+          }
+        }
+      });
+    }
+    
+    // Generate the Balance Sheet report for tax year end
+    const report = balanceSheetService.generateBalanceSheetForTaxYear(userId, taxYear, {
+      includeComparison: includeComparison === 'true' || includeComparison === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'balance-sheet-tax-year'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Balance Sheet by tax year error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Balance Sheet report for a specific month end.
+ * GET /api/reports/balance-sheet/monthly/:year/:month
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025)
+ * - month: The month (1-12)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getBalanceSheetByMonth(req, res) {
+  try {
+    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    const month = parseInt(req.params.month, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate month
+    if (isNaN(month) || month < 1 || month > 12) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid month. Must be between 1 and 12',
+            tr: 'Geçersiz ay. 1 ile 12 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Balance Sheet report for the month end
+    const report = balanceSheetService.generateBalanceSheetForMonth(userId, year, month, {
+      includeComparison: includeComparison === 'true' || includeComparison === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'balance-sheet-monthly',
+        monthName: balanceSheetService.getMonthName(month)
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Balance Sheet by month error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Balance Sheet report for a specific quarter end.
+ * GET /api/reports/balance-sheet/quarterly/:year/:quarter
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025)
+ * - quarter: The quarter (1-4)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getBalanceSheetByQuarter(req, res) {
+  try {
+    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    const quarter = parseInt(req.params.quarter, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate quarter
+    if (isNaN(quarter) || quarter < 1 || quarter > 4) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid quarter. Must be between 1 and 4',
+            tr: 'Geçersiz çeyrek. 1 ile 4 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Balance Sheet report for the quarter end
+    const report = balanceSheetService.generateBalanceSheetForQuarter(userId, year, quarter, {
+      includeComparison: includeComparison === 'true' || includeComparison === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'balance-sheet-quarterly',
+        quarter: quarter,
+        quarterName: `Q${quarter}`
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Balance Sheet by quarter error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   // PAYE Summary reports
   getPayeSummary,
@@ -658,5 +976,11 @@ module.exports = {
   getProfitLoss,
   getProfitLossByTaxYear,
   getProfitLossByMonth,
-  getProfitLossByQuarter
+  getProfitLossByQuarter,
+  
+  // Balance Sheet reports
+  getBalanceSheet,
+  getBalanceSheetByTaxYear,
+  getBalanceSheetByMonth,
+  getBalanceSheetByQuarter
 };
