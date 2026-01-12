@@ -21,16 +21,8 @@ import enTranslation from '../locales/en/translation.json';
 import trTranslation from '../locales/tr/translation.json';
 import enWarnings from '../locales/en/warnings.json';
 import trWarnings from '../locales/tr/warnings.json';
-import enCommon from '../locales/en/common.json';
-import trCommon from '../locales/tr/common.json';
-import enNavigation from '../locales/en/navigation.json';
-import trNavigation from '../locales/tr/navigation.json';
-import enForms from '../locales/en/forms.json';
-import trForms from '../locales/tr/forms.json';
-import enHelp from '../locales/en/help.json';
-import trHelp from '../locales/tr/help.json';
-import enGuides from '../locales/en/guides.json';
-import trGuides from '../locales/tr/guides.json';
+import enErrors from '../locales/en/errors.json';
+import trErrors from '../locales/tr/errors.json';
 
 /**
  * Translation resources organized by language and namespace
@@ -39,20 +31,12 @@ const resources = {
   en: {
     translation: enTranslation,
     warnings: enWarnings,
-    common: enCommon,
-    navigation: enNavigation,
-    forms: enForms,
-    help: enHelp,
-    guides: enGuides,
+    errors: enErrors,
   },
   tr: {
     translation: trTranslation,
     warnings: trWarnings,
-    common: trCommon,
-    navigation: trNavigation,
-    forms: trForms,
-    help: trHelp,
-    guides: trGuides,
+    errors: trErrors,
   },
 };
 
@@ -79,7 +63,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE, 'warnings', 'common', 'navigation', 'forms', 'help', 'guides'],
+    ns: [DEFAULT_NAMESPACE, 'warnings', 'errors'],
 
     // Language detection configuration
     detection: {
