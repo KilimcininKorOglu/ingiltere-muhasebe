@@ -17,7 +17,8 @@ const {
   remove,
   changeStatus,
   getStats,
-  getOverdue
+  getOverdue,
+  generatePdf
 } = require('../controllers/invoiceController');
 
 const { authenticate } = require('../middleware/auth');
@@ -62,6 +63,30 @@ router.get('/overdue', authenticate, getOverdue);
  * @returns { success: true, data: { invoices: InvoiceData[], total: number, page: number, limit: number } }
  */
 router.get('/', authenticate, list);
+
+/**
+ * @route   GET /api/invoices/:id/pdf
+ * @desc    Generate and download a PDF for an invoice
+ * @header  Authorization: Bearer <token>
+ * @param   id - Invoice ID
+ * @query   lang - Language for PDF ('en' or 'tr', default: 'en')
+ * @access  Private
+ * @returns PDF file with Content-Type: application/pdf
+ * 
+ * @notes   The generated PDF includes:
+ *          - UK-compliant invoice format with all required fields
+ *          - Company/business details from user profile
+ *          - Customer billing information
+ *          - Line items with VAT breakdown by rate
+ *          - Subtotal, VAT total, and grand total
+ *          - Invoice status indicator
+ *          - Bilingual support (English/Turkish)
+ * 
+ * @example
+ * GET /api/invoices/1/pdf?lang=en
+ * // Returns: invoice-INV-2026-0001.pdf
+ */
+router.get('/:id/pdf', authenticate, generatePdf);
 
 /**
  * @route   GET /api/invoices/:id

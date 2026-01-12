@@ -1033,6 +1033,128 @@ async function getOverdue(req, res) {
   }
 }
 
+/**
+ * Generates a PDF for an invoice.
+ * GET /api/invoices/:id/pdf
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Invoice ID
+ * @param {Object} req.query.lang - Language for PDF ('en' or 'tr')
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function generatePdf(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const invoice = findById(parseInt(id, 10));
+
+    if (!invoice) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'Invoice not found',
+            tr: 'Fatura bulunamadı'
+          }
+        }
+      });
+    }
+
+    // Check ownership
+    if (invoice.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get line items
+    const items = getByInvoiceId(invoice.id);
+    
+    // Get user/business details for the invoice header
+    const { findById: findUserById } = require('../database/models/User');
+    const user = findUserById(userId);
+    
+    if (!user) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+          message: {
+            en: 'Failed to retrieve business details',
+            tr: 'İşletme bilgileri alınamadı'
+          }
+        }
+      });
+    }
+
+    // Prepare business details for PDF
+    const businessDetails = {
+      name: user.name,
+      businessName: user.businessName,
+      businessAddress: user.businessAddress,
+      email: user.email,
+      vatNumber: user.vatNumber,
+      companyNumber: user.companyNumber,
+      isVatRegistered: user.isVatRegistered
+    };
+
+    // Prepare invoice data with items
+    const invoiceData = {
+      ...invoice,
+      items
+    };
+
+    // Validate invoice data for PDF generation
+    const { generateInvoicePdf, validateInvoiceForPdf } = require('../services/pdfGenerator');
+    
+    const validation = validateInvoiceForPdf(invoiceData);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invoice data is incomplete for PDF generation',
+            tr: 'PDF oluşturmak için fatura verileri eksik'
+          },
+          details: validation.errors.map(error => ({ message: error }))
+        }
+      });
+    }
+
+    // Generate PDF
+    const pdfBuffer = await generateInvoicePdf(invoiceData, businessDetails, { lang });
+
+    // Set response headers for PDF download
+    const filename = `invoice-${invoice.invoiceNumber}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+
+    // Send PDF
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Generate invoice PDF error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   create,
   getById,
@@ -1042,6 +1164,7 @@ module.exports = {
   changeStatus,
   getStats,
   getOverdue,
+  generatePdf,
   // Export helpers for testing
   formatCustomerAddress,
   getValidStatusTransitions
