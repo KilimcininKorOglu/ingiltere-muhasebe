@@ -45,6 +45,12 @@ coverage/
 .coverage
 .nyc_output/
 
+# Database
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+data/
+
 # Misc
 *.tmp
 *.temp
