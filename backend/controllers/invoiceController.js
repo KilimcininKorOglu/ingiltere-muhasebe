@@ -18,6 +18,7 @@ const {
   getByStatus,
   getOverdueInvoices,
   getStatusCounts,
+  isInvoiceOverdue,
   INVOICE_STATUSES
 } = require('../database/models/Invoice');
 
@@ -283,12 +284,45 @@ async function getById(req, res) {
 
     // Get line items
     const items = getByInvoiceId(invoice.id);
+    
+    // Look up customer details if we can find matching customer by name
+    let customer = null;
+    if (invoice.customerName) {
+      const { getCustomersByUserId } = require('../database/models/Customer');
+      const customerResult = getCustomersByUserId(userId, { 
+        search: invoice.customerName, 
+        limit: 1 
+      });
+      if (customerResult.customers.length > 0 && 
+          customerResult.customers[0].name === invoice.customerName) {
+        const c = customerResult.customers[0];
+        customer = {
+          id: c.id,
+          customerNumber: c.customerNumber,
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          vatNumber: c.vatNumber,
+          addressLine1: c.addressLine1,
+          addressLine2: c.addressLine2,
+          city: c.city,
+          county: c.county,
+          postcode: c.postcode,
+          country: c.country
+        };
+      }
+    }
+    
+    // Calculate if invoice is overdue
+    const overdueStatus = isInvoiceOverdue(invoice);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: {
         ...invoice,
-        items
+        isOverdue: overdueStatus,
+        items,
+        customer
       },
       meta: {
         language: lang,
@@ -314,7 +348,7 @@ async function getById(req, res) {
  * GET /api/invoices
  * 
  * @param {Object} req - Express request object
- * @param {Object} req.query - Query parameters (page, limit, status, sortBy, sortOrder)
+ * @param {Object} req.query - Query parameters (page, limit, status, customerId, dateFrom, dateTo, search, sortBy, sortOrder)
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} res - Express response object
  */
@@ -327,6 +361,10 @@ async function list(req, res) {
       page = 1,
       limit = 10,
       status,
+      customerId,
+      dateFrom,
+      dateTo,
+      search,
       sortBy = 'issueDate',
       sortOrder = 'DESC'
     } = req.query;
@@ -335,6 +373,10 @@ async function list(req, res) {
       page: parseInt(page, 10),
       limit: parseInt(limit, 10),
       status,
+      customerId: customerId ? parseInt(customerId, 10) : undefined,
+      dateFrom,
+      dateTo,
+      search,
       sortBy,
       sortOrder
     });

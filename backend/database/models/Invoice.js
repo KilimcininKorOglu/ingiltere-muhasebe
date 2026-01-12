@@ -425,15 +425,19 @@ function findByInvoiceNumber(invoiceNumber) {
  * @param {number} [options.page=1] - Page number
  * @param {number} [options.limit=10] - Items per page
  * @param {string} [options.status] - Filter by status
+ * @param {number} [options.customerId] - Filter by customer ID (matches invoices by customer name)
+ * @param {string} [options.dateFrom] - Filter by issue date from (YYYY-MM-DD)
+ * @param {string} [options.dateTo] - Filter by issue date to (YYYY-MM-DD)
+ * @param {string} [options.search] - Search in invoice number and customer name
  * @param {string} [options.sortBy='issueDate'] - Sort field
  * @param {string} [options.sortOrder='DESC'] - Sort order
  * @returns {{invoices: InvoiceData[], total: number, page: number, limit: number}}
  */
-function getInvoicesByUserId(userId, { page = 1, limit = 10, status, sortBy = 'issueDate', sortOrder = 'DESC' } = {}) {
+function getInvoicesByUserId(userId, { page = 1, limit = 10, status, customerId, dateFrom, dateTo, search, sortBy = 'issueDate', sortOrder = 'DESC' } = {}) {
   const offset = (page - 1) * limit;
   
   // Validate sortBy to prevent SQL injection
-  const validSortFields = ['issueDate', 'dueDate', 'invoiceNumber', 'totalAmount', 'status', 'createdAt'];
+  const validSortFields = ['issueDate', 'dueDate', 'invoiceNumber', 'totalAmount', 'status', 'createdAt', 'customerName'];
   const safeSortBy = validSortFields.includes(sortBy) ? sortBy : 'issueDate';
   const safeSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
   
@@ -443,6 +447,33 @@ function getInvoicesByUserId(userId, { page = 1, limit = 10, status, sortBy = 'i
   if (status && INVOICE_STATUSES.includes(status)) {
     whereClause += ' AND status = ?';
     params.push(status);
+  }
+  
+  // Filter by customer ID (look up customer name first if customerId is provided)
+  if (customerId) {
+    const customer = queryOne('SELECT name FROM customers WHERE id = ?', [customerId]);
+    if (customer) {
+      whereClause += ' AND customerName = ?';
+      params.push(customer.name);
+    }
+  }
+  
+  // Filter by date range
+  if (dateFrom) {
+    whereClause += ' AND issueDate >= ?';
+    params.push(dateFrom);
+  }
+  
+  if (dateTo) {
+    whereClause += ' AND issueDate <= ?';
+    params.push(dateTo);
+  }
+  
+  // Search by invoice number or customer name
+  if (search && search.trim()) {
+    const searchTerm = `%${search.trim()}%`;
+    whereClause += ' AND (invoiceNumber LIKE ? OR customerName LIKE ?)';
+    params.push(searchTerm, searchTerm);
   }
   
   const invoices = query(
@@ -455,13 +486,36 @@ function getInvoicesByUserId(userId, { page = 1, limit = 10, status, sortBy = 'i
     params
   );
   const total = totalResult?.count || 0;
+  
+  // Add isOverdue flag to each invoice
+  const today = new Date().toISOString().split('T')[0];
+  const invoicesWithOverdue = invoices.map(invoice => ({
+    ...invoice,
+    isOverdue: isInvoiceOverdue(invoice, today)
+  }));
 
   return {
-    invoices,
+    invoices: invoicesWithOverdue,
     total,
     page,
     limit
   };
+}
+
+/**
+ * Checks if an invoice is overdue.
+ * An invoice is overdue if it's pending and the due date is in the past.
+ * 
+ * @param {InvoiceData} invoice - Invoice data
+ * @param {string} [today] - Today's date in YYYY-MM-DD format (for testing)
+ * @returns {boolean} True if the invoice is overdue
+ */
+function isInvoiceOverdue(invoice, today) {
+  if (!today) {
+    today = new Date().toISOString().split('T')[0];
+  }
+  // Invoice is overdue if status is pending/overdue and dueDate is past
+  return (invoice.status === 'pending' || invoice.status === 'overdue') && invoice.dueDate < today;
 }
 
 /**
@@ -770,6 +824,7 @@ module.exports = {
   // Calculations
   recalculateTotals,
   generateInvoiceNumber,
+  isInvoiceOverdue,
   
   // Validation
   validateInvoiceData,

@@ -50,7 +50,11 @@ router.get('/overdue', authenticate, getOverdue);
  * @query   page - Page number (default: 1)
  * @query   limit - Items per page (default: 10)
  * @query   status - Filter by status (draft, pending, paid, overdue, cancelled, refunded)
- * @query   sortBy - Sort field (issueDate, dueDate, invoiceNumber, totalAmount, status, createdAt)
+ * @query   customerId - Filter by customer ID
+ * @query   dateFrom - Filter by issue date from (YYYY-MM-DD)
+ * @query   dateTo - Filter by issue date to (YYYY-MM-DD)
+ * @query   search - Search in invoice number and customer name
+ * @query   sortBy - Sort field (issueDate, dueDate, invoiceNumber, totalAmount, status, createdAt, customerName)
  * @query   sortOrder - Sort order (ASC, DESC)
  * @access  Private
  * @returns { success: true, data: { invoices: InvoiceData[], total: number, page: number, limit: number } }
