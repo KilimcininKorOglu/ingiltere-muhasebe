@@ -9,6 +9,8 @@ const BankAccount = require('../database/models/BankAccount');
 const { query, queryOne } = require('../database/index');
 const { HTTP_STATUS, ERROR_CODES, createErrorResponse } = require('../utils/errorCodes');
 const ReconciliationStatusService = require('../services/reconciliationStatusService');
+const ReconciliationReportService = require('../services/reconciliationReportService');
+const { generateReconciliationReportPdf, validateReportDataForPdf } = require('../services/pdfGenerator');
 
 /**
  * Creates a new bank account.
@@ -1395,6 +1397,287 @@ async function getReconciliationOverview(req, res) {
   }
 }
 
+/**
+ * Gets a reconciliation report for a bank account.
+ * GET /api/bank-accounts/:id/reconciliation-report
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.startDate] - Start date filter (YYYY-MM-DD)
+ * @param {string} [req.query.endDate] - End date filter (YYYY-MM-DD)
+ * @param {Object} res - Express response object
+ */
+async function getReconciliationReport(req, res) {
+  try {
+    const { lang = 'en', startDate, endDate } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Validate request parameters
+    const validation = ReconciliationReportService.validateReportRequest(bankAccountId, {
+      startDate,
+      endDate
+    });
+
+    if (!validation.valid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: validation.errors.join('; '),
+            tr: validation.errors.join('; ')
+          }
+        }
+      });
+    }
+
+    // Generate the report
+    const result = ReconciliationReportService.generateReconciliationReport(bankAccountId, {
+      startDate,
+      endDate,
+      userId
+    });
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'RECONCILIATION_REPORT_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        dateRange: startDate && endDate ? { startDate, endDate } : null
+      }
+    });
+
+  } catch (error) {
+    console.error('Get reconciliation report error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates and downloads a reconciliation report PDF for a bank account.
+ * GET /api/bank-accounts/:id/reconciliation-report/pdf
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.startDate] - Start date filter (YYYY-MM-DD)
+ * @param {string} [req.query.endDate] - End date filter (YYYY-MM-DD)
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function getReconciliationReportPdf(req, res) {
+  try {
+    const { lang = 'en', startDate, endDate } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Validate request parameters
+    const validation = ReconciliationReportService.validateReportRequest(bankAccountId, {
+      startDate,
+      endDate
+    });
+
+    if (!validation.valid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: validation.errors.join('; '),
+            tr: validation.errors.join('; ')
+          }
+        }
+      });
+    }
+
+    // Generate the report data for PDF
+    const result = ReconciliationReportService.getReportDataForPdf(bankAccountId, {
+      startDate,
+      endDate,
+      userId,
+      lang
+    });
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'RECONCILIATION_REPORT_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    // Validate report data for PDF generation
+    const pdfValidation = validateReportDataForPdf(result.data);
+    if (!pdfValidation.isValid) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'PDF_GENERATION_ERROR',
+          message: {
+            en: 'Failed to validate report data for PDF: ' + pdfValidation.errors.join('; '),
+            tr: 'PDF için rapor verileri doğrulanamadı: ' + pdfValidation.errors.join('; ')
+          }
+        }
+      });
+    }
+
+    // Generate PDF
+    const pdfBuffer = await generateReconciliationReportPdf(result.data, { lang });
+
+    // Generate filename
+    const accountName = bankAccount.accountName.replace(/[^a-zA-Z0-9]/g, '_');
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `reconciliation_report_${accountName}_${dateStr}.pdf`;
+
+    // Set response headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+
+    // Send the PDF
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error('Get reconciliation report PDF error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   createBankAccount,
   getBankAccounts,
@@ -1409,5 +1692,7 @@ module.exports = {
   getReconciliationBalance,
   getUnreconciledTotals,
   getLastReconciliationDate,
-  getReconciliationOverview
+  getReconciliationOverview,
+  getReconciliationReport,
+  getReconciliationReportPdf
 };

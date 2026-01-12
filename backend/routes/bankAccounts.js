@@ -22,7 +22,9 @@ const {
   getReconciliationBalance,
   getUnreconciledTotals,
   getLastReconciliationDate,
-  getReconciliationOverview
+  getReconciliationOverview,
+  getReconciliationReport,
+  getReconciliationReportPdf
 } = require('../controllers/bankAccountController');
 
 const {
@@ -213,6 +215,32 @@ router.get('/:id/unreconciled-totals', authenticateToken, getUnreconciledTotals)
  * @returns { success: true, data: { bankAccount, lastReconciliation: {...} } }
  */
 router.get('/:id/last-reconciliation', authenticateToken, getLastReconciliationDate);
+
+/**
+ * @route   GET /api/bank-accounts/:id/reconciliation-report
+ * @desc    Get comprehensive reconciliation report for audit purposes
+ * @param   id - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { reportInfo, bankAccount, summary, balances, reconciledPairs, unreconciledTransactions, excludedTransactions } }
+ */
+router.get('/:id/reconciliation-report', authenticateToken, getReconciliationReport);
+
+/**
+ * @route   GET /api/bank-accounts/:id/reconciliation-report/pdf
+ * @desc    Generate and download reconciliation report as PDF
+ * @param   id - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns PDF file download
+ */
+router.get('/:id/reconciliation-report/pdf', authenticateToken, getReconciliationReportPdf);
 
 // ==========================================
 // Bank Transaction Routes (nested under bank accounts)

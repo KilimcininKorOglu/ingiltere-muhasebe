@@ -676,12 +676,691 @@ function validateInvoiceForPdf(invoice) {
   };
 }
 
+// ==========================================
+// Reconciliation Report PDF Generation
+// ==========================================
+
+const reconciliationTemplate = require('../templates/reconciliationReport');
+
+/**
+ * Draws the reconciliation report header.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} reportData - Report data
+ * @param {Object} labels - Language-specific labels
+ * @returns {number} Y position after header
+ */
+function drawReconciliationHeader(doc, reportData, labels) {
+  const { bankAccount, reportInfo } = reportData;
+  let y = reconciliationTemplate.layout.margins.top;
+  const pageWidth = doc.page.width - reconciliationTemplate.layout.margins.left - reconciliationTemplate.layout.margins.right;
+  
+  // Title
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.title)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.title, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 25;
+  
+  // Subtitle
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.subtitle)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(labels.subtitle, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 30;
+  
+  // Bank account info box
+  const boxWidth = 280;
+  const boxHeight = 80;
+  
+  doc.rect(reconciliationTemplate.layout.margins.left, y, boxWidth, boxHeight)
+     .fillColor(reconciliationTemplate.colors.background)
+     .fill();
+  
+  doc.rect(reconciliationTemplate.layout.margins.left, y, boxWidth, boxHeight)
+     .strokeColor(reconciliationTemplate.colors.border)
+     .lineWidth(1)
+     .stroke();
+  
+  let boxY = y + 8;
+  const boxX = reconciliationTemplate.layout.margins.left + 10;
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.bankAccountDetails, boxX, boxY);
+  
+  boxY += 16;
+  
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
+  
+  doc.text(`${labels.accountName}: ${bankAccount.accountName}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.bankName}: ${bankAccount.bankName}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.sortCode}: ${bankAccount.sortCodeFormatted || '-'} | ${labels.accountNumber}: ${bankAccount.accountNumber}`, boxX, boxY);
+  boxY += 12;
+  doc.text(`${labels.currency}: ${bankAccount.currency || 'GBP'}`, boxX, boxY);
+  
+  // Report info box (right side)
+  const rightBoxX = reconciliationTemplate.layout.margins.left + boxWidth + 20;
+  const rightBoxWidth = pageWidth - boxWidth - 20;
+  
+  doc.rect(rightBoxX, y, rightBoxWidth, boxHeight)
+     .fillColor(reconciliationTemplate.colors.background)
+     .fill();
+  
+  doc.rect(rightBoxX, y, rightBoxWidth, boxHeight)
+     .strokeColor(reconciliationTemplate.colors.border)
+     .lineWidth(1)
+     .stroke();
+  
+  boxY = y + 8;
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.reportPeriod, rightBoxX + 10, boxY);
+  
+  boxY += 16;
+  
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
+  
+  const periodStart = reportInfo.dateRange.startDate || labels.allDates;
+  const periodEnd = reportInfo.dateRange.endDate || labels.allDates;
+  
+  if (reportInfo.filterApplied) {
+    doc.text(`${labels.from}: ${formatPdfDate(periodStart)}`, rightBoxX + 10, boxY);
+    boxY += 12;
+    doc.text(`${labels.to}: ${formatPdfDate(periodEnd)}`, rightBoxX + 10, boxY);
+  } else {
+    doc.text(labels.allDates, rightBoxX + 10, boxY);
+  }
+  
+  boxY += 12;
+  doc.font(reconciliationTemplate.fonts.italic)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(`${labels.generatedOn}: ${formatPdfDate(reportInfo.generatedAt.split('T')[0])}`, rightBoxX + 10, boxY + 12);
+  
+  return y + boxHeight + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Draws the reconciliation summary section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} summary - Summary data
+ * @param {Object} labels - Language-specific labels
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after summary
+ */
+function drawReconciliationSummary(doc, summary, labels, startY) {
+  let y = startY;
+  
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.reconciliationSummary, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  // Summary grid
+  const colWidth = 150;
+  const rowHeight = 35;
+  let x = reconciliationTemplate.layout.margins.left;
+  
+  // Total transactions
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.totalTransactions, summary.totalTransactions.toString(), reconciliationTemplate.colors.primary);
+  x += colWidth + 10;
+  
+  // Reconciled
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.reconciledTransactions, summary.reconciledCount.toString(), reconciliationTemplate.colors.success);
+  x += colWidth + 10;
+  
+  // Unreconciled
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.unreconciledTransactions, summary.unreconciledCount.toString(), reconciliationTemplate.colors.warning);
+  x += colWidth + 10;
+  
+  // Excluded
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.excludedTransactions, summary.excludedCount.toString(), reconciliationTemplate.colors.muted);
+  x += colWidth + 10;
+  
+  // Progress
+  const progressColor = summary.progressPercentage === 100 ? reconciliationTemplate.colors.success : 
+                        summary.progressPercentage >= 80 ? reconciliationTemplate.colors.warning : 
+                        reconciliationTemplate.colors.error;
+  drawStatBox(doc, x, y, colWidth, rowHeight, labels.reconciliationProgress, `${summary.progressPercentage}%`, progressColor);
+  
+  return y + rowHeight + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Helper function to draw a statistics box.
+ */
+function drawStatBox(doc, x, y, width, height, label, value, color) {
+  doc.rect(x, y, width, height)
+     .fillColor(reconciliationTemplate.colors.background)
+     .fill();
+  
+  doc.rect(x, y, width, height)
+     .strokeColor(color)
+     .lineWidth(1)
+     .stroke();
+  
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(label, x + 5, y + 5, { width: width - 10 });
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(14)
+     .fillColor(color)
+     .text(value, x + 5, y + 18, { width: width - 10 });
+}
+
+/**
+ * Draws the balance summary section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} balances - Balance data
+ * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after balances
+ */
+function drawBalanceSummary(doc, balances, labels, currency, startY) {
+  let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
+  
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(labels.balanceSummary, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  // Create balance table
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [200, 100, 100, 100];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  // Header
+  doc.rect(tableX, y, tableWidth, 20)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .fill();
+  
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(reconciliationTemplate.colors.white);
+  
+  doc.text('', colX + 5, y + 6, { width: colWidths[0] - 10 });
+  colX += colWidths[0];
+  doc.text(labels.credits, colX + 5, y + 6, { width: colWidths[1] - 10, align: 'right' });
+  colX += colWidths[1];
+  doc.text(labels.debits, colX + 5, y + 6, { width: colWidths[2] - 10, align: 'right' });
+  colX += colWidths[2];
+  doc.text(labels.netBalance, colX + 5, y + 6, { width: colWidths[3] - 10, align: 'right' });
+  
+  y += 20;
+  
+  // Bank statement row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.bankStatementTotals, 
+    `${symbol}${balances.bank.credits}`, `${symbol}${balances.bank.debits}`, `${symbol}${balances.bank.net}`, false);
+  
+  // Reconciled row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.reconciledTotals, 
+    `${symbol}${balances.reconciled.credits}`, `${symbol}${balances.reconciled.debits}`, `${symbol}${balances.reconciled.net}`, true);
+  
+  // Unreconciled row
+  y = drawBalanceRow(doc, tableX, y, colWidths, labels.unreconciledTotals, 
+    `${symbol}${balances.unreconciled.credits}`, `${symbol}${balances.unreconciled.debits}`, `${symbol}${balances.unreconciled.net}`, false);
+  
+  // Discrepancy row
+  const discrepancyColor = balances.isBalanced ? reconciliationTemplate.colors.success : reconciliationTemplate.colors.error;
+  
+  doc.rect(tableX, y, tableWidth, 22)
+     .fillColor(reconciliationTemplate.colors.headerBg)
+     .fill();
+  
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text)
+     .text(labels.discrepancy, tableX + 5, y + 6, { width: colWidths[0] - 10 });
+  
+  doc.fillColor(discrepancyColor)
+     .text(`${symbol}${balances.discrepancy}`, tableX + colWidths[0] + colWidths[1] + colWidths[2] + 5, y + 6, 
+       { width: colWidths[3] - 10, align: 'right' });
+  
+  // Balanced status
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.small)
+     .fillColor(discrepancyColor)
+     .text(balances.isBalanced ? `✓ ${labels.balanced}` : `✗ ${labels.notBalanced}`, 
+       tableX + tableWidth + 20, y + 6);
+  
+  return y + 22 + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Helper function to draw a balance table row.
+ */
+function drawBalanceRow(doc, tableX, y, colWidths, label, credits, debits, net, alternate) {
+  const rowHeight = 18;
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  if (alternate) {
+    doc.rect(tableX, y, tableWidth, rowHeight)
+       .fillColor(reconciliationTemplate.colors.background)
+       .fill();
+  }
+  
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.regular)
+     .fontSize(reconciliationTemplate.layout.fontSize.normal)
+     .fillColor(reconciliationTemplate.colors.text);
+  
+  doc.text(label, colX + 5, y + 4, { width: colWidths[0] - 10 });
+  colX += colWidths[0];
+  doc.fillColor(reconciliationTemplate.colors.credit)
+     .text(credits, colX + 5, y + 4, { width: colWidths[1] - 10, align: 'right' });
+  colX += colWidths[1];
+  doc.fillColor(reconciliationTemplate.colors.debit)
+     .text(debits, colX + 5, y + 4, { width: colWidths[2] - 10, align: 'right' });
+  colX += colWidths[2];
+  doc.fillColor(reconciliationTemplate.colors.text)
+     .text(net, colX + 5, y + 4, { width: colWidths[3] - 10, align: 'right' });
+  
+  return y + rowHeight;
+}
+
+/**
+ * Draws the reconciled pairs section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Array} pairs - Reconciled pairs data
+ * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after pairs
+ */
+function drawReconciledPairs(doc, pairs, labels, currency, startY) {
+  let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
+  
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .text(`${labels.reconciledPairs} (${pairs.length})`, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  if (pairs.length === 0) {
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.normal)
+       .fillColor(reconciliationTemplate.colors.textLight)
+       .text('No reconciled transactions', reconciliationTemplate.layout.margins.left, y);
+    return y + 20;
+  }
+  
+  // Table header
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [70, 140, 50, 65, 70, 140, 50, 65, 70];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  doc.rect(tableX, y, tableWidth, 20)
+     .fillColor(reconciliationTemplate.colors.primary)
+     .fill();
+  
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.white);
+  
+  // Bank transaction headers
+  doc.text(labels.date, colX + 2, y + 6, { width: colWidths[0] - 4 });
+  colX += colWidths[0];
+  doc.text(labels.description, colX + 2, y + 6, { width: colWidths[1] - 4 });
+  colX += colWidths[1];
+  doc.text(labels.type, colX + 2, y + 6, { width: colWidths[2] - 4, align: 'center' });
+  colX += colWidths[2];
+  doc.text(labels.amount, colX + 2, y + 6, { width: colWidths[3] - 4, align: 'right' });
+  colX += colWidths[3];
+  
+  // Matched transaction headers
+  doc.text(labels.date, colX + 2, y + 6, { width: colWidths[4] - 4 });
+  colX += colWidths[4];
+  doc.text(labels.description, colX + 2, y + 6, { width: colWidths[5] - 4 });
+  colX += colWidths[5];
+  doc.text(labels.type, colX + 2, y + 6, { width: colWidths[6] - 4, align: 'center' });
+  colX += colWidths[6];
+  doc.text(labels.amount, colX + 2, y + 6, { width: colWidths[7] - 4, align: 'right' });
+  colX += colWidths[7];
+  doc.text(labels.matchType, colX + 2, y + 6, { width: colWidths[8] - 4, align: 'center' });
+  
+  y += 20;
+  
+  // Draw rows
+  let alternate = false;
+  for (const pair of pairs) {
+    // Check for page break
+    if (y + 16 > doc.page.height - reconciliationTemplate.layout.margins.bottom - 30) {
+      doc.addPage({ layout: 'landscape' });
+      y = reconciliationTemplate.layout.margins.top;
+    }
+    
+    if (alternate) {
+      doc.rect(tableX, y, tableWidth, 16)
+         .fillColor(reconciliationTemplate.colors.background)
+         .fill();
+    }
+    
+    colX = tableX;
+    doc.font(reconciliationTemplate.fonts.regular)
+       .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+       .fillColor(reconciliationTemplate.colors.text);
+    
+    // Bank transaction
+    doc.text(formatPdfDate(pair.bankDate), colX + 2, y + 4, { width: colWidths[0] - 4 });
+    colX += colWidths[0];
+    doc.text(truncateText(pair.bankDescription, 25), colX + 2, y + 4, { width: colWidths[1] - 4 });
+    colX += colWidths[1];
+    const bankTypeColor = pair.bankType === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(bankTypeColor)
+       .text(pair.bankType.charAt(0).toUpperCase(), colX + 2, y + 4, { width: colWidths[2] - 4, align: 'center' });
+    colX += colWidths[2];
+    doc.text(`${symbol}${pair.bankAmount}`, colX + 2, y + 4, { width: colWidths[3] - 4, align: 'right' });
+    colX += colWidths[3];
+    
+    // Matched transaction
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(formatPdfDate(pair.appDate), colX + 2, y + 4, { width: colWidths[4] - 4 });
+    colX += colWidths[4];
+    doc.text(truncateText(pair.appDescription, 25), colX + 2, y + 4, { width: colWidths[5] - 4 });
+    colX += colWidths[5];
+    const appTypeColor = pair.appType === 'income' || pair.appType === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(appTypeColor)
+       .text(pair.appType.charAt(0).toUpperCase(), colX + 2, y + 4, { width: colWidths[6] - 4, align: 'center' });
+    colX += colWidths[6];
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(`${symbol}${pair.appAmount}`, colX + 2, y + 4, { width: colWidths[7] - 4, align: 'right' });
+    colX += colWidths[7];
+    doc.fillColor(reconciliationTemplate.colors.success)
+       .text(reconciliationTemplate.getMatchTypeName(pair.matchType, 'en').split(' ')[0], colX + 2, y + 4, 
+         { width: colWidths[8] - 4, align: 'center' });
+    
+    y += 16;
+    alternate = !alternate;
+  }
+  
+  return y + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Draws the unreconciled items section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Array} items - Unreconciled items data
+ * @param {Object} labels - Language-specific labels
+ * @param {string} currency - Currency code
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after items
+ */
+function drawUnreconciledItems(doc, items, labels, currency, startY) {
+  let y = startY;
+  const symbol = reconciliationTemplate.getCurrencySymbol(currency);
+  
+  // Check for page break
+  if (y + 50 > doc.page.height - reconciliationTemplate.layout.margins.bottom) {
+    doc.addPage({ layout: 'landscape' });
+    y = reconciliationTemplate.layout.margins.top;
+  }
+  
+  // Section header
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.sectionHeader)
+     .fillColor(reconciliationTemplate.colors.warning)
+     .text(`${labels.unreconciledItems} (${items.length})`, reconciliationTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  if (items.length === 0) {
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.normal)
+       .fillColor(reconciliationTemplate.colors.success)
+       .text(labels.noUnreconciled, reconciliationTemplate.layout.margins.left, y);
+    return y + 20;
+  }
+  
+  // Table header
+  const tableX = reconciliationTemplate.layout.margins.left;
+  const colWidths = [80, 200, 80, 60, 80, 200];
+  const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+  
+  doc.rect(tableX, y, tableWidth, 18)
+     .fillColor(reconciliationTemplate.colors.warning)
+     .fill();
+  
+  let colX = tableX;
+  doc.font(reconciliationTemplate.fonts.bold)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.white);
+  
+  doc.text(labels.date, colX + 2, y + 5, { width: colWidths[0] - 4 });
+  colX += colWidths[0];
+  doc.text(labels.description, colX + 2, y + 5, { width: colWidths[1] - 4 });
+  colX += colWidths[1];
+  doc.text(labels.reference, colX + 2, y + 5, { width: colWidths[2] - 4 });
+  colX += colWidths[2];
+  doc.text(labels.type, colX + 2, y + 5, { width: colWidths[3] - 4, align: 'center' });
+  colX += colWidths[3];
+  doc.text(labels.amount, colX + 2, y + 5, { width: colWidths[4] - 4, align: 'right' });
+  colX += colWidths[4];
+  doc.text(labels.notes, colX + 2, y + 5, { width: colWidths[5] - 4 });
+  
+  y += 18;
+  
+  // Draw rows (limit to first 50 to avoid overly long PDFs)
+  const displayItems = items.slice(0, 50);
+  let alternate = false;
+  
+  for (const item of displayItems) {
+    if (y + 14 > doc.page.height - reconciliationTemplate.layout.margins.bottom - 30) {
+      doc.addPage({ layout: 'landscape' });
+      y = reconciliationTemplate.layout.margins.top;
+    }
+    
+    if (alternate) {
+      doc.rect(tableX, y, tableWidth, 14)
+         .fillColor(reconciliationTemplate.colors.background)
+         .fill();
+    }
+    
+    colX = tableX;
+    doc.font(reconciliationTemplate.fonts.regular)
+       .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+       .fillColor(reconciliationTemplate.colors.text);
+    
+    doc.text(formatPdfDate(item.date), colX + 2, y + 3, { width: colWidths[0] - 4 });
+    colX += colWidths[0];
+    doc.text(truncateText(item.description, 35), colX + 2, y + 3, { width: colWidths[1] - 4 });
+    colX += colWidths[1];
+    doc.text(truncateText(item.reference, 12), colX + 2, y + 3, { width: colWidths[2] - 4 });
+    colX += colWidths[2];
+    const typeColor = item.type === 'credit' ? reconciliationTemplate.colors.credit : reconciliationTemplate.colors.debit;
+    doc.fillColor(typeColor)
+       .text(item.type.charAt(0).toUpperCase(), colX + 2, y + 3, { width: colWidths[3] - 4, align: 'center' });
+    colX += colWidths[3];
+    doc.fillColor(reconciliationTemplate.colors.text)
+       .text(`${symbol}${item.amount}`, colX + 2, y + 3, { width: colWidths[4] - 4, align: 'right' });
+    colX += colWidths[4];
+    doc.text(truncateText(item.notes, 35), colX + 2, y + 3, { width: colWidths[5] - 4 });
+    
+    y += 14;
+    alternate = !alternate;
+  }
+  
+  if (items.length > 50) {
+    y += 5;
+    doc.font(reconciliationTemplate.fonts.italic)
+       .fontSize(reconciliationTemplate.layout.fontSize.small)
+       .fillColor(reconciliationTemplate.colors.textLight)
+       .text(`... and ${items.length - 50} more unreconciled items`, reconciliationTemplate.layout.margins.left, y);
+    y += 12;
+  }
+  
+  return y + reconciliationTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Draws the report footer.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} labels - Language-specific labels
+ */
+function drawReconciliationFooter(doc, labels) {
+  const bottomY = doc.page.height - reconciliationTemplate.layout.margins.bottom - 20;
+  
+  doc.moveTo(reconciliationTemplate.layout.margins.left, bottomY)
+     .lineTo(doc.page.width - reconciliationTemplate.layout.margins.right, bottomY)
+     .strokeColor(reconciliationTemplate.colors.border)
+     .lineWidth(0.5)
+     .stroke();
+  
+  doc.font(reconciliationTemplate.fonts.italic)
+     .fontSize(reconciliationTemplate.layout.fontSize.tiny)
+     .fillColor(reconciliationTemplate.colors.textLight)
+     .text(labels.auditPurpose, reconciliationTemplate.layout.margins.left, bottomY + 5, {
+       width: doc.page.width - reconciliationTemplate.layout.margins.left - reconciliationTemplate.layout.margins.right,
+       align: 'center'
+     });
+}
+
+/**
+ * Helper function to truncate text.
+ */
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+}
+
+/**
+ * Generates a PDF document for a reconciliation report.
+ * 
+ * @param {Object} reportData - Report data from reconciliationReportService.getReportDataForPdf()
+ * @param {Object} [options={}] - Generation options
+ * @param {string} [options.lang='en'] - Language code ('en' or 'tr')
+ * @returns {Promise<Buffer>} PDF document as a buffer
+ */
+async function generateReconciliationReportPdf(reportData, options = {}) {
+  const { lang = 'en' } = options;
+  const labels = reconciliationTemplate.getLabels(lang);
+  
+  return new Promise((resolve, reject) => {
+    try {
+      // Create PDF document in landscape orientation for better table display
+      const doc = new PDFDocument({
+        size: reconciliationTemplate.layout.pageSize,
+        layout: 'landscape',
+        margins: reconciliationTemplate.layout.margins,
+        info: {
+          Title: `${labels.title} - ${reportData.bankAccount.accountName}`,
+          Author: 'UK Accounting System',
+          Subject: labels.subtitle,
+          Keywords: 'reconciliation, bank, audit, report',
+          Creator: 'UK Accounting System'
+        }
+      });
+      
+      // Collect PDF data into buffer
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+      
+      const currency = reportData.bankAccount.currency || 'GBP';
+      
+      // Draw report sections
+      let y = drawReconciliationHeader(doc, reportData, labels);
+      y = drawReconciliationSummary(doc, reportData.summary, labels, y);
+      y = drawBalanceSummary(doc, reportData.balances, labels, currency, y);
+      
+      // New page for reconciled pairs if needed
+      if (reportData.reconciledPairs.length > 0 && y > doc.page.height - 200) {
+        doc.addPage({ layout: 'landscape' });
+        y = reconciliationTemplate.layout.margins.top;
+      }
+      
+      y = drawReconciledPairs(doc, reportData.reconciledPairs, labels, currency, y);
+      y = drawUnreconciledItems(doc, reportData.unreconciledTransactions, labels, currency, y);
+      
+      // Draw footer on last page
+      drawReconciliationFooter(doc, labels);
+      
+      // Finalize the document
+      doc.end();
+      
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+/**
+ * Validates that report data has all required fields for PDF generation.
+ * 
+ * @param {Object} reportData - Report data to validate
+ * @returns {{isValid: boolean, errors: string[]}} Validation result
+ */
+function validateReportDataForPdf(reportData) {
+  const errors = [];
+  
+  if (!reportData) {
+    errors.push('Report data is required');
+    return { isValid: false, errors };
+  }
+  
+  if (!reportData.bankAccount) {
+    errors.push('Bank account data is required');
+  }
+  
+  if (!reportData.summary) {
+    errors.push('Summary data is required');
+  }
+  
+  if (!reportData.balances) {
+    errors.push('Balance data is required');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
 module.exports = {
+  // Invoice PDF
   generateInvoicePdf,
   validateInvoiceForPdf,
+  
+  // Reconciliation Report PDF
+  generateReconciliationReportPdf,
+  validateReportDataForPdf,
   
   // Export helper functions for testing
   formatMoney,
   formatPdfDate,
-  calculateVatBreakdown
+  calculateVatBreakdown,
+  truncateText
 };
