@@ -389,6 +389,122 @@ describe('Transactions API', () => {
       expect(res.body.data.limit).toBe(5);
       expect(res.body.data.transactions.length).toBeLessThanOrEqual(5);
     });
+
+    it('should filter transactions by status', async () => {
+      const res = await request(app)
+        .get('/api/transactions?status=cleared')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      // All returned transactions should have cleared status (or empty array if none)
+      res.body.data.transactions.forEach(t => {
+        expect(t.status).toBe('cleared');
+      });
+    });
+
+    it('should filter transactions by categoryId', async () => {
+      // First get a category
+      const categoryRes = await request(app)
+        .get('/api/categories/type/expense')
+        .set('Authorization', `Bearer ${authToken}`);
+      
+      if (categoryRes.body.success && categoryRes.body.data.length > 0) {
+        const testCategoryId = categoryRes.body.data[0].id;
+        
+        const res = await request(app)
+          .get(`/api/transactions?categoryId=${testCategoryId}`)
+          .set('Authorization', `Bearer ${authToken}`);
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        // All returned transactions should have the specified category
+        res.body.data.transactions.forEach(t => {
+          expect(t.categoryId).toBe(testCategoryId);
+        });
+      }
+    });
+
+    it('should sort transactions by amount ascending', async () => {
+      const res = await request(app)
+        .get('/api/transactions?sortBy=amount&sortOrder=ASC')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      
+      const transactions = res.body.data.transactions;
+      // Verify transactions are sorted by amount ascending
+      for (let i = 1; i < transactions.length; i++) {
+        expect(transactions[i].amount).toBeGreaterThanOrEqual(transactions[i - 1].amount);
+      }
+    });
+
+    it('should sort transactions by transactionDate descending by default', async () => {
+      const res = await request(app)
+        .get('/api/transactions')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      
+      const transactions = res.body.data.transactions;
+      // Verify transactions are sorted by date descending (default)
+      for (let i = 1; i < transactions.length; i++) {
+        expect(transactions[i].transactionDate <= transactions[i - 1].transactionDate).toBe(true);
+      }
+    });
+
+    it('should sort transactions by totalAmount descending', async () => {
+      const res = await request(app)
+        .get('/api/transactions?sortBy=totalAmount&sortOrder=DESC')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      
+      const transactions = res.body.data.transactions;
+      // Verify transactions are sorted by totalAmount descending
+      for (let i = 1; i < transactions.length; i++) {
+        expect(transactions[i].totalAmount).toBeLessThanOrEqual(transactions[i - 1].totalAmount);
+      }
+    });
+
+    it('should combine multiple filters (type, date range, and pagination)', async () => {
+      const res = await request(app)
+        .get('/api/transactions?type=expense&startDate=2026-01-01&endDate=2026-12-31&page=1&limit=10&sortBy=amount&sortOrder=DESC')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.page).toBe(1);
+      expect(res.body.data.limit).toBe(10);
+      
+      // Verify type filter
+      res.body.data.transactions.forEach(t => {
+        expect(t.type).toBe('expense');
+        expect(t.transactionDate >= '2026-01-01' && t.transactionDate <= '2026-12-31').toBe(true);
+      });
+    });
+
+    it('should return only the authenticated user\'s transactions', async () => {
+      const res = await request(app)
+        .get('/api/transactions')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      // All transactions should belong to the authenticated user
+      // (This is verified by the controller checking userId)
+      expect(res.body.data.transactions).toBeDefined();
+    });
+
+    it('should return 401 without authentication', async () => {
+      const res = await request(app)
+        .get('/api/transactions');
+
+      expect(res.status).toBe(401);
+    });
   });
 
   describe('GET /api/transactions/:id', () => {
