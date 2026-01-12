@@ -1,0 +1,101 @@
+{
+  "panel": {
+    "title": "Yardım",
+    "close": "Yardım panelini kapat",
+    "openShortcut": "Yardımı açmak için F1'e basın"
+  },
+  "search": {
+    "placeholder": "Yardımda ara...",
+    "noResults": "\"{{query}}\" için sonuç bulunamadı",
+    "resultsCount": "{{count}} sonuç bulundu",
+    "resultsCount_other": "{{count}} sonuç bulundu",
+    "clearSearch": "Aramayı temizle"
+  },
+  "tabs": {
+    "pageHelp": "Bu Sayfa",
+    "quickTips": "Hızlı İpuçları",
+    "search": "Ara"
+  },
+  "pageHelp": {
+    "noContent": "Bu sayfa için yardım içeriği mevcut değil.",
+    "dashboard": {
+      "title": "Kontrol Paneli Yardımı",
+      "overview": {
+        "title": "Kontrol Paneli Genel Bakış",
+        "content": "Kontrol paneli, işletme finanslarınızın hızlı bir özetini sunar. Burada toplam gelirinizi, giderlerinizi ve net karınızı bir bakışta görebilirsiniz. Finansal sağlığınızı takip etmek için kontrol panelini kullanın."
+      },
+      "metrics": {
+        "title": "Finansal Metrikler",
+        "content": "Metrikler bölümü, Toplam Gelir (alınan tüm gelirler), Toplam Giderler (harcanan tüm paralar) ve Net Kar (gelir eksi giderler) dahil olmak üzere temel finansal göstergelerinizi görüntüler. Bu rakamlar gerçek zamanlı olarak güncellenir."
+      },
+      "transactions": {
+        "title": "Son İşlemler",
+        "content": "En son finansal işlemlerinizi burada görüntüleyin. Bu, hem gelen ödemeleri hem de giden giderleri içerir. Daha fazla ayrıntı görmek veya düzenlemek için herhangi bir işleme tıklayın."
+      }
+    },
+    "invoices": {
+      "title": "Faturalar Yardımı",
+      "overview": {
+        "title": "Faturalar Genel Bakış",
+        "content": "Faturalar bölümü, tüm işletme faturalarınızı oluşturmanıza, yönetmenize ve takip etmenize olanak tanır. Müşterilere fatura gönderebilir, ödeme durumunu takip edebilir ve raporlar oluşturabilirsiniz."
+      },
+      "creating": {
+        "title": "Fatura Oluşturma",
+        "content": "Yeni bir fatura oluşturmak için 'Fatura Oluştur' düğmesine tıklayın. Müşteri bilgilerini girin, açıklamalar ve tutarlarla satır öğeleri ekleyin, vade tarihini belirleyin ve kaydedin. Müşterinize göndermeden önce faturayı önizleyebilirsiniz."
+      },
+      "status": {
+        "title": "Fatura Durumu",
+        "content": "Faturaların farklı durumları olabilir: Taslak (henüz gönderilmedi), Beklemede (gönderildi ama ödenmedi), Ödendi (ödeme alındı) ve Gecikmiş (vade tarihi geçti). Faturaları duruma göre görüntülemek için filtreleri kullanın."
+      }
+    },
+    "expenses": {
+      "title": "Giderler Yardımı",
+      "overview": {
+        "title": "Giderler Genel Bakış",
+        "content": "Tüm işletme giderlerinizi tek bir yerde takip edin. Kategorilerle gider ekleyin, makbuzları ekleyin ve vergi amaçlı kayıtlarınızı düzenli tutun."
+      },
+      "categories": {
+        "title": "Gider Kategorileri",
+        "content": "Daha iyi organizasyon ve raporlama için giderlerinizi kategorize edin. Yaygın kategoriler arasında Ofis Malzemeleri, Seyahat, Kamu Hizmetleri ve Profesyonel Hizmetler bulunur. Doğru kategorizasyon vergi indirimleri için yardımcı olur."
+      },
+      "receipts": {
+        "title": "Makbuz Ekleme",
+        "content": "Dijital kayıtlar tutmak için makbuzlarınızın fotoğraflarını veya taramalarını yükleyin. Bu, HMRC uyumluluğu için gereklidir ve gerektiğinde belgeleri bulmayı kolaylaştırır."
+      }
+    },
+    "settings": {
+      "title": "Ayarlar Yardımı",
+      "overview": {
+        "title": "Ayarlar Genel Bakış",
+        "content": "Dil tercihleri, bildirim ayarları ve güvenlik seçenekleri dahil olmak üzere muhasebe uygulaması ayarlarınızı özelleştirin."
+      },
+      "language": {
+        "title": "Dil Ayarları",
+        "content": "Dil seçiciyi kullanarak İngilizce ve Türkçe arasında geçiş yapın. Tercihiniz kaydedilecek ve tüm sayfalara uygulanacaktır."
+      },
+      "security": {
+        "title": "Güvenlik Ayarları",
+        "content": "Şifre değişiklikleri, iki faktörlü kimlik doğrulama ve oturum yönetimi dahil olmak üzere hesap güvenliği ayarlarınızı yönetin."
+      }
+    }
+  },
+  "quickTips": {
+    "title": "Hızlı İpuçları",
+    "keyboardShortcuts": {
+      "title": "Klavye Kısayolları",
+      "content": "Bu yardım panelini açmak veya kapatmak için herhangi bir zamanda F1'e basın. Öğeler arasında gezinmek için Tab'ı ve seçmek için Enter'ı kullanın."
+    },
+    "languageSwitch": {
+      "title": "Dil Değiştirme",
+      "content": "Başlıktaki dil düğmelerini veya alt bilgideki açılır menüyü kullanarak herhangi bir zamanda İngilizce ve Türkçe arasında geçiş yapabilirsiniz."
+    },
+    "taxDeadlines": {
+      "title": "İngiltere Vergi Son Tarihleri",
+      "content": "Önemli HMRC son tarihlerini takip edin: Öz Değerlendirme (31 Ocak), KDV beyannameleri (üç ayda bir) ve Kurumlar Vergisi (yıl sonundan 9 ay sonra). Kontrol paneli yaklaşan son tarihleri gösterir."
+    },
+    "exportData": {
+      "title": "Verilerinizi Dışa Aktarma",
+      "content": "Finansal verilerinizi CSV ve PDF dahil olmak üzere çeşitli formatlarda dışa aktarabilirsiniz. Kapsamlı finansal raporlar oluşturmak ve indirmek için Raporlar bölümünü kullanın."
+    }
+  }
+}
