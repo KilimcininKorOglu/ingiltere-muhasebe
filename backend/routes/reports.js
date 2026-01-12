@@ -21,7 +21,11 @@ const {
   getVatSummary,
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
-  getVatSummaryByQuarter
+  getVatSummaryByQuarter,
+  getCashFlow,
+  getCashFlowByTaxYear,
+  getCashFlowByMonth,
+  getCashFlowByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -244,5 +248,87 @@ router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
  * @returns VAT summary report for the specified quarter
  */
 router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
+
+// =====================================
+// Cash Flow Statement Routes
+// =====================================
+
+/**
+ * @route   GET /api/reports/cash-flow
+ * @desc    Get Cash Flow Statement for a date range
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   includeComparison - Include previous period comparison (optional, default: false)
+ * @query   includeBankMovements - Include bank account movements (optional, default: true)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional, default: true)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     period: { startDate, endDate, taxYear },
+ *     openingBalance: number,
+ *     closingBalance: number,
+ *     inflows: {
+ *       categories: [{ categoryId, categoryCode, categoryName, amount, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     outflows: {
+ *       categories: [{ categoryId, categoryCode, categoryName, amount, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     summary: {
+ *       openingBalance, totalInflows, totalOutflows, netCashChange, closingBalance,
+ *       expectedClosingBalance, isReconciled, reconciliationDifference
+ *     },
+ *     bankAccountMovements?: [...],
+ *     monthlyCashFlow?: [...],
+ *     comparison?: { previousPeriod, previous, changes }
+ *   }
+ * }
+ */
+router.get('/cash-flow', getCashFlow);
+
+/**
+ * @route   GET /api/reports/cash-flow/tax-year/:taxYear
+ * @desc    Get Cash Flow Statement for a specific UK tax year
+ * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Cash Flow Statement for the specified tax year
+ */
+router.get('/cash-flow/tax-year/:taxYear', getCashFlowByTaxYear);
+
+/**
+ * @route   GET /api/reports/cash-flow/monthly/:year/:month
+ * @desc    Get Cash Flow Statement for a specific month
+ * @param   year - The year (e.g., 2025)
+ * @param   month - The month (1-12)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Cash Flow Statement for the specified month
+ */
+router.get('/cash-flow/monthly/:year/:month', getCashFlowByMonth);
+
+/**
+ * @route   GET /api/reports/cash-flow/quarterly/:year/:quarter
+ * @desc    Get Cash Flow Statement for a specific quarter
+ * @param   year - The year (e.g., 2025)
+ * @param   quarter - The quarter (1-4)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Cash Flow Statement for the specified quarter
+ */
+router.get('/cash-flow/quarterly/:year/:quarter', getCashFlowByQuarter);
 
 module.exports = router;

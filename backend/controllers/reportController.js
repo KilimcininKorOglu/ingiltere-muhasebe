@@ -1,7 +1,7 @@
 /**
  * Report Controller
  * Handles report generation operations including PAYE summary reports,
- * Profit & Loss (Income Statement) reports, and VAT Summary reports.
+ * Profit & Loss (Income Statement) reports, VAT Summary reports, and Cash Flow Statements.
  * 
  * @module controllers/reportController
  */
@@ -9,6 +9,7 @@
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
 const vatSummaryService = require('../services/vatSummaryService');
+const cashFlowService = require('../services/cashFlowService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -985,6 +986,352 @@ function getVatSummaryByQuarter(req, res) {
   }
 }
 
+// =====================================
+// Cash Flow Statement Report Functions
+// =====================================
+
+/**
+ * Generates a Cash Flow Statement for a date range.
+ * GET /api/reports/cash-flow
+ * 
+ * Query Parameters:
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - includeComparison: Include previous period comparison (optional, default: false)
+ * - includeBankMovements: Include bank account movements (optional, default: true)
+ * - includeMonthlyBreakdown: Include monthly breakdown (optional, default: true)
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.query - Query parameters
+ * @param {Object} res - Express response object
+ */
+function getCashFlow(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate date format and range
+    const validation = cashFlowService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: validation.error,
+            tr: validation.error
+          }
+        }
+      });
+    }
+    
+    // Generate the Cash Flow Statement report
+    const report = cashFlowService.generateCashFlowReport(userId, startDate, endDate, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'cash-flow'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Cash Flow error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Cash Flow Statement for a specific tax year.
+ * GET /api/reports/cash-flow/tax-year/:taxYear
+ * 
+ * URL Parameters:
+ * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCashFlowByTaxYear(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const { taxYear } = req.params;
+    
+    // Validate tax year format
+    const taxYearRegex = /^\d{4}-\d{2}$/;
+    if (!taxYear || !taxYearRegex.test(taxYear)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid tax year format. Use YYYY-YY (e.g., 2025-26)',
+            tr: 'Geçersiz vergi yılı formatı. YYYY-YY kullanın (örn. 2025-26)'
+          }
+        }
+      });
+    }
+    
+    // Validate tax year parts
+    const [startYear, endYearPart] = taxYear.split('-');
+    const expectedEndYear = String(parseInt(startYear, 10) + 1).slice(-2);
+    if (endYearPart !== expectedEndYear) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: `Invalid tax year. Expected ${startYear}-${expectedEndYear}`,
+            tr: `Geçersiz vergi yılı. Beklenen: ${startYear}-${expectedEndYear}`
+          }
+        }
+      });
+    }
+    
+    // Generate the Cash Flow Statement for tax year
+    const report = cashFlowService.generateCashFlowForTaxYear(userId, taxYear, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'cash-flow-tax-year'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Cash Flow by tax year error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Cash Flow Statement for a specific month.
+ * GET /api/reports/cash-flow/monthly/:year/:month
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025)
+ * - month: The month (1-12)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCashFlowByMonth(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      includeComparison = 'false',
+      includeBankMovements = 'true'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    const month = parseInt(req.params.month, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate month
+    if (isNaN(month) || month < 1 || month > 12) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid month. Must be between 1 and 12',
+            tr: 'Geçersiz ay. 1 ile 12 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Cash Flow Statement for the month
+    const report = cashFlowService.generateCashFlowForMonth(userId, year, month, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'cash-flow-monthly',
+        monthName: cashFlowService.getMonthName(month)
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Cash Flow by month error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Cash Flow Statement for a specific quarter.
+ * GET /api/reports/cash-flow/quarterly/:year/:quarter
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025)
+ * - quarter: The quarter (1-4)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCashFlowByQuarter(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    const quarter = parseInt(req.params.quarter, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate quarter
+    if (isNaN(quarter) || quarter < 1 || quarter > 4) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid quarter. Must be between 1 and 4',
+            tr: 'Geçersiz çeyrek. 1 ile 4 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Cash Flow Statement for the quarter
+    const report = cashFlowService.generateCashFlowForQuarter(userId, year, quarter, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'cash-flow-quarterly',
+        quarter: quarter,
+        quarterName: `Q${quarter}`
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Cash Flow by quarter error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   // PAYE Summary reports
   getPayeSummary,
@@ -1002,5 +1349,11 @@ module.exports = {
   getVatSummary,
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
-  getVatSummaryByQuarter
+  getVatSummaryByQuarter,
+  
+  // Cash Flow Statement reports
+  getCashFlow,
+  getCashFlowByTaxYear,
+  getCashFlowByMonth,
+  getCashFlowByQuarter
 };
