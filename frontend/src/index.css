@@ -220,27 +220,32 @@ button {
 .language-switcher--buttons {
   display: flex;
   gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.25rem;
+  border-radius: 6px;
 }
 
 .language-switcher__button {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.5rem 1rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: none;
+  padding: 0.35rem 0.6rem;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .language-switcher__button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
 .language-switcher__button--active {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   color: #667eea;
-  border-color: white;
 }
 
 /* Loading */

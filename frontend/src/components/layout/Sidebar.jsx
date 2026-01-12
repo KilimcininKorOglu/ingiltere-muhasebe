@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import LanguageSwitcher from '../LanguageSwitcher';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -52,6 +53,7 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
+        <LanguageSwitcher variant="buttons" className="sidebar-language" />
         <div className="sidebar-user">
           <span className="user-name">{user?.businessName || user?.email}</span>
         </div>

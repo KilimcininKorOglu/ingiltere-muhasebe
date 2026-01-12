@@ -74,6 +74,24 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.sidebar-language {
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.sidebar-language .language-switcher__button {
+  color: #94a3b8;
+}
+
+.sidebar-language .language-switcher__button:hover {
+  color: #fff;
+}
+
+.sidebar-language .language-switcher__button--active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
 .sidebar-user {
   margin-bottom: 0.75rem;
 }

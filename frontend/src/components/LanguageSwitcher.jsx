@@ -105,7 +105,7 @@ const LanguageSwitcher = ({
           aria-pressed={currentLanguage === langCode}
           aria-label={t('language.switchTo', { language: getDisplayName(langCode) })}
         >
-          {getDisplayName(langCode)}
+          {langCode.toUpperCase()}
         </button>
       ))}
     </div>
