@@ -1,0 +1,88 @@
+{
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin",
+    "minLength": "En az {{min}} karakter olmalıdır",
+    "maxLength": "En fazla {{max}} karakter olmalıdır",
+    "invalidPostcode": "Lütfen geçerli bir UK posta kodu girin",
+    "invalidPhone": "Lütfen geçerli bir UK telefon numarası girin",
+    "invalidVatNumber": "Lütfen geçerli bir UK KDV numarası girin (örn. GB123456789)",
+    "invalidCompanyNumber": "Lütfen geçerli bir UK şirket sicil numarası girin",
+    "invalidUTR": "Lütfen geçerli bir 10 haneli Vergi Mükellefi Referans numarası girin",
+    "invalidNINO": "Lütfen geçerli bir Ulusal Sigorta numarası girin (örn. AB123456C)",
+    "invalidSortCode": "Lütfen geçerli bir banka sıralama kodu girin (örn. 12-34-56)",
+    "invalidBankAccount": "Lütfen geçerli bir 8 haneli banka hesap numarası girin",
+    "invalidInvoiceNumber": "Lütfen geçerli bir fatura numarası girin",
+    "invalidCurrency": "Lütfen geçerli bir para birimi tutarı girin",
+    "invalidPercentage": "Lütfen geçerli bir yüzde girin (0-100)",
+    "mustBePositive": "Değer sıfırdan büyük olmalıdır",
+    "mustBeNonNegative": "Değer negatif olamaz",
+    "futureDate": "Tarih gelecekte olamaz",
+    "outsideTaxYear": "Tarih mevcut vergi yılının dışında ({{startYear}}/{{endYear}})",
+    "passwordMinLength": "Şifre en az 8 karakter olmalıdır",
+    "passwordCase": "Şifre hem büyük hem de küçük harf içermelidir",
+    "passwordNumber": "Şifre en az bir rakam içermelidir",
+    "passwordMismatch": "Şifreler eşleşmiyor"
+  },
+  "compliance": {
+    "vatRegistrationRequired": "Cironuz £{{threshold}} tutarını aştı. KDV kaydı artık zorunludur.",
+    "vatRegistrationApproaching": "Cironuz (£{{current}}) KDV kayıt eşiğine yaklaşıyor. Zorunlu kayıt öncesinde sadece £{{remaining}} kaldı.",
+    "missingReceipt": "£{{amount}} tutarındaki gider için makbuz eksik. HMRC kanıt olmadan bu kesintiyi kabul etmeyebilir.",
+    "selfEmploymentThreshold": "Ticari geliriniz £{{threshold}} tutarını aşıyor. Öz değerlendirme kaydı gerekebilir.",
+    "dividendAllowanceExceeded": "Temettü geliriniz £{{allowance}} vergisiz ödeneğini aşıyor",
+    "personalAllowanceReduction": "Geliriniz £100,000'ı aşıyor. Kişisel Ödeneğiniz £{{reduction}} azaltılarak £{{effectiveAllowance}} oldu"
+  },
+  "deadlines": {
+    "vatReturnOverdue": "KDV beyannamesi {{daysOverdue}} gün gecikmiş durumda. Geç dosyalama cezaları uygulanabilir.",
+    "vatReturnUrgent": "KDV beyannamesi {{daysUntilDue}} gün içinde teslim edilmeli. Cezalardan kaçınmak için hemen gönderin.",
+    "vatReturnDueSoon": "KDV beyannamesi {{daysUntilDue}} gün içinde teslim edilmeli",
+    "selfAssessmentOverdue": "{{taxYear}}/{{taxYear, number}} vergi yılı için Öz Değerlendirme {{daysOverdue}} gün gecikmiş. Cezalar birikmeye devam ediyor.",
+    "selfAssessmentDueSoon": "Öz Değerlendirme son tarihi ({{deadline}}) {{daysUntilDue}} gün içinde",
+    "corporationTaxDue": "Kurumlar Vergisi ödemesi {{daysUntilDue}} gün içinde teslim edilmeli",
+    "payePaymentDue": "PAYE ödemesi bu ayın 22'sinde teslim edilmeli"
+  },
+  "patterns": {
+    "unusualExpense": "Bu gider (£{{amount}}) ortalamanızdan (£{{average}}) önemli ölçüde yüksek",
+    "duplicateEntry": "Bu, {{date}} tarihli bir girişin kopyası gibi görünüyor",
+    "roundNumber": "Yuvarlak tutarlar bir tahmin göstergesi olabilir. Destekleyici belge eklemeyi düşünün.",
+    "weekendTransaction": "Bu işlem hafta sonuna tarihlenmiş. Lütfen tarihin doğru olduğunu doğrulayın.",
+    "frequentSmallExpenses": "Birden fazla küçük gider tespit edildi. Bunların birleştirilmesi gerekip gerekmediğini değerlendirin.",
+    "largeUnusualIncome": "Bu gelir kaydı önceki kayıtlara kıyasla alışılmadık derecede büyük"
+  },
+  "tax": {
+    "personalAllowanceReduction": "Kişisel Ödeneğiniz £{{reduction}} azaltıldı (geçerli ödenek: £{{effectiveAllowance}})",
+    "higherRateThreshold": "Geliriniz yüksek oranlı vergi eşiğine (£50,270) yaklaşıyor",
+    "additionalRateThreshold": "Geliriniz ek oranlı vergi eşiğine (£125,140) yaklaşıyor",
+    "capitalGainsApproaching": "Sermaye kazançlarınız yıllık muafiyete (£3,000) yaklaşıyor",
+    "dividendTaxDue": "£500 ödeneğini aşan temettüler için vergi ödenmesi gerekiyor"
+  },
+  "severity": {
+    "info": "Bilgi",
+    "warning": "Uyarı",
+    "error": "Hata",
+    "critical": "Kritik"
+  },
+  "categories": {
+    "compliance": "Uyumluluk",
+    "tax": "Vergi",
+    "vat": "KDV",
+    "pattern": "Örüntü Tespiti",
+    "deadline": "Son Tarih",
+    "threshold": "Eşik",
+    "dataQuality": "Veri Kalitesi"
+  },
+  "actions": {
+    "registerForVat": "KDV için Kayıt Ol",
+    "uploadReceipt": "Makbuz Yükle",
+    "fileReturn": "Beyanname Ver",
+    "learnMore": "Daha Fazla Bilgi",
+    "dismiss": "Kapat",
+    "viewDetails": "Detayları Görüntüle",
+    "fixNow": "Şimdi Düzelt"
+  },
+  "complianceAlerts": "Uyumluluk Uyarıları",
+  "showMore": "{{count}} tane daha göster",
+  "showLess": "Daha az göster",
+  "noWarnings": "Uyarı veya alarm yok",
+  "allClear": "Tümü temiz! Uyumluluk sorunu tespit edilmedi."
+}
