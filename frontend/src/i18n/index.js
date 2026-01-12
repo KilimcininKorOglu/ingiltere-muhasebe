@@ -31,6 +31,8 @@ import enTooltips from '../locales/en/tooltips.json';
 import trTooltips from '../locales/tr/tooltips.json';
 import enOnboarding from '../locales/en/onboarding.json';
 import trOnboarding from '../locales/tr/onboarding.json';
+import enVat from '../locales/en/vat.json';
+import trVat from '../locales/tr/vat.json';
 
 /**
  * Translation resources organized by language and namespace
@@ -44,6 +46,7 @@ const resources = {
     guides: enGuides,
     tooltips: enTooltips,
     onboarding: enOnboarding,
+    vat: enVat,
   },
   tr: {
     translation: trTranslation,
@@ -53,6 +56,7 @@ const resources = {
     guides: trGuides,
     tooltips: trTooltips,
     onboarding: trOnboarding,
+    vat: trVat,
   },
 };
 
@@ -79,7 +83,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE, 'warnings', 'help', 'articles', 'guides', 'tooltips', 'onboarding'],
+    ns: [DEFAULT_NAMESPACE, 'warnings', 'help', 'articles', 'guides', 'tooltips', 'onboarding', 'vat'],
 
     // Language detection configuration
     detection: {
