@@ -2,6 +2,7 @@
  * Auth Routes
  * API routes for authentication operations.
  * All routes are prefixed with /api/auth
+ * Includes strict rate limiting for sensitive endpoints.
  * 
  * @module routes/auth
  */
@@ -11,6 +12,7 @@ const router = express.Router();
 
 const { register, login, logout, getProfile } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
+const { strictLimiter, loginLimiter } = require('../middleware/rateLimiter');
 const {
   validateRegistration,
   validateLogin,
@@ -35,9 +37,10 @@ const {
  *          }
  * @query   lang - Language preference (en/tr)
  * @access  Public
+ * @rateLimit 10 requests per minute
  * @returns { success: true, data: { user: UserData, token: string } }
  */
-router.post('/register', sanitizeRegistration, validateRegistration, register);
+router.post('/register', strictLimiter, sanitizeRegistration, validateRegistration, register);
 
 /**
  * @route   POST /api/auth/login
@@ -45,9 +48,10 @@ router.post('/register', sanitizeRegistration, validateRegistration, register);
  * @body    { email: string, password: string }
  * @query   lang - Language preference (en/tr)
  * @access  Public
+ * @rateLimit 5 requests per 15 minutes
  * @returns { success: true, data: { user: UserData, token: string } }
  */
-router.post('/login', sanitizeLogin, validateLogin, login);
+router.post('/login', loginLimiter, sanitizeLogin, validateLogin, login);
 
 /**
  * @route   GET /api/auth/me
