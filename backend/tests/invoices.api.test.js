@@ -677,4 +677,408 @@ describe('Invoice API', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
     });
   });
+
+  describe('PATCH /api/invoices/:id/status', () => {
+    let testInvoiceId;
+
+    beforeEach(async () => {
+      // Create a fresh test invoice for each status test
+      const invoiceData = {
+        customerId: testCustomer.id,
+        invoiceDate: '2026-01-12',
+        dueDate: '2026-02-12',
+        items: [
+          { description: 'Test Service', quantity: 1, unitPrice: 10000, vatRate: 20 }
+        ]
+      };
+
+      const response = await request(app)
+        .post('/api/invoices')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(invoiceData);
+
+      testInvoiceId = response.body.data.id;
+    });
+
+    afterEach(() => {
+      if (testInvoiceId) {
+        try {
+          const { deleteInvoice, findById, updateInvoice } = require('../database/models/Invoice');
+          const invoice = findById(testInvoiceId);
+          // Reset status to draft if needed for deletion
+          if (invoice && invoice.status !== 'draft') {
+            // Force delete by direct SQL
+            const { execute } = require('../database/index');
+            execute('DELETE FROM invoices WHERE id = ?', [testInvoiceId]);
+          } else if (invoice) {
+            deleteInvoice(testInvoiceId);
+          }
+        } catch {}
+        testInvoiceId = null;
+      }
+    });
+
+    describe('Valid status transitions', () => {
+      it('should transition from draft to pending', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('pending');
+        expect(response.body.data.statusChange).toBeDefined();
+        expect(response.body.data.statusChange.previousStatus).toBe('draft');
+        expect(response.body.data.statusChange.newStatus).toBe('pending');
+      });
+
+      it('should transition from draft to cancelled', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'cancelled' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('cancelled');
+      });
+
+      it('should transition from pending to paid', async () => {
+        // First transition to pending
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Then transition to paid
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('paid');
+        expect(response.body.data.paidAt).toBeDefined();
+      });
+
+      it('should transition from pending to overdue', async () => {
+        // First transition to pending
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Then transition to overdue
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'overdue' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('overdue');
+      });
+
+      it('should transition from overdue to paid', async () => {
+        // Transition to pending then overdue
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'overdue' });
+
+        // Then transition to paid
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('paid');
+        expect(response.body.data.paidAt).toBeDefined();
+      });
+
+      it('should transition from paid to refunded', async () => {
+        // Transition to pending then paid
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' });
+
+        // Then transition to refunded
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'refunded' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('refunded');
+      });
+    });
+
+    describe('Invalid status transitions', () => {
+      it('should return 400 for draft to paid (invalid)', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVALID_STATUS_TRANSITION');
+        expect(response.body.error.validTransitions).toEqual(['pending', 'cancelled']);
+      });
+
+      it('should return 400 for pending to draft (invalid)', async () => {
+        // First transition to pending
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Try invalid transition back to draft
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'draft' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVALID_STATUS_TRANSITION');
+      });
+
+      it('should return 400 for cancelled to any status (terminal)', async () => {
+        // Cancel the invoice
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'cancelled' });
+
+        // Try to change from cancelled
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVALID_STATUS_TRANSITION');
+      });
+    });
+
+    describe('Payment details recording', () => {
+      it('should record payment details when marking as paid', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Mark as paid with payment details
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            status: 'paid',
+            paymentDetails: {
+              paymentMethod: 'bank_transfer',
+              paymentReference: 'BACS-20260112-001',
+              notes: 'Payment received via BACS'
+            }
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.status).toBe('paid');
+        expect(response.body.data.payment).toBeDefined();
+        expect(response.body.data.payment.method).toBe('bank_transfer');
+        expect(response.body.data.payment.reference).toBe('BACS-20260112-001');
+      });
+
+      it('should accept payment date in payment details', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        const customPaymentDate = '2026-01-10T14:30:00Z';
+
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            status: 'paid',
+            paymentDetails: {
+              paymentDate: customPaymentDate,
+              paymentMethod: 'card'
+            }
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.payment.paidAt).toBe(customPaymentDate);
+      });
+
+      it('should validate payment details', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Try with invalid payment method
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            status: 'paid',
+            paymentDetails: {
+              paymentMethod: 'invalid_method'
+            }
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      });
+    });
+
+    describe('Income transaction creation', () => {
+      it('should create income transaction when requested', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Mark as paid with income transaction creation
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            status: 'paid',
+            createIncomeTransaction: true,
+            paymentDetails: {
+              paymentMethod: 'bank_transfer'
+            }
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.incomeTransaction).toBeDefined();
+        expect(response.body.data.incomeTransaction.id).toBeDefined();
+        expect(response.body.data.incomeTransaction.amount).toBe(12000); // 10000 + 2000 VAT
+      });
+
+      it('should not create income transaction by default', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Mark as paid without income transaction flag
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.incomeTransaction).toBeUndefined();
+      });
+    });
+
+    describe('Error handling', () => {
+      it('should return 404 for non-existent invoice', async () => {
+        const response = await request(app)
+          .patch('/api/invoices/999999/status')
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' })
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('RES_NOT_FOUND');
+      });
+
+      it('should return 400 for invalid status value', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'invalid_status' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      });
+
+      it('should return 400 for missing status', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({})
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it('should return 401 without authentication', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .send({ status: 'pending' })
+          .expect(401);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe('Timestamps updates', () => {
+      it('should update paidAt when marking as paid', async () => {
+        // Transition to pending first
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Mark as paid
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' })
+          .expect(200);
+
+        expect(response.body.data.paidAt).toBeDefined();
+        // Verify it's a valid ISO timestamp
+        const paidAt = new Date(response.body.data.paidAt);
+        expect(paidAt.getTime()).not.toBeNaN();
+      });
+
+      it('should update updatedAt on status change', async () => {
+        const response = await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' })
+          .expect(200);
+
+        expect(response.body.data.updatedAt).toBeDefined();
+        // Verify it's a valid timestamp format
+        expect(response.body.data.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
+      });
+    });
+  });
 });
+
