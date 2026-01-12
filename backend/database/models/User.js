@@ -148,6 +148,38 @@ const fieldDefinitions = {
       }
       return null;
     }
+  },
+  invoicePrefix: {
+    type: 'string',
+    required: false,
+    default: 'INV',
+    maxLength: 20,
+    validate: (value) => {
+      if (value && value.trim()) {
+        // Allow alphanumeric characters, hyphens, and underscores
+        const prefixRegex = /^[A-Za-z0-9\-_]+$/;
+        if (!prefixRegex.test(value.trim())) {
+          return 'Invoice prefix can only contain letters, numbers, hyphens, and underscores';
+        }
+        if (value.trim().length < 1) {
+          return 'Invoice prefix must be at least 1 character long';
+        }
+      }
+      return null;
+    }
+  },
+  nextInvoiceNumber: {
+    type: 'number',
+    required: false,
+    default: 1,
+    validate: (value) => {
+      if (value !== undefined && value !== null) {
+        if (!Number.isInteger(value) || value < 1) {
+          return 'Next invoice number must be a positive integer';
+        }
+      }
+      return null;
+    }
   }
 };
 
@@ -317,16 +349,20 @@ async function createUser(userData) {
       isVatRegistered: userData.isVatRegistered ? 1 : 0,
       companyNumber: userData.companyNumber?.replace(/\s/g, '').toUpperCase() || null,
       taxYearStart: userData.taxYearStart || '04-06',
-      preferredLanguage: userData.preferredLanguage || 'en'
+      preferredLanguage: userData.preferredLanguage || 'en',
+      invoicePrefix: userData.invoicePrefix?.trim().toUpperCase() || 'INV',
+      nextInvoiceNumber: userData.nextInvoiceNumber || 1
     };
 
     const result = execute(`
       INSERT INTO users (
         email, passwordHash, name, businessName, businessAddress,
-        vatNumber, isVatRegistered, companyNumber, taxYearStart, preferredLanguage
+        vatNumber, isVatRegistered, companyNumber, taxYearStart, preferredLanguage,
+        invoicePrefix, nextInvoiceNumber
       ) VALUES (
         @email, @passwordHash, @name, @businessName, @businessAddress,
-        @vatNumber, @isVatRegistered, @companyNumber, @taxYearStart, @preferredLanguage
+        @vatNumber, @isVatRegistered, @companyNumber, @taxYearStart, @preferredLanguage,
+        @invoicePrefix, @nextInvoiceNumber
       )
     `, insertData);
 
@@ -471,6 +507,16 @@ async function updateUser(id, userData) {
     if (userData.preferredLanguage !== undefined) {
       updateFields.push('preferredLanguage = @preferredLanguage');
       updateParams.preferredLanguage = userData.preferredLanguage;
+    }
+
+    if (userData.invoicePrefix !== undefined) {
+      updateFields.push('invoicePrefix = @invoicePrefix');
+      updateParams.invoicePrefix = userData.invoicePrefix?.trim().toUpperCase() || 'INV';
+    }
+
+    if (userData.nextInvoiceNumber !== undefined) {
+      updateFields.push('nextInvoiceNumber = @nextInvoiceNumber');
+      updateParams.nextInvoiceNumber = userData.nextInvoiceNumber;
     }
 
     // Always update the updatedAt timestamp
