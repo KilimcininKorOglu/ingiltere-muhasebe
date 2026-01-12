@@ -22,9 +22,10 @@ const {
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
   getVatSummaryByQuarter,
-  getCorporationTaxEstimate,
-  getCorporationTaxByTaxYear,
-  getCorporationTaxByYear
+  getCashFlow,
+  getCashFlowByTaxYear,
+  getCashFlowByMonth,
+  getCashFlowByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -249,57 +250,85 @@ router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
 router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
 
 // =====================================
-// Corporation Tax Estimate Routes
+// Cash Flow Statement Routes
 // =====================================
 
 /**
- * @route   GET /api/reports/corporation-tax
- * @desc    Get Corporation Tax estimate for an accounting period
- * @query   startDate - Start date of accounting period (YYYY-MM-DD) (required)
- * @query   endDate - End date of accounting period (YYYY-MM-DD) (required)
- * @query   associatedCompanies - Number of associated companies (optional, default: 0)
- * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @route   GET /api/reports/cash-flow
+ * @desc    Get Cash Flow Statement for a date range
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   includeComparison - Include previous period comparison (optional, default: false)
+ * @query   includeBankMovements - Include bank account movements (optional, default: true)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional, default: true)
  * @query   lang - Language preference (en/tr)
  * @access  Private
  * @returns {
  *   success: true,
  *   data: {
- *     period: { startDate, endDate, days },
- *     profitAndLoss: { totalRevenue, totalExpenses, netProfit },
- *     taxCalculation: {
- *       taxableProfit, taxBeforeMarginalRelief, marginalRelief, corporationTax,
- *       effectiveRate, rateCategory, rateDescription, thresholds, calculationSteps
+ *     period: { startDate, endDate, taxYear },
+ *     openingBalance: number,
+ *     closingBalance: number,
+ *     inflows: {
+ *       categories: [{ categoryId, categoryCode, categoryName, amount, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
  *     },
- *     deadlines: { paymentDeadline, filingDeadline, paymentDeadlineDescription, filingDeadlineDescription },
- *     rates: { smallProfitsRate, mainRate, marginalReliefFraction },
- *     explanation: { en, tr }
+ *     outflows: {
+ *       categories: [{ categoryId, categoryCode, categoryName, amount, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     summary: {
+ *       openingBalance, totalInflows, totalOutflows, netCashChange, closingBalance,
+ *       expectedClosingBalance, isReconciled, reconciliationDifference
+ *     },
+ *     bankAccountMovements?: [...],
+ *     monthlyCashFlow?: [...],
+ *     comparison?: { previousPeriod, previous, changes }
  *   }
  * }
  */
-router.get('/corporation-tax', getCorporationTaxEstimate);
+router.get('/cash-flow', getCashFlow);
 
 /**
- * @route   GET /api/reports/corporation-tax/tax-year/:taxYear
- * @desc    Get Corporation Tax estimate for a specific UK tax year (April 6 to April 5)
+ * @route   GET /api/reports/cash-flow/tax-year/:taxYear
+ * @desc    Get Cash Flow Statement for a specific UK tax year
  * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
- * @query   associatedCompanies - Number of associated companies (optional, default: 0)
- * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Corporation Tax estimate for the specified tax year
+ * @returns Cash Flow Statement for the specified tax year
  */
-router.get('/corporation-tax/tax-year/:taxYear', getCorporationTaxByTaxYear);
+router.get('/cash-flow/tax-year/:taxYear', getCashFlowByTaxYear);
 
 /**
- * @route   GET /api/reports/corporation-tax/year/:year
- * @desc    Get Corporation Tax estimate for a specific financial year (January 1 to December 31)
+ * @route   GET /api/reports/cash-flow/monthly/:year/:month
+ * @desc    Get Cash Flow Statement for a specific month
  * @param   year - The year (e.g., 2025)
- * @query   associatedCompanies - Number of associated companies (optional, default: 0)
- * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @param   month - The month (1-12)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Corporation Tax estimate for the specified financial year
+ * @returns Cash Flow Statement for the specified month
  */
-router.get('/corporation-tax/year/:year', getCorporationTaxByYear);
+router.get('/cash-flow/monthly/:year/:month', getCashFlowByMonth);
+
+/**
+ * @route   GET /api/reports/cash-flow/quarterly/:year/:quarter
+ * @desc    Get Cash Flow Statement for a specific quarter
+ * @param   year - The year (e.g., 2025)
+ * @param   quarter - The quarter (1-4)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeBankMovements - Include bank account movements (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Cash Flow Statement for the specified quarter
+ */
+router.get('/cash-flow/quarterly/:year/:quarter', getCashFlowByQuarter);
 
 module.exports = router;

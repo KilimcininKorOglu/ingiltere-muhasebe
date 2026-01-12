@@ -1,8 +1,7 @@
 /**
  * Report Controller
  * Handles report generation operations including PAYE summary reports,
- * Profit & Loss (Income Statement) reports, VAT Summary reports,
- * and Self Assessment reports.
+ * Profit & Loss (Income Statement) reports, VAT Summary reports, and Cash Flow Statements.
  * 
  * @module controllers/reportController
  */
@@ -10,7 +9,7 @@
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
 const vatSummaryService = require('../services/vatSummaryService');
-const corporationTaxService = require('../services/corporationTaxService');
+const cashFlowService = require('../services/cashFlowService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -988,18 +987,19 @@ function getVatSummaryByQuarter(req, res) {
 }
 
 // =====================================
-// Corporation Tax Estimate Functions
+// Cash Flow Statement Report Functions
 // =====================================
 
 /**
- * Generates a Corporation Tax estimate for a date range (accounting period).
- * GET /api/reports/corporation-tax
+ * Generates a Cash Flow Statement for a date range.
+ * GET /api/reports/cash-flow
  * 
  * Query Parameters:
- * - startDate: Start date of accounting period in YYYY-MM-DD format (required)
- * - endDate: End date of accounting period in YYYY-MM-DD format (required)
- * - associatedCompanies: Number of associated companies (optional, default: 0)
- * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - includeComparison: Include previous period comparison (optional, default: false)
+ * - includeBankMovements: Include bank account movements (optional, default: true)
+ * - includeMonthlyBreakdown: Include monthly breakdown (optional, default: true)
  * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
@@ -1007,12 +1007,13 @@ function getVatSummaryByQuarter(req, res) {
  * @param {Object} req.query - Query parameters
  * @param {Object} res - Express response object
  */
-function getCorporationTaxEstimate(req, res) {
+function getCashFlow(req, res) {
   try {
     const { 
       lang = 'en',
-      associatedCompanies = '0',
-      distributions = '0'
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
     } = req.query;
     const userId = req.user.id;
     
@@ -1033,7 +1034,7 @@ function getCorporationTaxEstimate(req, res) {
     }
     
     // Validate date format and range
-    const validation = corporationTaxService.validateDateRange(startDate, endDate);
+    const validation = cashFlowService.validateDateRange(startDate, endDate);
     if (!validation.isValid) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -1047,28 +1048,11 @@ function getCorporationTaxEstimate(req, res) {
       });
     }
     
-    // Parse optional parameters
-    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
-    const distributionsNum = parseInt(distributions, 10) || 0;
-    
-    // Validate associated companies
-    if (associatedCompaniesNum < 0) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: {
-            en: 'Associated companies must be a non-negative number',
-            tr: 'İlişkili şirketler negatif olmayan bir sayı olmalıdır'
-          }
-        }
-      });
-    }
-    
-    // Generate the Corporation Tax estimate
-    const report = corporationTaxService.generateCorporationTaxEstimate(userId, startDate, endDate, {
-      associatedCompanies: associatedCompaniesNum,
-      distributions: distributionsNum
+    // Generate the Cash Flow Statement report
+    const report = cashFlowService.generateCashFlowReport(userId, startDate, endDate, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1077,12 +1061,12 @@ function getCorporationTaxEstimate(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'corporation-tax-estimate'
+        reportType: 'cash-flow'
       }
     });
     
   } catch (error) {
-    console.error('Get Corporation Tax estimate error:', error);
+    console.error('Get Cash Flow error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1095,28 +1079,24 @@ function getCorporationTaxEstimate(req, res) {
 }
 
 /**
- * Generates a Corporation Tax estimate for a specific tax year.
- * GET /api/reports/corporation-tax/tax-year/:taxYear
+ * Generates a Cash Flow Statement for a specific tax year.
+ * GET /api/reports/cash-flow/tax-year/:taxYear
  * 
  * URL Parameters:
  * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
- * 
- * Query Parameters:
- * - associatedCompanies: Number of associated companies (optional, default: 0)
- * - distributions: Distributions from non-group companies in pence (optional, default: 0)
- * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getCorporationTaxByTaxYear(req, res) {
+function getCashFlowByTaxYear(req, res) {
   try {
     const { 
       lang = 'en',
-      associatedCompanies = '0',
-      distributions = '0'
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
     } = req.query;
     const userId = req.user.id;
     
@@ -1153,14 +1133,11 @@ function getCorporationTaxByTaxYear(req, res) {
       });
     }
     
-    // Parse optional parameters
-    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
-    const distributionsNum = parseInt(distributions, 10) || 0;
-    
-    // Generate the Corporation Tax estimate for tax year
-    const report = corporationTaxService.generateCorporationTaxForTaxYear(userId, taxYear, {
-      associatedCompanies: associatedCompaniesNum,
-      distributions: distributionsNum
+    // Generate the Cash Flow Statement for tax year
+    const report = cashFlowService.generateCashFlowForTaxYear(userId, taxYear, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1169,12 +1146,12 @@ function getCorporationTaxByTaxYear(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'corporation-tax-tax-year'
+        reportType: 'cash-flow-tax-year'
       }
     });
     
   } catch (error) {
-    console.error('Get Corporation Tax by tax year error:', error);
+    console.error('Get Cash Flow by tax year error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1187,32 +1164,29 @@ function getCorporationTaxByTaxYear(req, res) {
 }
 
 /**
- * Generates a Corporation Tax estimate for a specific financial year.
- * GET /api/reports/corporation-tax/year/:year
+ * Generates a Cash Flow Statement for a specific month.
+ * GET /api/reports/cash-flow/monthly/:year/:month
  * 
  * URL Parameters:
- * - year: The year (e.g., 2025) - January 1 to December 31
- * 
- * Query Parameters:
- * - associatedCompanies: Number of associated companies (optional, default: 0)
- * - distributions: Distributions from non-group companies in pence (optional, default: 0)
- * - lang: Language preference (en/tr)
+ * - year: The year (e.g., 2025)
+ * - month: The month (1-12)
  * 
  * @param {Object} req - Express request object
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getCorporationTaxByYear(req, res) {
+function getCashFlowByMonth(req, res) {
   try {
     const { 
       lang = 'en',
-      associatedCompanies = '0',
-      distributions = '0'
+      includeComparison = 'false',
+      includeBankMovements = 'true'
     } = req.query;
     const userId = req.user.id;
     
     const year = parseInt(req.params.year, 10);
+    const month = parseInt(req.params.month, 10);
     
     // Validate year
     if (isNaN(year) || year < 2000 || year > 2100) {
@@ -1228,14 +1202,24 @@ function getCorporationTaxByYear(req, res) {
       });
     }
     
-    // Parse optional parameters
-    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
-    const distributionsNum = parseInt(distributions, 10) || 0;
+    // Validate month
+    if (isNaN(month) || month < 1 || month > 12) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid month. Must be between 1 and 12',
+            tr: 'Geçersiz ay. 1 ile 12 arasında olmalıdır'
+          }
+        }
+      });
+    }
     
-    // Generate the Corporation Tax estimate for the year
-    const report = corporationTaxService.generateCorporationTaxForYear(userId, year, {
-      associatedCompanies: associatedCompaniesNum,
-      distributions: distributionsNum
+    // Generate the Cash Flow Statement for the month
+    const report = cashFlowService.generateCashFlowForMonth(userId, year, month, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1244,13 +1228,99 @@ function getCorporationTaxByYear(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'corporation-tax-year',
-        year: year
+        reportType: 'cash-flow-monthly',
+        monthName: cashFlowService.getMonthName(month)
       }
     });
     
   } catch (error) {
-    console.error('Get Corporation Tax by year error:', error);
+    console.error('Get Cash Flow by month error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Cash Flow Statement for a specific quarter.
+ * GET /api/reports/cash-flow/quarterly/:year/:quarter
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025)
+ * - quarter: The quarter (1-4)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCashFlowByQuarter(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      includeComparison = 'false',
+      includeBankMovements = 'true',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    const quarter = parseInt(req.params.quarter, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate quarter
+    if (isNaN(quarter) || quarter < 1 || quarter > 4) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid quarter. Must be between 1 and 4',
+            tr: 'Geçersiz çeyrek. 1 ile 4 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Cash Flow Statement for the quarter
+    const report = cashFlowService.generateCashFlowForQuarter(userId, year, quarter, {
+      includeComparison: includeComparison === 'true' || includeComparison === true,
+      includeBankMovements: includeBankMovements === 'true' || includeBankMovements === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'cash-flow-quarterly',
+        quarter: quarter,
+        quarterName: `Q${quarter}`
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Cash Flow by quarter error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1281,8 +1351,9 @@ module.exports = {
   getVatSummaryByMonth,
   getVatSummaryByQuarter,
   
-  // Corporation Tax Estimate reports
-  getCorporationTaxEstimate,
-  getCorporationTaxByTaxYear,
-  getCorporationTaxByYear
+  // Cash Flow Statement reports
+  getCashFlow,
+  getCashFlowByTaxYear,
+  getCashFlowByMonth,
+  getCashFlowByQuarter
 };
