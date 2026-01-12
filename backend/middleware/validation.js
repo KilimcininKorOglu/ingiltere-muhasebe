@@ -919,6 +919,294 @@ function sanitizeCustomer(req, res, next) {
   next();
 }
 
+/**
+ * Valid invoice currencies.
+ */
+const INVOICE_CURRENCIES = ['GBP', 'EUR', 'USD'];
+
+/**
+ * Valid invoice statuses.
+ */
+const INVOICE_STATUSES = ['draft', 'pending', 'paid', 'overdue', 'cancelled', 'refunded'];
+
+/**
+ * Valid VAT rate identifiers.
+ */
+const VALID_VAT_RATE_IDS = ['standard', 'reduced', 'zero', 'exempt', 'outside-scope'];
+
+/**
+ * Validates invoice creation request body.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function validateInvoiceCreate(req, res, next) {
+  const errors = [];
+  const { customerId, invoiceDate, dueDate, taxPoint, notes, items, currency } = req.body;
+
+  // Customer ID validation (required)
+  if (customerId === undefined || customerId === null) {
+    errors.push({
+      field: 'customerId',
+      message: 'Customer ID is required',
+      messageTr: 'Müşteri ID zorunludur'
+    });
+  } else if (!Number.isInteger(customerId) || customerId <= 0) {
+    errors.push({
+      field: 'customerId',
+      message: 'Customer ID must be a positive integer',
+      messageTr: 'Müşteri ID pozitif bir tam sayı olmalıdır'
+    });
+  }
+
+  // Invoice date validation (required)
+  if (!invoiceDate) {
+    errors.push({
+      field: 'invoiceDate',
+      message: 'Invoice date is required',
+      messageTr: 'Fatura tarihi zorunludur'
+    });
+  } else if (typeof invoiceDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(invoiceDate)) {
+    errors.push({
+      field: 'invoiceDate',
+      message: 'Invoice date must be in YYYY-MM-DD format',
+      messageTr: 'Fatura tarihi YYYY-MM-DD formatında olmalıdır'
+    });
+  } else {
+    const date = new Date(invoiceDate);
+    if (isNaN(date.getTime())) {
+      errors.push({
+        field: 'invoiceDate',
+        message: 'Invoice date is not a valid date',
+        messageTr: 'Fatura tarihi geçerli bir tarih değil'
+      });
+    }
+  }
+
+  // Due date validation (required)
+  if (!dueDate) {
+    errors.push({
+      field: 'dueDate',
+      message: 'Due date is required',
+      messageTr: 'Vade tarihi zorunludur'
+    });
+  } else if (typeof dueDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+    errors.push({
+      field: 'dueDate',
+      message: 'Due date must be in YYYY-MM-DD format',
+      messageTr: 'Vade tarihi YYYY-MM-DD formatında olmalıdır'
+    });
+  } else {
+    const date = new Date(dueDate);
+    if (isNaN(date.getTime())) {
+      errors.push({
+        field: 'dueDate',
+        message: 'Due date is not a valid date',
+        messageTr: 'Vade tarihi geçerli bir tarih değil'
+      });
+    }
+  }
+
+  // Cross-field validation: due date must be >= invoice date
+  if (invoiceDate && dueDate && /^\d{4}-\d{2}-\d{2}$/.test(invoiceDate) && /^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+    const invDate = new Date(invoiceDate);
+    const dueDateObj = new Date(dueDate);
+    if (!isNaN(invDate.getTime()) && !isNaN(dueDateObj.getTime()) && dueDateObj < invDate) {
+      errors.push({
+        field: 'dueDate',
+        message: 'Due date must be on or after the invoice date',
+        messageTr: 'Vade tarihi fatura tarihinden sonra veya aynı olmalıdır'
+      });
+    }
+  }
+
+  // Tax point validation (optional, for UK VAT compliance)
+  if (taxPoint !== undefined && taxPoint !== null && taxPoint !== '') {
+    if (typeof taxPoint !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(taxPoint)) {
+      errors.push({
+        field: 'taxPoint',
+        message: 'Tax point must be in YYYY-MM-DD format',
+        messageTr: 'Vergi noktası YYYY-MM-DD formatında olmalıdır'
+      });
+    } else {
+      const date = new Date(taxPoint);
+      if (isNaN(date.getTime())) {
+        errors.push({
+          field: 'taxPoint',
+          message: 'Tax point is not a valid date',
+          messageTr: 'Vergi noktası geçerli bir tarih değil'
+        });
+      }
+    }
+  }
+
+  // Notes validation (optional)
+  if (notes !== undefined && notes !== null && notes !== '') {
+    if (typeof notes !== 'string') {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must be a string',
+        messageTr: 'Notlar metin olmalıdır'
+      });
+    } else if (notes.length > 5000) {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must not exceed 5000 characters',
+        messageTr: 'Notlar 5000 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Currency validation (optional)
+  if (currency !== undefined && currency !== null && currency !== '') {
+    if (typeof currency !== 'string') {
+      errors.push({
+        field: 'currency',
+        message: 'Currency must be a string',
+        messageTr: 'Para birimi metin olmalıdır'
+      });
+    } else if (!INVOICE_CURRENCIES.includes(currency.toUpperCase())) {
+      errors.push({
+        field: 'currency',
+        message: `Currency must be one of: ${INVOICE_CURRENCIES.join(', ')}`,
+        messageTr: `Para birimi şunlardan biri olmalıdır: ${INVOICE_CURRENCIES.join(', ')}`
+      });
+    }
+  }
+
+  // Items validation (required)
+  if (!items) {
+    errors.push({
+      field: 'items',
+      message: 'Invoice items are required',
+      messageTr: 'Fatura kalemleri zorunludur'
+    });
+  } else if (!Array.isArray(items)) {
+    errors.push({
+      field: 'items',
+      message: 'Items must be an array',
+      messageTr: 'Kalemler bir dizi olmalıdır'
+    });
+  } else if (items.length === 0) {
+    errors.push({
+      field: 'items',
+      message: 'At least one item is required',
+      messageTr: 'En az bir kalem gereklidir'
+    });
+  } else if (items.length > 100) {
+    errors.push({
+      field: 'items',
+      message: 'Maximum 100 items allowed per invoice',
+      messageTr: 'Fatura başına en fazla 100 kalem izin verilir'
+    });
+  } else {
+    // Validate each line item
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const prefix = `items[${i}]`;
+
+      // Description validation
+      if (!item.description || typeof item.description !== 'string' || !item.description.trim()) {
+        errors.push({
+          field: `${prefix}.description`,
+          message: 'Item description is required',
+          messageTr: 'Kalem açıklaması zorunludur'
+        });
+      } else if (item.description.length > 1000) {
+        errors.push({
+          field: `${prefix}.description`,
+          message: 'Item description must not exceed 1000 characters',
+          messageTr: 'Kalem açıklaması 1000 karakteri geçmemelidir'
+        });
+      }
+
+      // Quantity validation
+      if (item.quantity !== undefined && item.quantity !== null && item.quantity !== '') {
+        const qty = parseFloat(item.quantity);
+        if (isNaN(qty) || qty <= 0) {
+          errors.push({
+            field: `${prefix}.quantity`,
+            message: 'Quantity must be a positive number',
+            messageTr: 'Miktar pozitif bir sayı olmalıdır'
+          });
+        }
+      }
+
+      // Unit price validation
+      if (item.unitPrice === undefined || item.unitPrice === null) {
+        errors.push({
+          field: `${prefix}.unitPrice`,
+          message: 'Unit price is required',
+          messageTr: 'Birim fiyatı zorunludur'
+        });
+      } else if (typeof item.unitPrice !== 'number' || !Number.isInteger(item.unitPrice) || item.unitPrice < 0) {
+        errors.push({
+          field: `${prefix}.unitPrice`,
+          message: 'Unit price must be a non-negative integer (in pence)',
+          messageTr: 'Birim fiyatı negatif olmayan bir tam sayı olmalıdır (peni cinsinden)'
+        });
+      }
+
+      // VAT rate validation
+      if (item.vatRate !== undefined && item.vatRate !== null) {
+        if (typeof item.vatRate === 'string' && !VALID_VAT_RATE_IDS.includes(item.vatRate)) {
+          errors.push({
+            field: `${prefix}.vatRate`,
+            message: `Invalid VAT rate. Must be one of: ${VALID_VAT_RATE_IDS.join(', ')} or a number`,
+            messageTr: `Geçersiz KDV oranı. Şunlardan biri olmalıdır: ${VALID_VAT_RATE_IDS.join(', ')} veya bir sayı`
+          });
+        } else if (typeof item.vatRate === 'number' && (item.vatRate < 0 || item.vatRate > 100)) {
+          errors.push({
+            field: `${prefix}.vatRate`,
+            message: 'VAT rate must be between 0 and 100',
+            messageTr: 'KDV oranı 0 ile 100 arasında olmalıdır'
+          });
+        }
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return sendValidationError(res, errors);
+  }
+
+  next();
+}
+
+/**
+ * Sanitizes invoice request body.
+ * Trims strings and normalizes values.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function sanitizeInvoice(req, res, next) {
+  const body = req.body;
+
+  // Trim and normalize notes
+  if (body.notes && typeof body.notes === 'string') {
+    body.notes = body.notes.trim();
+  }
+
+  // Normalize currency (uppercase)
+  if (body.currency && typeof body.currency === 'string') {
+    body.currency = body.currency.toUpperCase();
+  }
+
+  // Sanitize items
+  if (Array.isArray(body.items)) {
+    for (const item of body.items) {
+      if (item.description && typeof item.description === 'string') {
+        item.description = item.description.trim();
+      }
+    }
+  }
+
+  next();
+}
+
 module.exports = {
   validateRegistration,
   validateLogin,
@@ -933,6 +1221,9 @@ module.exports = {
   validateCreateBankAccount,
   validateUpdateBankAccount,
   sanitizeBankAccountData,
+  // Invoice validation
+  validateInvoiceCreate,
+  sanitizeInvoice,
   // Authentication
   authenticateToken,
   // Constants
@@ -940,7 +1231,10 @@ module.exports = {
   UK_COMPANY_REGEX,
   UK_POSTCODE_REGEX,
   CUSTOMER_STATUSES,
-  VALID_CURRENCIES
+  VALID_CURRENCIES,
+  INVOICE_CURRENCIES,
+  INVOICE_STATUSES,
+  VALID_VAT_RATE_IDS
 };
 
 /**
