@@ -1,17 +1,23 @@
 /**
  * VAT Controller
- * Handles HTTP requests for VAT-related operations including threshold monitoring.
+ * Handles HTTP requests for VAT-related operations including threshold monitoring
+ * and VAT return CRUD operations.
  * 
  * @module controllers/vatController
  */
 
 const { findById } = require('../database/models/User');
+const VatReturn = require('../database/models/VatReturn');
 const { 
   getVatThresholdStatus, 
   getDashboardSummary,
   getVatThresholdConfig,
   WARNING_LEVELS
 } = require('../services/vatThresholdService');
+const {
+  calculateAndPrepareVatReturn,
+  getVatReturnPreview
+} = require('../services/vatCalculationService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -446,11 +452,737 @@ async function getTurnoverBreakdown(req, res) {
   }
 }
 
+// ==========================================
+// VAT RETURN CRUD OPERATIONS
+// ==========================================
+
+/**
+ * Creates a new VAT return with calculated values.
+ * 
+ * POST /api/vat/returns
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body with VAT return data
+ * @param {string} req.body.periodStart - Period start date (YYYY-MM-DD)
+ * @param {string} req.body.periodEnd - Period end date (YYYY-MM-DD)
+ * @param {string} [req.body.accountingScheme] - 'standard' or 'cash'
+ * @param {boolean} [req.body.autoCalculate=true] - Whether to auto-calculate boxes
+ * @param {string} [req.body.notes] - Additional notes
+ * @param {Object} res - Express response object
+ */
+async function createVatReturn(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    
+    const {
+      periodStart,
+      periodEnd,
+      accountingScheme = 'standard',
+      autoCalculate = true,
+      notes,
+      // Manual box values (only used when autoCalculate is false)
+      box1,
+      box2,
+      box4,
+      box6,
+      box7,
+      box8,
+      box9
+    } = req.body;
+    
+    // Validate required fields
+    if (!periodStart || !periodEnd) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Period start and end dates are required',
+            tr: 'Dönem başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    let vatReturnData;
+    
+    if (autoCalculate) {
+      // Use VAT calculation service to compute boxes
+      const calculationResult = calculateAndPrepareVatReturn(userId, periodStart, periodEnd, {
+        accountingScheme
+      });
+      
+      if (!calculationResult.success) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: {
+            code: 'CALCULATION_ERROR',
+            message: {
+              en: 'Failed to calculate VAT return',
+              tr: 'KDV beyannamesi hesaplanamadı'
+            },
+            details: calculationResult.errors
+          }
+        });
+      }
+      
+      vatReturnData = {
+        ...calculationResult.data,
+        notes: notes || null
+      };
+    } else {
+      // Use manually provided box values
+      vatReturnData = {
+        userId,
+        periodStart,
+        periodEnd,
+        box1: box1 || 0,
+        box2: box2 || 0,
+        box4: box4 || 0,
+        box6: box6 || 0,
+        box7: box7 || 0,
+        box8: box8 || 0,
+        box9: box9 || 0,
+        status: 'draft',
+        notes: notes || null
+      };
+    }
+    
+    // Create the VAT return
+    const result = VatReturn.createVatReturn(vatReturnData);
+    
+    if (!result.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Failed to create VAT return',
+            tr: 'KDV beyannamesi oluşturulamadı'
+          },
+          details: Object.entries(result.errors || {}).map(([field, message]) => ({
+            field,
+            message,
+            messageTr: message
+          }))
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.CREATED).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Create VAT return error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Lists all VAT returns for the authenticated user.
+ * 
+ * GET /api/vat/returns
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.query - Query parameters
+ * @param {number} [req.query.page=1] - Page number
+ * @param {number} [req.query.limit=10] - Items per page
+ * @param {string} [req.query.status] - Filter by status
+ * @param {string} [req.query.sortBy='periodEnd'] - Sort field
+ * @param {string} [req.query.sortOrder='DESC'] - Sort order
+ * @param {Object} res - Express response object
+ */
+async function listVatReturns(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sortBy = 'periodEnd',
+      sortOrder = 'DESC'
+    } = req.query;
+    
+    const result = VatReturn.getVatReturnsByUserId(userId, {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      status,
+      sortBy,
+      sortOrder
+    });
+    
+    // Also get status counts for summary
+    const statusCounts = VatReturn.getStatusCounts(userId);
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        vatReturns: result.vatReturns,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: Math.ceil(result.total / result.limit)
+        },
+        statusCounts
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('List VAT returns error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets a VAT return by ID with full details.
+ * 
+ * GET /api/vat/returns/:id
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} res - Express response object
+ */
+async function getVatReturnById(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Format currency values for display
+    const formatCurrency = (amount) => new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP'
+    }).format(amount / 100);
+    
+    const formattedData = {
+      ...vatReturn,
+      formatted: {
+        box1: formatCurrency(vatReturn.box1),
+        box2: formatCurrency(vatReturn.box2),
+        box3: formatCurrency(vatReturn.box3),
+        box4: formatCurrency(vatReturn.box4),
+        box5: formatCurrency(vatReturn.box5),
+        box6: formatCurrency(vatReturn.box6),
+        box7: formatCurrency(vatReturn.box7),
+        box8: formatCurrency(vatReturn.box8),
+        box9: formatCurrency(vatReturn.box9),
+        netVatPayable: vatReturn.box5 >= 0,
+        netVatRefund: vatReturn.box5 < 0
+      }
+    };
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: formattedData,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get VAT return by ID error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Updates a VAT return.
+ * 
+ * PUT /api/vat/returns/:id
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} req.body - Update data
+ * @param {Object} res - Express response object
+ */
+async function updateVatReturnById(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Prevent updates to submitted/accepted returns
+    if (['submitted', 'accepted'].includes(vatReturn.status)) {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        success: false,
+        error: {
+          code: 'BUS_VAT_RETURN_ALREADY_SUBMITTED',
+          message: {
+            en: 'Cannot modify a submitted or accepted VAT return',
+            tr: 'Gönderilmiş veya kabul edilmiş KDV beyannamesi değiştirilemez'
+          }
+        }
+      });
+    }
+    
+    const {
+      periodStart,
+      periodEnd,
+      box1,
+      box2,
+      box4,
+      box6,
+      box7,
+      box8,
+      box9,
+      notes,
+      hmrcReceiptId
+    } = req.body;
+    
+    // Build update data
+    const updateData = {};
+    
+    if (periodStart !== undefined) updateData.periodStart = periodStart;
+    if (periodEnd !== undefined) updateData.periodEnd = periodEnd;
+    if (box1 !== undefined) updateData.box1 = box1;
+    if (box2 !== undefined) updateData.box2 = box2;
+    if (box4 !== undefined) updateData.box4 = box4;
+    if (box6 !== undefined) updateData.box6 = box6;
+    if (box7 !== undefined) updateData.box7 = box7;
+    if (box8 !== undefined) updateData.box8 = box8;
+    if (box9 !== undefined) updateData.box9 = box9;
+    if (notes !== undefined) updateData.notes = notes;
+    if (hmrcReceiptId !== undefined) updateData.hmrcReceiptId = hmrcReceiptId;
+    
+    const result = VatReturn.updateVatReturn(parseInt(id, 10), updateData);
+    
+    if (!result.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Failed to update VAT return',
+            tr: 'KDV beyannamesi güncellenemedi'
+          },
+          details: Object.entries(result.errors || {}).map(([field, message]) => ({
+            field,
+            message,
+            messageTr: message
+          }))
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Update VAT return error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Deletes a VAT return.
+ * Only draft returns can be deleted.
+ * 
+ * DELETE /api/vat/returns/:id
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} res - Express response object
+ */
+async function deleteVatReturnById(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Only allow deletion of draft returns
+    if (vatReturn.status !== 'draft') {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        success: false,
+        error: {
+          code: 'BUS_CANNOT_DELETE_NON_DRAFT',
+          message: {
+            en: 'Only draft VAT returns can be deleted',
+            tr: 'Yalnızca taslak KDV beyannameleri silinebilir'
+          }
+        }
+      });
+    }
+    
+    const result = VatReturn.deleteVatReturn(parseInt(id, 10));
+    
+    if (!result.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'DELETE_FAILED',
+          message: {
+            en: result.error || 'Failed to delete VAT return',
+            tr: result.error || 'KDV beyannamesi silinemedi'
+          }
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: {
+        en: 'VAT return deleted successfully',
+        tr: 'KDV beyannamesi başarıyla silindi'
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Delete VAT return error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Updates VAT return status.
+ * Handles status transitions (draft -> pending -> submitted -> accepted/rejected).
+ * 
+ * PATCH /api/vat/returns/:id/status
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.status - New status
+ * @param {Object} res - Express response object
+ */
+async function updateVatReturnStatus(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Status is required',
+            tr: 'Durum gereklidir'
+          }
+        }
+      });
+    }
+    
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Define valid status transitions
+    const validTransitions = {
+      'draft': ['pending', 'submitted'],
+      'pending': ['draft', 'submitted'],
+      'submitted': ['accepted', 'rejected'],
+      'rejected': ['amended', 'draft'],
+      'amended': ['pending', 'submitted'],
+      'accepted': [] // Cannot transition from accepted
+    };
+    
+    const allowedNextStatuses = validTransitions[vatReturn.status] || [];
+    
+    if (!allowedNextStatuses.includes(status)) {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        success: false,
+        error: {
+          code: 'INVALID_STATUS_TRANSITION',
+          message: {
+            en: `Cannot transition from '${vatReturn.status}' to '${status}'. Allowed: ${allowedNextStatuses.join(', ') || 'none'}`,
+            tr: `'${vatReturn.status}' durumundan '${status}' durumuna geçiş yapılamaz. İzin verilenler: ${allowedNextStatuses.join(', ') || 'yok'}`
+          }
+        }
+      });
+    }
+    
+    const result = VatReturn.updateStatus(parseInt(id, 10), status);
+    
+    if (!result.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'STATUS_UPDATE_FAILED',
+          message: {
+            en: result.error || 'Failed to update status',
+            tr: result.error || 'Durum güncellenemedi'
+          }
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        previousStatus: vatReturn.status,
+        newStatus: status
+      }
+    });
+    
+  } catch (error) {
+    console.error('Update VAT return status error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Previews a VAT return calculation without saving.
+ * Useful for showing users what their VAT return would look like before creating.
+ * 
+ * GET /api/vat/returns/preview
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.query - Query parameters
+ * @param {string} req.query.periodStart - Period start date (YYYY-MM-DD)
+ * @param {string} req.query.periodEnd - Period end date (YYYY-MM-DD)
+ * @param {string} [req.query.accountingScheme='standard'] - 'standard' or 'cash'
+ * @param {Object} res - Express response object
+ */
+async function previewVatReturn(req, res) {
+  try {
+    const { lang = 'en', periodStart, periodEnd, accountingScheme = 'standard' } = req.query;
+    const userId = req.user.id;
+    
+    // Validate required fields
+    if (!periodStart || !periodEnd) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Period start and end dates are required',
+            tr: 'Dönem başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    const previewResult = getVatReturnPreview(userId, periodStart, periodEnd, {
+      language: lang,
+      accountingScheme
+    });
+    
+    if (!previewResult.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'CALCULATION_ERROR',
+          message: {
+            en: 'Failed to calculate VAT return preview',
+            tr: 'KDV beyannamesi önizlemesi hesaplanamadı'
+          },
+          details: previewResult.errors
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: previewResult.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        isPreview: true
+      }
+    });
+    
+  } catch (error) {
+    console.error('Preview VAT return error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   getThresholdStatus,
   getThresholdConfig,
   getDashboardStatus,
   getTurnoverBreakdown,
+  // VAT Return CRUD operations
+  createVatReturn,
+  listVatReturns,
+  getVatReturnById,
+  updateVatReturnById,
+  deleteVatReturnById,
+  updateVatReturnStatus,
+  previewVatReturn,
   // Export for testing
   WARNING_LEVELS
 };
