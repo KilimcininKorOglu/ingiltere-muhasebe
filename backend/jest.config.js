@@ -8,6 +8,7 @@ module.exports = {
   testMatch: ['**/tests/**/*.test.js'],
   collectCoverageFrom: [
     'database/**/*.js',
+    'utils/**/*.js',
     '!database/migrate.js' // CLI migration runner is tested via integration
   ],
   coverageDirectory: 'coverage',
