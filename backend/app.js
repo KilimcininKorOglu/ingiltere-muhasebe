@@ -13,6 +13,8 @@ const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
 const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
+const bankAccountsRoutes = require('./routes/bankAccounts');
+const bankTransactionsRoutes = require('./routes/bankTransactions');
 
 // Initialize Express app
 const app = express();
@@ -52,6 +54,8 @@ app.get('/api', (req, res) => {
       taxRates: '/api/tax-rates',
       employees: '/api/employees',
       suppliers: '/api/suppliers',
+      bankAccounts: '/api/bank-accounts',
+      bankTransactions: '/api/bank-transactions',
       health: '/health'
     },
     documentation: {
@@ -95,6 +99,26 @@ app.get('/api', (req, res) => {
         update: 'PUT /api/suppliers/:id',
         updateStatus: 'PATCH /api/suppliers/:id/status',
         delete: 'DELETE /api/suppliers/:id'
+      },
+      bankAccounts: {
+        list: 'GET /api/bank-accounts',
+        search: 'GET /api/bank-accounts/search?q=:query',
+        getById: 'GET /api/bank-accounts/:id',
+        create: 'POST /api/bank-accounts',
+        update: 'PUT /api/bank-accounts/:id',
+        delete: 'DELETE /api/bank-accounts/:id',
+        setDefault: 'POST /api/bank-accounts/:id/default',
+        reactivate: 'POST /api/bank-accounts/:id/reactivate',
+        transactions: 'GET /api/bank-accounts/:id/transactions',
+        transactionSummary: 'GET /api/bank-accounts/:id/transactions/summary',
+        searchTransactions: 'GET /api/bank-accounts/:id/transactions/search?q=:query'
+      },
+      bankTransactions: {
+        getById: 'GET /api/bank-transactions/:id',
+        create: 'POST /api/bank-transactions',
+        update: 'PUT /api/bank-transactions/:id',
+        delete: 'DELETE /api/bank-transactions/:id',
+        updateReconciliation: 'PATCH /api/bank-transactions/:id/reconciliation'
       }
     }
   });
@@ -105,6 +129,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/bank-accounts', bankAccountsRoutes);
+app.use('/api/bank-transactions', bankTransactionsRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
