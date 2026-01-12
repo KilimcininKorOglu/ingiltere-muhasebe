@@ -26,6 +26,7 @@ const categoriesRoutes = require('./routes/categories');
 const transactionsRoutes = require('./routes/transactions');
 const payrollRoutes = require('./routes/payroll');
 const reportsRoutes = require('./routes/reports');
+const vatRoutes = require('./routes/vat');
 
 // Initialize Express app
 const app = express();
@@ -90,6 +91,7 @@ app.get('/api', (req, res) => {
       transactions: '/api/transactions',
       payroll: '/api/payroll',
       reports: '/api/reports',
+      vat: '/api/vat',
       health: '/health'
     },
     documentation: {
@@ -196,6 +198,12 @@ app.get('/api', (req, res) => {
         profitLossByTaxYear: 'GET /api/reports/profit-loss/tax-year/:taxYear',
         profitLossByMonth: 'GET /api/reports/profit-loss/monthly/:year/:month',
         profitLossByQuarter: 'GET /api/reports/profit-loss/quarterly/:year/:quarter'
+      },
+      vat: {
+        thresholdStatus: 'GET /api/vat/threshold-status',
+        thresholdConfig: 'GET /api/vat/threshold-config',
+        dashboardSummary: 'GET /api/vat/dashboard-summary',
+        turnoverBreakdown: 'GET /api/vat/turnover-breakdown'
       }
     }
   });
@@ -218,6 +226,7 @@ app.use('/api/invoices', invoicesRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/reports', reportsRoutes);
+app.use('/api/vat', vatRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
