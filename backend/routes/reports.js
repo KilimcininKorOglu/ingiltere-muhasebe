@@ -17,7 +17,11 @@ const {
   getProfitLoss,
   getProfitLossByTaxYear,
   getProfitLossByMonth,
-  getProfitLossByQuarter
+  getProfitLossByQuarter,
+  getBalanceSheet,
+  getBalanceSheetByTaxYear,
+  getBalanceSheetByMonth,
+  getBalanceSheetByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -169,5 +173,86 @@ router.get('/profit-loss/monthly/:year/:month', getProfitLossByMonth);
  * @returns Profit & Loss report for the specified quarter
  */
 router.get('/profit-loss/quarterly/:year/:quarter', getProfitLossByQuarter);
+
+// =====================================
+// Balance Sheet Routes
+// =====================================
+
+/**
+ * @route   GET /api/reports/balance-sheet
+ * @desc    Get Balance Sheet report for a specific as-of date
+ * @query   asOfDate - The as-of date in YYYY-MM-DD format (required)
+ * @query   includeComparison - Include previous period comparison (optional, default: false)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     asOfDate: string,
+ *     taxYear: string,
+ *     assets: {
+ *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     liabilities: {
+ *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     equity: {
+ *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
+ *       retainedEarnings: number,
+ *       currentPeriodEarnings: { income, expenses, netIncome, periodStart, periodEnd },
+ *       total: number,
+ *       transactionCount: number
+ *     },
+ *     summary: {
+ *       totalAssets: number,
+ *       totalLiabilities: number,
+ *       totalEquity: number,
+ *       isBalanced: boolean,
+ *       balanceDifference: number
+ *     },
+ *     comparison?: { previousDate, previous, changes }
+ *   }
+ * }
+ */
+router.get('/balance-sheet', getBalanceSheet);
+
+/**
+ * @route   GET /api/reports/balance-sheet/tax-year/:taxYear
+ * @desc    Get Balance Sheet report for a specific UK tax year end
+ * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Balance Sheet report for the specified tax year end
+ */
+router.get('/balance-sheet/tax-year/:taxYear', getBalanceSheetByTaxYear);
+
+/**
+ * @route   GET /api/reports/balance-sheet/monthly/:year/:month
+ * @desc    Get Balance Sheet report for a specific month end
+ * @param   year - The year (e.g., 2025)
+ * @param   month - The month (1-12)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Balance Sheet report for the specified month end
+ */
+router.get('/balance-sheet/monthly/:year/:month', getBalanceSheetByMonth);
+
+/**
+ * @route   GET /api/reports/balance-sheet/quarterly/:year/:quarter
+ * @desc    Get Balance Sheet report for a specific quarter end
+ * @param   year - The year (e.g., 2025)
+ * @param   quarter - The quarter (1-4)
+ * @query   includeComparison - Include previous period comparison (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Balance Sheet report for the specified quarter end
+ */
+router.get('/balance-sheet/quarterly/:year/:quarter', getBalanceSheetByQuarter);
 
 module.exports = router;
