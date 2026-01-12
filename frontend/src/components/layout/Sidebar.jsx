@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -8,11 +9,19 @@ const Sidebar = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   const menuItems = [
     { path: '/', icon: '📊', label: t('nav.dashboard') },
@@ -29,10 +38,18 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <h1 className="sidebar-logo">UK Accounting</h1>
-      </div>
+    <>
+      <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+        {isOpen ? '✕' : '☰'}
+      </button>
+      <div 
+        className={`sidebar-overlay ${isOpen ? 'visible' : ''}`} 
+        onClick={() => setIsOpen(false)}
+      />
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h1 className="sidebar-logo">UK Accounting</h1>
+        </div>
 
       <nav className="sidebar-nav">
         <ul className="sidebar-menu">
@@ -52,16 +69,17 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      <div className="sidebar-footer">
-        <LanguageSwitcher variant="buttons" className="sidebar-language" />
-        <div className="sidebar-user">
-          <span className="user-name">{user?.businessName || user?.email}</span>
+        <div className="sidebar-footer">
+          <LanguageSwitcher variant="buttons" className="sidebar-language" />
+          <div className="sidebar-user">
+            <span className="user-name">{user?.businessName || user?.email}</span>
+          </div>
+          <button className="sidebar-logout" onClick={handleLogout}>
+            {t('auth.logout')}
+          </button>
         </div>
-        <button className="sidebar-logout" onClick={handleLogout}>
-          {t('auth.logout')}
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 
