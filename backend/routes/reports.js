@@ -22,10 +22,9 @@ const {
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
   getVatSummaryByQuarter,
-  getSelfAssessment,
-  getSelfAssessmentByTaxYear,
-  getSelfAssessmentByMonth,
-  getSelfAssessmentByQuarter
+  getCorporationTaxEstimate,
+  getCorporationTaxByTaxYear,
+  getCorporationTaxByYear
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -250,73 +249,57 @@ router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
 router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
 
 // =====================================
-// Self Assessment Summary Report Routes
+// Corporation Tax Estimate Routes
 // =====================================
 
 /**
- * @route   GET /api/reports/self-assessment
- * @desc    Get Self Assessment summary report for a date range
- * @query   startDate - Start date (YYYY-MM-DD) (required)
- * @query   endDate - End date (YYYY-MM-DD) (required)
- * @query   isScottish - Whether to use Scottish tax rates (optional, default: false)
+ * @route   GET /api/reports/corporation-tax
+ * @desc    Get Corporation Tax estimate for an accounting period
+ * @query   startDate - Start date of accounting period (YYYY-MM-DD) (required)
+ * @query   endDate - End date of accounting period (YYYY-MM-DD) (required)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
  * @query   lang - Language preference (en/tr)
  * @access  Private
  * @returns {
  *   success: true,
  *   data: {
- *     period: { startDate, endDate, taxYear },
- *     profit: { income, expenses, netProfit },
- *     incomeTax: {
- *       personalAllowance: { base, adjusted, reduction },
- *       taxableIncome, totalTax, effectiveRate, isScottish,
- *       bands: [{ name, rate, ratePercent, taxableAmount, tax }]
+ *     period: { startDate, endDate, days },
+ *     profitAndLoss: { totalRevenue, totalExpenses, netProfit },
+ *     taxCalculation: {
+ *       taxableProfit, taxBeforeMarginalRelief, marginalRelief, corporationTax,
+ *       effectiveRate, rateCategory, rateDescription, thresholds, calculationSteps
  *     },
- *     nationalInsurance: {
- *       class2: { isLiable, weeklyRate, weeks, annualAmount, smallProfitsThreshold, isVoluntary },
- *       class4: { lowerProfitsLimit, upperProfitsLimit, mainRate, additionalRate, mainRateAmount, additionalRateAmount, totalAmount, breakdown },
- *       totalNI
- *     },
- *     summary: { netProfit, incomeTax, class2NI, class4NI, totalNI, totalTaxLiability, effectiveTotalRate, takeHome },
- *     paymentsOnAccount: { required, threshold, firstPayment, secondPayment, totalPaymentsOnAccount, firstPaymentDate, secondPaymentDate },
- *     deadlines: { taxYear, registrationDeadline, paperReturnDeadline, onlineReturnDeadline, paymentDeadline, secondPaymentOnAccount, deadlines }
+ *     deadlines: { paymentDeadline, filingDeadline, paymentDeadlineDescription, filingDeadlineDescription },
+ *     rates: { smallProfitsRate, mainRate, marginalReliefFraction },
+ *     explanation: { en, tr }
  *   }
  * }
  */
-router.get('/self-assessment', getSelfAssessment);
+router.get('/corporation-tax', getCorporationTaxEstimate);
 
 /**
- * @route   GET /api/reports/self-assessment/tax-year/:taxYear
- * @desc    Get Self Assessment summary report for a specific UK tax year
+ * @route   GET /api/reports/corporation-tax/tax-year/:taxYear
+ * @desc    Get Corporation Tax estimate for a specific UK tax year (April 6 to April 5)
  * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
- * @query   isScottish - Whether to use Scottish tax rates (optional)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Self Assessment summary for the specified tax year
+ * @returns Corporation Tax estimate for the specified tax year
  */
-router.get('/self-assessment/tax-year/:taxYear', getSelfAssessmentByTaxYear);
+router.get('/corporation-tax/tax-year/:taxYear', getCorporationTaxByTaxYear);
 
 /**
- * @route   GET /api/reports/self-assessment/monthly/:year/:month
- * @desc    Get Self Assessment summary report for a specific month
+ * @route   GET /api/reports/corporation-tax/year/:year
+ * @desc    Get Corporation Tax estimate for a specific financial year (January 1 to December 31)
  * @param   year - The year (e.g., 2025)
- * @param   month - The month (1-12)
- * @query   isScottish - Whether to use Scottish tax rates (optional)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Self Assessment summary for the specified month
+ * @returns Corporation Tax estimate for the specified financial year
  */
-router.get('/self-assessment/monthly/:year/:month', getSelfAssessmentByMonth);
-
-/**
- * @route   GET /api/reports/self-assessment/quarterly/:year/:quarter
- * @desc    Get Self Assessment summary report for a specific quarter
- * @param   year - The year (e.g., 2025)
- * @param   quarter - The quarter (1-4)
- * @query   isScottish - Whether to use Scottish tax rates (optional)
- * @query   lang - Language preference (en/tr)
- * @access  Private
- * @returns Self Assessment summary for the specified quarter
- */
-router.get('/self-assessment/quarterly/:year/:quarter', getSelfAssessmentByQuarter);
+router.get('/corporation-tax/year/:year', getCorporationTaxByYear);
 
 module.exports = router;

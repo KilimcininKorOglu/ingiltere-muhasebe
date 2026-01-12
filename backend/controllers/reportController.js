@@ -10,7 +10,7 @@
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
 const vatSummaryService = require('../services/vatSummaryService');
-const selfAssessmentService = require('../services/selfAssessmentService');
+const corporationTaxService = require('../services/corporationTaxService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -988,17 +988,18 @@ function getVatSummaryByQuarter(req, res) {
 }
 
 // =====================================
-// Self Assessment Report Functions
+// Corporation Tax Estimate Functions
 // =====================================
 
 /**
- * Generates a Self Assessment summary report for a date range.
- * GET /api/reports/self-assessment
+ * Generates a Corporation Tax estimate for a date range (accounting period).
+ * GET /api/reports/corporation-tax
  * 
  * Query Parameters:
- * - startDate: Start date in YYYY-MM-DD format (required)
- * - endDate: End date in YYYY-MM-DD format (required)
- * - isScottish: Whether to use Scottish tax rates (optional, default: false)
+ * - startDate: Start date of accounting period in YYYY-MM-DD format (required)
+ * - endDate: End date of accounting period in YYYY-MM-DD format (required)
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
  * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
@@ -1006,9 +1007,13 @@ function getVatSummaryByQuarter(req, res) {
  * @param {Object} req.query - Query parameters
  * @param {Object} res - Express response object
  */
-function getSelfAssessment(req, res) {
+function getCorporationTaxEstimate(req, res) {
   try {
-    const { lang = 'en', isScottish = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
     const userId = req.user.id;
     
     const { startDate, endDate } = req.query;
@@ -1028,7 +1033,7 @@ function getSelfAssessment(req, res) {
     }
     
     // Validate date format and range
-    const validation = selfAssessmentService.validateDateRange(startDate, endDate);
+    const validation = corporationTaxService.validateDateRange(startDate, endDate);
     if (!validation.isValid) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -1042,9 +1047,28 @@ function getSelfAssessment(req, res) {
       });
     }
     
-    // Generate the Self Assessment summary
-    const report = selfAssessmentService.generateSelfAssessmentSummary(userId, startDate, endDate, {
-      isScottish: isScottish === 'true' || isScottish === true
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
+    
+    // Validate associated companies
+    if (associatedCompaniesNum < 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Associated companies must be a non-negative number',
+            tr: 'İlişkili şirketler negatif olmayan bir sayı olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Corporation Tax estimate
+    const report = corporationTaxService.generateCorporationTaxEstimate(userId, startDate, endDate, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1053,12 +1077,12 @@ function getSelfAssessment(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'self-assessment'
+        reportType: 'corporation-tax-estimate'
       }
     });
     
   } catch (error) {
-    console.error('Get Self Assessment error:', error);
+    console.error('Get Corporation Tax estimate error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1071,20 +1095,29 @@ function getSelfAssessment(req, res) {
 }
 
 /**
- * Generates a Self Assessment summary report for a specific tax year.
- * GET /api/reports/self-assessment/tax-year/:taxYear
+ * Generates a Corporation Tax estimate for a specific tax year.
+ * GET /api/reports/corporation-tax/tax-year/:taxYear
  * 
  * URL Parameters:
  * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
+ * 
+ * Query Parameters:
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getSelfAssessmentByTaxYear(req, res) {
+function getCorporationTaxByTaxYear(req, res) {
   try {
-    const { lang = 'en', isScottish = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
     const userId = req.user.id;
     
     const { taxYear } = req.params;
@@ -1120,9 +1153,14 @@ function getSelfAssessmentByTaxYear(req, res) {
       });
     }
     
-    // Generate the Self Assessment summary for tax year
-    const report = selfAssessmentService.generateSelfAssessmentForTaxYear(userId, taxYear, {
-      isScottish: isScottish === 'true' || isScottish === true
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
+    
+    // Generate the Corporation Tax estimate for tax year
+    const report = corporationTaxService.generateCorporationTaxForTaxYear(userId, taxYear, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1131,12 +1169,12 @@ function getSelfAssessmentByTaxYear(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'self-assessment-tax-year'
+        reportType: 'corporation-tax-tax-year'
       }
     });
     
   } catch (error) {
-    console.error('Get Self Assessment by tax year error:', error);
+    console.error('Get Corporation Tax by tax year error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1149,25 +1187,32 @@ function getSelfAssessmentByTaxYear(req, res) {
 }
 
 /**
- * Generates a Self Assessment summary report for a specific month.
- * GET /api/reports/self-assessment/monthly/:year/:month
+ * Generates a Corporation Tax estimate for a specific financial year.
+ * GET /api/reports/corporation-tax/year/:year
  * 
  * URL Parameters:
- * - year: The year (e.g., 2025)
- * - month: The month (1-12)
+ * - year: The year (e.g., 2025) - January 1 to December 31
+ * 
+ * Query Parameters:
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getSelfAssessmentByMonth(req, res) {
+function getCorporationTaxByYear(req, res) {
   try {
-    const { lang = 'en', isScottish = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
     const userId = req.user.id;
     
     const year = parseInt(req.params.year, 10);
-    const month = parseInt(req.params.month, 10);
     
     // Validate year
     if (isNaN(year) || year < 2000 || year > 2100) {
@@ -1183,23 +1228,14 @@ function getSelfAssessmentByMonth(req, res) {
       });
     }
     
-    // Validate month
-    if (isNaN(month) || month < 1 || month > 12) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: {
-            en: 'Invalid month. Must be between 1 and 12',
-            tr: 'Geçersiz ay. 1 ile 12 arasında olmalıdır'
-          }
-        }
-      });
-    }
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
     
-    // Generate the Self Assessment summary for the month
-    const report = selfAssessmentService.generateSelfAssessmentForMonth(userId, year, month, {
-      isScottish: isScottish === 'true' || isScottish === true
+    // Generate the Corporation Tax estimate for the year
+    const report = corporationTaxService.generateCorporationTaxForYear(userId, year, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -1208,92 +1244,13 @@ function getSelfAssessmentByMonth(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'self-assessment-monthly',
-        monthName: selfAssessmentService.getMonthName(month)
+        reportType: 'corporation-tax-year',
+        year: year
       }
     });
     
   } catch (error) {
-    console.error('Get Self Assessment by month error:', error);
-    
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      error: {
-        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
-        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
-      }
-    });
-  }
-}
-
-/**
- * Generates a Self Assessment summary report for a specific quarter.
- * GET /api/reports/self-assessment/quarterly/:year/:quarter
- * 
- * URL Parameters:
- * - year: The year (e.g., 2025)
- * - quarter: The quarter (1-4)
- * 
- * @param {Object} req - Express request object
- * @param {Object} req.user - Authenticated user from middleware
- * @param {Object} req.params - URL parameters
- * @param {Object} res - Express response object
- */
-function getSelfAssessmentByQuarter(req, res) {
-  try {
-    const { lang = 'en', isScottish = 'false' } = req.query;
-    const userId = req.user.id;
-    
-    const year = parseInt(req.params.year, 10);
-    const quarter = parseInt(req.params.quarter, 10);
-    
-    // Validate year
-    if (isNaN(year) || year < 2000 || year > 2100) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: {
-            en: 'Invalid year. Must be between 2000 and 2100',
-            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
-          }
-        }
-      });
-    }
-    
-    // Validate quarter
-    if (isNaN(quarter) || quarter < 1 || quarter > 4) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: {
-            en: 'Invalid quarter. Must be between 1 and 4',
-            tr: 'Geçersiz çeyrek. 1 ile 4 arasında olmalıdır'
-          }
-        }
-      });
-    }
-    
-    // Generate the Self Assessment summary for the quarter
-    const report = selfAssessmentService.generateSelfAssessmentForQuarter(userId, year, quarter, {
-      isScottish: isScottish === 'true' || isScottish === true
-    });
-    
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      data: report,
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString(),
-        reportType: 'self-assessment-quarterly',
-        quarter: quarter,
-        quarterName: `Q${quarter}`
-      }
-    });
-    
-  } catch (error) {
-    console.error('Get Self Assessment by quarter error:', error);
+    console.error('Get Corporation Tax by year error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1324,9 +1281,8 @@ module.exports = {
   getVatSummaryByMonth,
   getVatSummaryByQuarter,
   
-  // Self Assessment reports
-  getSelfAssessment,
-  getSelfAssessmentByTaxYear,
-  getSelfAssessmentByMonth,
-  getSelfAssessmentByQuarter
+  // Corporation Tax Estimate reports
+  getCorporationTaxEstimate,
+  getCorporationTaxByTaxYear,
+  getCorporationTaxByYear
 };
