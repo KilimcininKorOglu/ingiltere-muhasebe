@@ -19,34 +19,20 @@ import {
 // Import translation resources
 import enTranslation from '../locales/en/translation.json';
 import trTranslation from '../locales/tr/translation.json';
-import enGuides from '../locales/en/guides.json';
-import trGuides from '../locales/tr/guides.json';
-
-/**
- * Merge translation objects deeply
- */
-const mergeTranslations = (...objects) => {
-  return objects.reduce((acc, obj) => {
-    Object.keys(obj).forEach((key) => {
-      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-        acc[key] = mergeTranslations(acc[key] || {}, obj[key]);
-      } else {
-        acc[key] = obj[key];
-      }
-    });
-    return acc;
-  }, {});
-};
+import enHelp from '../locales/en/help.json';
+import trHelp from '../locales/tr/help.json';
 
 /**
  * Translation resources organized by language and namespace
  */
 const resources = {
   en: {
-    translation: mergeTranslations(enTranslation, enGuides),
+    translation: enTranslation,
+    help: enHelp,
   },
   tr: {
-    translation: mergeTranslations(trTranslation, trGuides),
+    translation: trTranslation,
+    help: trHelp,
   },
 };
 
@@ -73,7 +59,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE, 'financial', 'tax'],
+    ns: [DEFAULT_NAMESPACE, 'help'],
 
     // Language detection configuration
     detection: {

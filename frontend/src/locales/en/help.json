@@ -1,0 +1,101 @@
+{
+  "panel": {
+    "title": "Help",
+    "close": "Close help panel",
+    "openShortcut": "Press F1 to open help"
+  },
+  "search": {
+    "placeholder": "Search help...",
+    "noResults": "No results found for \"{{query}}\"",
+    "resultsCount": "{{count}} result found",
+    "resultsCount_other": "{{count}} results found",
+    "clearSearch": "Clear search"
+  },
+  "tabs": {
+    "pageHelp": "This Page",
+    "quickTips": "Quick Tips",
+    "search": "Search"
+  },
+  "pageHelp": {
+    "noContent": "No help content available for this page.",
+    "dashboard": {
+      "title": "Dashboard Help",
+      "overview": {
+        "title": "Dashboard Overview",
+        "content": "The dashboard provides a quick summary of your business finances. Here you can view your total revenue, expenses, and net profit at a glance. Use the dashboard to stay on top of your financial health."
+      },
+      "metrics": {
+        "title": "Financial Metrics",
+        "content": "The metrics section displays your key financial indicators including Total Revenue (all income received), Total Expenses (all money spent), and Net Profit (revenue minus expenses). These figures are updated in real-time."
+      },
+      "transactions": {
+        "title": "Recent Transactions",
+        "content": "View your most recent financial transactions here. This includes both incoming payments and outgoing expenses. Click on any transaction to see more details or to edit it."
+      }
+    },
+    "invoices": {
+      "title": "Invoices Help",
+      "overview": {
+        "title": "Invoices Overview",
+        "content": "The invoices section allows you to create, manage, and track all your business invoices. You can send invoices to clients, track payment status, and generate reports."
+      },
+      "creating": {
+        "title": "Creating Invoices",
+        "content": "To create a new invoice, click the 'Create Invoice' button. Fill in the client details, add line items with descriptions and amounts, set the due date, and save. You can preview the invoice before sending it to your client."
+      },
+      "status": {
+        "title": "Invoice Status",
+        "content": "Invoices can have different statuses: Draft (not yet sent), Pending (sent but not paid), Paid (payment received), and Overdue (past due date). Use filters to view invoices by status."
+      }
+    },
+    "expenses": {
+      "title": "Expenses Help",
+      "overview": {
+        "title": "Expenses Overview",
+        "content": "Track all your business expenses in one place. Add expenses with categories, attach receipts, and keep your records organised for tax purposes."
+      },
+      "categories": {
+        "title": "Expense Categories",
+        "content": "Categorise your expenses for better organisation and reporting. Common categories include Office Supplies, Travel, Utilities, and Professional Services. Proper categorisation helps with tax deductions."
+      },
+      "receipts": {
+        "title": "Attaching Receipts",
+        "content": "Upload photos or scans of your receipts to keep digital records. This is essential for HMRC compliance and makes it easy to find documentation when needed."
+      }
+    },
+    "settings": {
+      "title": "Settings Help",
+      "overview": {
+        "title": "Settings Overview",
+        "content": "Customise your accounting application settings including language preferences, notification settings, and security options."
+      },
+      "language": {
+        "title": "Language Settings",
+        "content": "Switch between English and Turkish (Türkçe) using the language selector. Your preference will be saved and applied across all pages."
+      },
+      "security": {
+        "title": "Security Settings",
+        "content": "Manage your account security settings including password changes, two-factor authentication, and session management."
+      }
+    }
+  },
+  "quickTips": {
+    "title": "Quick Tips",
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "content": "Press F1 at any time to open or close this help panel. Use Tab to navigate between elements and Enter to select."
+    },
+    "languageSwitch": {
+      "title": "Switching Languages",
+      "content": "You can switch between English and Turkish at any time using the language buttons in the header or the dropdown in the footer."
+    },
+    "taxDeadlines": {
+      "title": "UK Tax Deadlines",
+      "content": "Keep track of important HMRC deadlines: Self Assessment (31 January), VAT returns (quarterly), and Corporation Tax (9 months after year-end). The dashboard shows upcoming deadlines."
+    },
+    "exportData": {
+      "title": "Exporting Your Data",
+      "content": "You can export your financial data in various formats including CSV and PDF. Use the Reports section to generate and download comprehensive financial reports."
+    }
+  }
+}
