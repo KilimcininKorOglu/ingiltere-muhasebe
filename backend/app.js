@@ -11,6 +11,7 @@ const cors = require('cors');
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
+const employeesRoutes = require('./routes/employees');
 
 // Initialize Express app
 const app = express();
@@ -48,6 +49,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       taxRates: '/api/tax-rates',
+      employees: '/api/employees',
       health: '/health'
     },
     documentation: {
@@ -66,6 +68,18 @@ app.get('/api', (req, res) => {
         vat: 'GET /api/tax-rates/vat',
         corporationTax: 'GET /api/tax-rates/corporation-tax',
         nationalInsurance: 'GET /api/tax-rates/national-insurance'
+      },
+      employees: {
+        list: 'GET /api/employees',
+        search: 'GET /api/employees/search?q=:query',
+        counts: 'GET /api/employees/counts',
+        getById: 'GET /api/employees/:id',
+        create: 'POST /api/employees',
+        update: 'PUT /api/employees/:id',
+        delete: 'DELETE /api/employees/:id',
+        permanentDelete: 'DELETE /api/employees/:id/permanent',
+        validateNI: 'POST /api/employees/validate/ni-number',
+        validateTaxCode: 'POST /api/employees/validate/tax-code'
       }
     }
   });
@@ -74,6 +88,7 @@ app.get('/api', (req, res) => {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
+app.use('/api/employees', employeesRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
