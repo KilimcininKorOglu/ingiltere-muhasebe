@@ -11,6 +11,7 @@ const cors = require('cors');
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
+const bankAccountsRoutes = require('./routes/bankAccounts');
 
 // Initialize Express app
 const app = express();
@@ -48,6 +49,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       taxRates: '/api/tax-rates',
+      bankAccounts: '/api/bank-accounts',
       health: '/health'
     },
     documentation: {
@@ -66,6 +68,16 @@ app.get('/api', (req, res) => {
         vat: 'GET /api/tax-rates/vat',
         corporationTax: 'GET /api/tax-rates/corporation-tax',
         nationalInsurance: 'GET /api/tax-rates/national-insurance'
+      },
+      bankAccounts: {
+        list: 'GET /api/bank-accounts',
+        get: 'GET /api/bank-accounts/:id',
+        create: 'POST /api/bank-accounts',
+        update: 'PUT /api/bank-accounts/:id',
+        delete: 'DELETE /api/bank-accounts/:id',
+        setDefault: 'POST /api/bank-accounts/:id/default',
+        reactivate: 'POST /api/bank-accounts/:id/reactivate',
+        search: 'GET /api/bank-accounts/search'
       }
     }
   });
@@ -74,6 +86,7 @@ app.get('/api', (req, res) => {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
+app.use('/api/bank-accounts', bankAccountsRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
