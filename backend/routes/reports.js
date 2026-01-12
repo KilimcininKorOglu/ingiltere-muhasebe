@@ -21,7 +21,10 @@ const {
   getVatSummary,
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
-  getVatSummaryByQuarter
+  getVatSummaryByQuarter,
+  getCorporationTaxEstimate,
+  getCorporationTaxByTaxYear,
+  getCorporationTaxByYear
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -244,5 +247,59 @@ router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
  * @returns VAT summary report for the specified quarter
  */
 router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
+
+// =====================================
+// Corporation Tax Estimate Routes
+// =====================================
+
+/**
+ * @route   GET /api/reports/corporation-tax
+ * @desc    Get Corporation Tax estimate for an accounting period
+ * @query   startDate - Start date of accounting period (YYYY-MM-DD) (required)
+ * @query   endDate - End date of accounting period (YYYY-MM-DD) (required)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     period: { startDate, endDate, days },
+ *     profitAndLoss: { totalRevenue, totalExpenses, netProfit },
+ *     taxCalculation: {
+ *       taxableProfit, taxBeforeMarginalRelief, marginalRelief, corporationTax,
+ *       effectiveRate, rateCategory, rateDescription, thresholds, calculationSteps
+ *     },
+ *     deadlines: { paymentDeadline, filingDeadline, paymentDeadlineDescription, filingDeadlineDescription },
+ *     rates: { smallProfitsRate, mainRate, marginalReliefFraction },
+ *     explanation: { en, tr }
+ *   }
+ * }
+ */
+router.get('/corporation-tax', getCorporationTaxEstimate);
+
+/**
+ * @route   GET /api/reports/corporation-tax/tax-year/:taxYear
+ * @desc    Get Corporation Tax estimate for a specific UK tax year (April 6 to April 5)
+ * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Corporation Tax estimate for the specified tax year
+ */
+router.get('/corporation-tax/tax-year/:taxYear', getCorporationTaxByTaxYear);
+
+/**
+ * @route   GET /api/reports/corporation-tax/year/:year
+ * @desc    Get Corporation Tax estimate for a specific financial year (January 1 to December 31)
+ * @param   year - The year (e.g., 2025)
+ * @query   associatedCompanies - Number of associated companies (optional, default: 0)
+ * @query   distributions - Distributions from non-group companies in pence (optional, default: 0)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Corporation Tax estimate for the specified financial year
+ */
+router.get('/corporation-tax/year/:year', getCorporationTaxByYear);
 
 module.exports = router;

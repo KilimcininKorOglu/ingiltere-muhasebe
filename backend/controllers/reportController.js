@@ -9,6 +9,7 @@
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
 const vatSummaryService = require('../services/vatSummaryService');
+const corporationTaxService = require('../services/corporationTaxService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -985,6 +986,281 @@ function getVatSummaryByQuarter(req, res) {
   }
 }
 
+// =====================================
+// Corporation Tax Estimate Functions
+// =====================================
+
+/**
+ * Generates a Corporation Tax estimate for a date range (accounting period).
+ * GET /api/reports/corporation-tax
+ * 
+ * Query Parameters:
+ * - startDate: Start date of accounting period in YYYY-MM-DD format (required)
+ * - endDate: End date of accounting period in YYYY-MM-DD format (required)
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.query - Query parameters
+ * @param {Object} res - Express response object
+ */
+function getCorporationTaxEstimate(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate date format and range
+    const validation = corporationTaxService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: validation.error,
+            tr: validation.error
+          }
+        }
+      });
+    }
+    
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
+    
+    // Validate associated companies
+    if (associatedCompaniesNum < 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Associated companies must be a non-negative number',
+            tr: 'İlişkili şirketler negatif olmayan bir sayı olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Generate the Corporation Tax estimate
+    const report = corporationTaxService.generateCorporationTaxEstimate(userId, startDate, endDate, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'corporation-tax-estimate'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Corporation Tax estimate error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Corporation Tax estimate for a specific tax year.
+ * GET /api/reports/corporation-tax/tax-year/:taxYear
+ * 
+ * URL Parameters:
+ * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
+ * 
+ * Query Parameters:
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCorporationTaxByTaxYear(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const { taxYear } = req.params;
+    
+    // Validate tax year format
+    const taxYearRegex = /^\d{4}-\d{2}$/;
+    if (!taxYear || !taxYearRegex.test(taxYear)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid tax year format. Use YYYY-YY (e.g., 2025-26)',
+            tr: 'Geçersiz vergi yılı formatı. YYYY-YY kullanın (örn. 2025-26)'
+          }
+        }
+      });
+    }
+    
+    // Validate tax year parts
+    const [startYear, endYearPart] = taxYear.split('-');
+    const expectedEndYear = String(parseInt(startYear, 10) + 1).slice(-2);
+    if (endYearPart !== expectedEndYear) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: `Invalid tax year. Expected ${startYear}-${expectedEndYear}`,
+            tr: `Geçersiz vergi yılı. Beklenen: ${startYear}-${expectedEndYear}`
+          }
+        }
+      });
+    }
+    
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
+    
+    // Generate the Corporation Tax estimate for tax year
+    const report = corporationTaxService.generateCorporationTaxForTaxYear(userId, taxYear, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'corporation-tax-tax-year'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Corporation Tax by tax year error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Generates a Corporation Tax estimate for a specific financial year.
+ * GET /api/reports/corporation-tax/year/:year
+ * 
+ * URL Parameters:
+ * - year: The year (e.g., 2025) - January 1 to December 31
+ * 
+ * Query Parameters:
+ * - associatedCompanies: Number of associated companies (optional, default: 0)
+ * - distributions: Distributions from non-group companies in pence (optional, default: 0)
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} req.params - URL parameters
+ * @param {Object} res - Express response object
+ */
+function getCorporationTaxByYear(req, res) {
+  try {
+    const { 
+      lang = 'en',
+      associatedCompanies = '0',
+      distributions = '0'
+    } = req.query;
+    const userId = req.user.id;
+    
+    const year = parseInt(req.params.year, 10);
+    
+    // Validate year
+    if (isNaN(year) || year < 2000 || year > 2100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid year. Must be between 2000 and 2100',
+            tr: 'Geçersiz yıl. 2000 ile 2100 arasında olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Parse optional parameters
+    const associatedCompaniesNum = parseInt(associatedCompanies, 10) || 0;
+    const distributionsNum = parseInt(distributions, 10) || 0;
+    
+    // Generate the Corporation Tax estimate for the year
+    const report = corporationTaxService.generateCorporationTaxForYear(userId, year, {
+      associatedCompanies: associatedCompaniesNum,
+      distributions: distributionsNum
+    });
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: report,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        reportType: 'corporation-tax-year',
+        year: year
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get Corporation Tax by year error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   // PAYE Summary reports
   getPayeSummary,
@@ -1002,5 +1278,10 @@ module.exports = {
   getVatSummary,
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
-  getVatSummaryByQuarter
+  getVatSummaryByQuarter,
+  
+  // Corporation Tax Estimate reports
+  getCorporationTaxEstimate,
+  getCorporationTaxByTaxYear,
+  getCorporationTaxByYear
 };
