@@ -3,10 +3,14 @@
  * 
  * Express application for UK tax and accounting services.
  * Provides bilingual API (English/Turkish) for UK tax rates and calculations.
+ * Includes security middleware, rate limiting, and CORS configuration.
  */
 
 const express = require('express');
-const cors = require('cors');
+
+// Import security middleware
+const { securityHeaders, corsMiddleware, sanitizeInput } = require('./middleware/security');
+const { standardLimiter, strictLimiter } = require('./middleware/rateLimiter');
 
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
@@ -17,17 +21,32 @@ const suppliersRoutes = require('./routes/suppliers');
 // Initialize Express app
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Trust proxy for accurate IP detection (important for rate limiting)
+app.set('trust proxy', 1);
 
-// Request logging middleware
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  next();
-});
+// Security headers middleware - set security headers on all responses
+app.use(securityHeaders());
+
+// CORS middleware - configure allowed origins
+app.use(corsMiddleware());
+
+// Body parsing middleware
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Input sanitization middleware - sanitize all inputs against XSS
+app.use(sanitizeInput({
+  skipFields: ['password', 'confirmPassword', 'currentPassword', 'newPassword']
+}));
+
+// Request logging middleware (skip in test mode for cleaner output)
+if (process.env.NODE_ENV !== 'test') {
+  app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] ${req.method} ${req.url}`);
+    next();
+  });
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -100,7 +119,11 @@ app.get('/api', (req, res) => {
   });
 });
 
+// Apply standard rate limiter to all API routes
+app.use('/api', standardLimiter);
+
 // Mount routes
+// Auth routes have additional strict rate limiting applied in the route file
 app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 app.use('/api/employees', employeesRoutes);
