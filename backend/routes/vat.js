@@ -23,8 +23,11 @@ const {
   deleteVatReturnById,
   updateVatReturnStatus,
   previewVatReturn,
-  // PDF Export
-  exportVatReturnPdf
+  // VAT Return Breakdown operations
+  getVatReturnBreakdown,
+  getVatReturnBoxBreakdown,
+  getVatReturnBreakdownByRate,
+  getVatReturnAvailableRates
 } = require('../controllers/vatController');
 const { requireAuth } = require('../middleware/auth');
 
@@ -287,5 +290,93 @@ router.get('/returns/:id/pdf', requireAuth, exportVatReturnPdf);
  * @returns { success: true, message: { en, tr } }
  */
 router.delete('/returns/:id', requireAuth, deleteVatReturnById);
+
+// ==========================================
+// VAT RETURN BREAKDOWN ROUTES
+// ==========================================
+
+/**
+ * @route   GET /api/vat/returns/:id/breakdown
+ * @desc    Get full VAT return breakdown with all boxes
+ * @header  Authorization: Bearer <token>
+ * @param   id - VAT return ID
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     vatReturn: { id, periodStart, periodEnd, status },
+ *     breakdown: {
+ *       period: { start, end },
+ *       accountingScheme: string,
+ *       boxes: { box1-box9 with values, descriptions, transactionCounts, summaryByRate },
+ *       summary: { vatDue, vatReclaimed, netVat, isRefundDue, totalSales, totalPurchases }
+ *     }
+ *   }
+ * }
+ */
+router.get('/returns/:id/breakdown', requireAuth, getVatReturnBreakdown);
+
+/**
+ * @route   GET /api/vat/returns/:id/breakdown/rates
+ * @desc    Get available VAT rates for a VAT return period
+ * @header  Authorization: Bearer <token>
+ * @param   id - VAT return ID
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     vatReturn: { id, periodStart, periodEnd, status },
+ *     availableRates: { period, rates: Array<{ vatRate, vatRateName, income, expense, total }> }
+ *   }
+ * }
+ */
+router.get('/returns/:id/breakdown/rates', requireAuth, getVatReturnAvailableRates);
+
+/**
+ * @route   GET /api/vat/returns/:id/breakdown/box/:boxNumber
+ * @desc    Get breakdown for a specific VAT return box
+ * @header  Authorization: Bearer <token>
+ * @param   id - VAT return ID
+ * @param   boxNumber - Box number (1-9)
+ * @query   vatRate - Optional filter by VAT rate (basis points, e.g., 2000 for 20%)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     vatReturn: { id, periodStart, periodEnd, status },
+ *     boxBreakdown: {
+ *       period: { start, end },
+ *       breakdown: { box, boxKey, boxDescription, items, summaryByRate, totals }
+ *     }
+ *   }
+ * }
+ */
+router.get('/returns/:id/breakdown/box/:boxNumber', requireAuth, getVatReturnBoxBreakdown);
+
+/**
+ * @route   GET /api/vat/returns/:id/breakdown/by-rate/:vatRate
+ * @desc    Get breakdown filtered by VAT rate for a VAT return
+ * @header  Authorization: Bearer <token>
+ * @param   id - VAT return ID
+ * @param   vatRate - VAT rate in basis points (e.g., 2000 for 20%)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     vatReturn: { id, periodStart, periodEnd, status },
+ *     rateBreakdown: {
+ *       vatRate, vatRatePercent, vatRateName,
+ *       output: { transactions, transactionCount, totalVat, totalNet },
+ *       input: { transactions, transactionCount, totalVat, totalNet },
+ *       summary: { netVat, isRefundDue }
+ *     }
+ *   }
+ * }
+ */
+router.get('/returns/:id/breakdown/by-rate/:vatRate', requireAuth, getVatReturnBreakdownByRate);
 
 module.exports = router;

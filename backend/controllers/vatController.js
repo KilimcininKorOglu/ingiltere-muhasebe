@@ -18,10 +18,12 @@ const {
   calculateAndPrepareVatReturn,
   getVatReturnPreview
 } = require('../services/vatCalculationService');
-const { 
-  generateVatReturnPdf,
-  validateVatReturnForPdf
-} = require('../services/pdfGenerator');
+const {
+  getBoxBreakdown,
+  getFullVatReturnBreakdown,
+  getBreakdownByVatRate,
+  getAvailableVatRates
+} = require('../services/vatBreakdownService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -1174,12 +1176,14 @@ async function previewVatReturn(req, res) {
   }
 }
 
+// ==========================================
+// VAT RETURN BREAKDOWN OPERATIONS
+// ==========================================
+
 /**
- * Exports a VAT return as a PDF document.
- * The PDF includes all nine HMRC boxes, business details, period information,
- * and a disclaimer for record-keeping purposes.
+ * Gets full VAT return breakdown with all boxes.
  * 
- * GET /api/vat/returns/:id/pdf
+ * GET /api/vat/returns/:id/breakdown
  * 
  * @param {Object} req - Express request object
  * @param {Object} req.params - URL parameters
@@ -1188,24 +1192,13 @@ async function previewVatReturn(req, res) {
  * @param {string} [req.query.lang='en'] - Language preference (en/tr)
  * @param {Object} res - Express response object
  */
-async function exportVatReturnPdf(req, res) {
+async function getVatReturnBreakdown(req, res) {
   try {
     const { lang = 'en' } = req.query;
     const userId = req.user.id;
     const { id } = req.params;
     
-    // User should be set by auth middleware
-    if (!req.user) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        error: {
-          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
-          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
-        }
-      });
-    }
-    
-    // Fetch the VAT return
+    // Find the VAT return
     const vatReturn = VatReturn.findById(parseInt(id, 10));
     
     if (!vatReturn) {
@@ -1232,64 +1225,388 @@ async function exportVatReturnPdf(req, res) {
       });
     }
     
-    // Validate VAT return data for PDF generation
-    const validation = validateVatReturnForPdf(vatReturn);
-    if (!validation.isValid) {
+    // Get breakdown for the VAT return period
+    const breakdownResult = getFullVatReturnBreakdown(
+      userId,
+      vatReturn.periodStart,
+      vatReturn.periodEnd,
+      { lang }
+    );
+    
+    if (!breakdownResult.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'BREAKDOWN_ERROR',
+          message: {
+            en: 'Failed to get VAT return breakdown',
+            tr: 'KDV beyannamesi dökümü alınamadı'
+          },
+          details: breakdownResult.errors
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        vatReturn: {
+          id: vatReturn.id,
+          periodStart: vatReturn.periodStart,
+          periodEnd: vatReturn.periodEnd,
+          status: vatReturn.status
+        },
+        breakdown: breakdownResult.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get VAT return breakdown error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets breakdown for a specific VAT return box.
+ * 
+ * GET /api/vat/returns/:id/breakdown/box/:boxNumber
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {string} req.params.boxNumber - Box number (1-9)
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.vatRate] - Filter by VAT rate (basis points, e.g., 2000 for 20%)
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function getVatReturnBoxBreakdown(req, res) {
+  try {
+    const { lang = 'en', vatRate } = req.query;
+    const userId = req.user.id;
+    const { id, boxNumber } = req.params;
+    
+    // Validate box number
+    const boxNum = parseInt(boxNumber, 10);
+    if (isNaN(boxNum) || boxNum < 1 || boxNum > 9) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
           message: {
-            en: 'VAT return data is incomplete for PDF generation',
-            tr: 'PDF oluşturma için KDV beyannamesi verileri eksik'
-          },
-          details: validation.errors
+            en: 'Box number must be between 1 and 9',
+            tr: 'Kutu numarası 1 ile 9 arasında olmalıdır'
+          }
         }
       });
     }
     
-    // Fetch user/business details
-    const user = findById(userId);
+    // Find the VAT return
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
     
-    if (!user) {
+    if (!vatReturn) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
         success: false,
         error: {
-          code: ERROR_CODES.RES_USER_NOT_FOUND.code,
-          message: ERROR_CODES.RES_USER_NOT_FOUND.message
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
         }
       });
     }
     
-    // Prepare business details for PDF
-    const businessDetails = {
-      name: user.name,
-      businessName: user.businessName,
-      businessAddress: user.businessAddress,
-      vatNumber: user.vatNumber,
-      companyNumber: user.companyNumber,
-      email: user.email,
-      isVatRegistered: Boolean(user.isVatRegistered)
-    };
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
     
-    // Generate the PDF
-    const pdfBuffer = await generateVatReturnPdf(vatReturn, businessDetails, { lang });
+    // Parse optional vatRate filter
+    const vatRateFilter = vatRate !== undefined ? parseInt(vatRate, 10) : undefined;
+    if (vatRate !== undefined && (isNaN(vatRateFilter) || vatRateFilter < 0 || vatRateFilter > 10000)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'VAT rate must be between 0 and 10000 (representing 0% to 100%)',
+            tr: 'KDV oranı 0 ile 10000 arasında olmalıdır (%0 ile %100 arasını temsil eder)'
+          }
+        }
+      });
+    }
     
-    // Generate filename
-    const periodStart = vatReturn.periodStart.replace(/-/g, '');
-    const periodEnd = vatReturn.periodEnd.replace(/-/g, '');
-    const filename = `VAT-Return-${periodStart}-${periodEnd}.pdf`;
+    // Get breakdown for the specific box
+    const breakdownResult = getBoxBreakdown(
+      userId,
+      vatReturn.periodStart,
+      vatReturn.periodEnd,
+      boxNum,
+      { vatRate: vatRateFilter, lang }
+    );
     
-    // Set response headers for PDF download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
+    if (!breakdownResult.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'BREAKDOWN_ERROR',
+          message: {
+            en: 'Failed to get box breakdown',
+            tr: 'Kutu dökümü alınamadı'
+          },
+          details: breakdownResult.errors
+        }
+      });
+    }
     
-    // Send the PDF
-    res.send(pdfBuffer);
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        vatReturn: {
+          id: vatReturn.id,
+          periodStart: vatReturn.periodStart,
+          periodEnd: vatReturn.periodEnd,
+          status: vatReturn.status
+        },
+        boxBreakdown: breakdownResult.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
     
   } catch (error) {
-    console.error('Export VAT return PDF error:', error);
+    console.error('Get VAT return box breakdown error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets breakdown filtered by VAT rate for a VAT return.
+ * 
+ * GET /api/vat/returns/:id/breakdown/by-rate/:vatRate
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {string} req.params.vatRate - VAT rate in basis points (e.g., 2000 for 20%)
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function getVatReturnBreakdownByRate(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id, vatRate } = req.params;
+    
+    // Validate VAT rate
+    const vatRateNum = parseInt(vatRate, 10);
+    if (isNaN(vatRateNum) || vatRateNum < 0 || vatRateNum > 10000) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'VAT rate must be between 0 and 10000 (representing 0% to 100%)',
+            tr: 'KDV oranı 0 ile 10000 arasında olmalıdır (%0 ile %100 arasını temsil eder)'
+          }
+        }
+      });
+    }
+    
+    // Find the VAT return
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Get breakdown by rate
+    const breakdownResult = getBreakdownByVatRate(
+      userId,
+      vatReturn.periodStart,
+      vatReturn.periodEnd,
+      vatRateNum,
+      { lang }
+    );
+    
+    if (!breakdownResult.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'BREAKDOWN_ERROR',
+          message: {
+            en: 'Failed to get VAT rate breakdown',
+            tr: 'KDV oranı dökümü alınamadı'
+          },
+          details: breakdownResult.errors
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        vatReturn: {
+          id: vatReturn.id,
+          periodStart: vatReturn.periodStart,
+          periodEnd: vatReturn.periodEnd,
+          status: vatReturn.status
+        },
+        rateBreakdown: breakdownResult.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get VAT return breakdown by rate error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets available VAT rates for a VAT return period.
+ * 
+ * GET /api/vat/returns/:id/breakdown/rates
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function getVatReturnAvailableRates(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    // Find the VAT return
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Get available rates
+    const ratesResult = getAvailableVatRates(
+      userId,
+      vatReturn.periodStart,
+      vatReturn.periodEnd,
+      lang
+    );
+    
+    if (!ratesResult.success) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'BREAKDOWN_ERROR',
+          message: {
+            en: 'Failed to get available VAT rates',
+            tr: 'Mevcut KDV oranları alınamadı'
+          },
+          details: ratesResult.errors
+        }
+      });
+    }
+    
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        vatReturn: {
+          id: vatReturn.id,
+          periodStart: vatReturn.periodStart,
+          periodEnd: vatReturn.periodEnd,
+          status: vatReturn.status
+        },
+        availableRates: ratesResult.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get VAT return available rates error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -1314,8 +1631,11 @@ module.exports = {
   deleteVatReturnById,
   updateVatReturnStatus,
   previewVatReturn,
-  // PDF Export
-  exportVatReturnPdf,
+  // VAT Return Breakdown operations
+  getVatReturnBreakdown,
+  getVatReturnBoxBreakdown,
+  getVatReturnBreakdownByRate,
+  getVatReturnAvailableRates,
   // Export for testing
   WARNING_LEVELS
 };
