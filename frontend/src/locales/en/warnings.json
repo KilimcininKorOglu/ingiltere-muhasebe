@@ -1,0 +1,88 @@
+{
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be no more than {{max}} characters",
+    "invalidPostcode": "Please enter a valid UK postcode",
+    "invalidPhone": "Please enter a valid UK phone number",
+    "invalidVatNumber": "Please enter a valid UK VAT number (e.g., GB123456789)",
+    "invalidCompanyNumber": "Please enter a valid UK company registration number",
+    "invalidUTR": "Please enter a valid 10-digit Unique Taxpayer Reference",
+    "invalidNINO": "Please enter a valid National Insurance number (e.g., AB123456C)",
+    "invalidSortCode": "Please enter a valid sort code (e.g., 12-34-56)",
+    "invalidBankAccount": "Please enter a valid 8-digit bank account number",
+    "invalidInvoiceNumber": "Please enter a valid invoice number",
+    "invalidCurrency": "Please enter a valid currency amount",
+    "invalidPercentage": "Please enter a valid percentage (0-100)",
+    "mustBePositive": "Value must be greater than zero",
+    "mustBeNonNegative": "Value cannot be negative",
+    "futureDate": "Date cannot be in the future",
+    "outsideTaxYear": "Date is outside the current tax year ({{startYear}}/{{endYear}})",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordCase": "Password must contain both uppercase and lowercase letters",
+    "passwordNumber": "Password must contain at least one number",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "compliance": {
+    "vatRegistrationRequired": "Your turnover has exceeded £{{threshold}}. VAT registration is now mandatory.",
+    "vatRegistrationApproaching": "Your turnover (£{{current}}) is approaching the VAT registration threshold. Only £{{remaining}} remaining before mandatory registration.",
+    "missingReceipt": "Receipt is missing for expense of £{{amount}}. HMRC may not allow this deduction without proof.",
+    "selfEmploymentThreshold": "Your trading income exceeds £{{threshold}}. Self Assessment registration may be required.",
+    "dividendAllowanceExceeded": "Your dividend income exceeds the tax-free allowance of £{{allowance}}",
+    "personalAllowanceReduction": "Your income exceeds £100,000. Your Personal Allowance is reduced by £{{reduction}} to £{{effectiveAllowance}}"
+  },
+  "deadlines": {
+    "vatReturnOverdue": "VAT return is {{daysOverdue}} days overdue. Late filing penalties may apply.",
+    "vatReturnUrgent": "VAT return due in {{daysUntilDue}} days. Submit immediately to avoid penalties.",
+    "vatReturnDueSoon": "VAT return due in {{daysUntilDue}} days",
+    "selfAssessmentOverdue": "Self Assessment for tax year {{taxYear}}/{{taxYear, number}} is {{daysOverdue}} days overdue. Penalties are accumulating.",
+    "selfAssessmentDueSoon": "Self Assessment deadline ({{deadline}}) is in {{daysUntilDue}} days",
+    "corporationTaxDue": "Corporation Tax payment due in {{daysUntilDue}} days",
+    "payePaymentDue": "PAYE payment due on the 22nd of this month"
+  },
+  "patterns": {
+    "unusualExpense": "This expense (£{{amount}}) is significantly higher than your average (£{{average}})",
+    "duplicateEntry": "This appears to be a duplicate entry from {{date}}",
+    "roundNumber": "Round number amounts may indicate an estimate. Consider attaching supporting documentation.",
+    "weekendTransaction": "This transaction is dated on a weekend. Please verify the date is correct.",
+    "frequentSmallExpenses": "Multiple small expenses detected. Consider if these should be consolidated.",
+    "largeUnusualIncome": "This income entry is unusually large compared to previous entries"
+  },
+  "tax": {
+    "personalAllowanceReduction": "Your Personal Allowance is reduced by £{{reduction}} (effective allowance: £{{effectiveAllowance}})",
+    "higherRateThreshold": "Your income is approaching the higher rate tax threshold (£50,270)",
+    "additionalRateThreshold": "Your income is approaching the additional rate tax threshold (£125,140)",
+    "capitalGainsApproaching": "Your capital gains are approaching the annual exemption (£3,000)",
+    "dividendTaxDue": "Tax is due on dividends exceeding the £500 allowance"
+  },
+  "severity": {
+    "info": "Info",
+    "warning": "Warning",
+    "error": "Error",
+    "critical": "Critical"
+  },
+  "categories": {
+    "compliance": "Compliance",
+    "tax": "Tax",
+    "vat": "VAT",
+    "pattern": "Pattern Detection",
+    "deadline": "Deadline",
+    "threshold": "Threshold",
+    "dataQuality": "Data Quality"
+  },
+  "actions": {
+    "registerForVat": "Register for VAT",
+    "uploadReceipt": "Upload Receipt",
+    "fileReturn": "File Return",
+    "learnMore": "Learn More",
+    "dismiss": "Dismiss",
+    "viewDetails": "View Details",
+    "fixNow": "Fix Now"
+  },
+  "complianceAlerts": "Compliance Alerts",
+  "showMore": "Show {{count}} more",
+  "showLess": "Show less",
+  "noWarnings": "No warnings or alerts",
+  "allClear": "All clear! No compliance issues detected."
+}
