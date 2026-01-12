@@ -26,7 +26,9 @@ const {
   createInvoiceItem,
   getByInvoiceId,
   deleteByInvoiceId,
-  calculateLineAmounts
+  calculateLineAmounts,
+  updateInvoiceItem,
+  deleteInvoiceItem
 } = require('../database/models/InvoiceItem');
 
 const { createTransaction } = require('../database/models/Transaction');
@@ -399,6 +401,213 @@ async function list(req, res) {
 
   } catch (error) {
     console.error('List invoices error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Updates an existing invoice with optional line item changes.
+ * PUT /api/invoices/:id
+ * 
+ * Restrictions:
+ * - Only draft invoices can be modified (paid/cancelled/refunded cannot be changed)
+ * - Owner authorization is enforced
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Invoice ID
+ * @param {Object} req.body - Invoice update data
+ * @param {string} [req.body.invoiceDate] - Invoice date (YYYY-MM-DD)
+ * @param {string} [req.body.dueDate] - Due date (YYYY-MM-DD)
+ * @param {string} [req.body.notes] - Additional notes
+ * @param {string} [req.body.currency] - Currency code
+ * @param {Array} [req.body.items] - Line items (replaces all existing items if provided)
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function update(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { invoiceDate, dueDate, notes, currency, items } = req.body;
+
+    // Find the invoice
+    const invoice = findById(parseInt(id, 10));
+
+    if (!invoice) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'Invoice not found',
+            tr: 'Fatura bulunamadı'
+          }
+        }
+      });
+    }
+
+    // Check ownership
+    if (invoice.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Check if invoice can be modified (only draft invoices can be modified)
+    const NON_MODIFIABLE_STATUSES = ['paid', 'cancelled', 'refunded'];
+    if (NON_MODIFIABLE_STATUSES.includes(invoice.status)) {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        success: false,
+        error: {
+          code: 'BUS_INVOICE_NOT_MODIFIABLE',
+          message: {
+            en: `Cannot modify invoice with status '${invoice.status}'. Only draft and pending invoices can be modified.`,
+            tr: `'${invoice.status}' durumundaki fatura değiştirilemez. Yalnızca taslak ve bekleyen faturalar değiştirilebilir.`
+          }
+        }
+      });
+    }
+
+    // Use a transaction to ensure atomicity
+    const db = openDatabase();
+    let updatedInvoice;
+    let updatedItems = [];
+
+    try {
+      db.transaction(() => {
+        // Build invoice update data
+        const invoiceUpdateData = {};
+
+        if (invoiceDate !== undefined) {
+          invoiceUpdateData.issueDate = invoiceDate;
+        }
+
+        if (dueDate !== undefined) {
+          invoiceUpdateData.dueDate = dueDate;
+        }
+
+        if (notes !== undefined) {
+          invoiceUpdateData.notes = notes;
+        }
+
+        if (currency !== undefined) {
+          invoiceUpdateData.currency = currency.toUpperCase();
+        }
+
+        // If items are provided, replace all existing items
+        if (items !== undefined && Array.isArray(items)) {
+          // Calculate new totals from items
+          const calculatedTotals = calculateInvoiceTotals(items);
+
+          // Delete existing items
+          deleteByInvoiceId(parseInt(id, 10));
+
+          // Create new items
+          for (let i = 0; i < calculatedTotals.calculatedItems.length; i++) {
+            const item = calculatedTotals.calculatedItems[i];
+
+            const itemData = {
+              invoiceId: parseInt(id, 10),
+              description: item.description,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              vatRateId: item.vatRateId,
+              vatRatePercent: item.vatRatePercent,
+              vatAmount: item.vatAmount,
+              lineTotal: item.lineTotal,
+              sortOrder: i
+            };
+
+            const itemResult = createInvoiceItem(itemData);
+
+            if (!itemResult.success) {
+              throw new Error(`Failed to create line item: ${JSON.stringify(itemResult.errors)}`);
+            }
+
+            updatedItems.push(itemResult.data);
+          }
+
+          // Update invoice totals
+          invoiceUpdateData.subtotal = calculatedTotals.subtotal;
+          invoiceUpdateData.vatAmount = calculatedTotals.vatAmount;
+          invoiceUpdateData.totalAmount = calculatedTotals.totalAmount;
+        }
+
+        // Update the invoice if there are changes
+        if (Object.keys(invoiceUpdateData).length > 0) {
+          const updateResult = updateInvoice(parseInt(id, 10), invoiceUpdateData);
+
+          if (!updateResult.success) {
+            throw new Error(JSON.stringify(updateResult.errors));
+          }
+
+          updatedInvoice = updateResult.data;
+        } else {
+          // No changes to invoice fields, just fetch current data
+          updatedInvoice = findById(parseInt(id, 10));
+        }
+
+        // If items weren't provided, fetch existing items
+        if (!items) {
+          updatedItems = getByInvoiceId(parseInt(id, 10));
+        }
+      })();
+    } catch (transactionError) {
+      console.error('Invoice update transaction error:', transactionError);
+
+      // Parse error if it's validation errors JSON
+      let errorDetails = { general: 'Failed to update invoice' };
+      try {
+        errorDetails = JSON.parse(transactionError.message);
+      } catch {
+        errorDetails = { general: transactionError.message };
+      }
+
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Failed to update invoice',
+            tr: 'Fatura güncellenemedi'
+          },
+          details: Object.entries(errorDetails).map(([field, message]) => ({
+            field,
+            message
+          }))
+        }
+      });
+    }
+
+    // Build response with invoice and items
+    const response = {
+      ...updatedInvoice,
+      items: updatedItems
+    };
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: response,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Update invoice error:', error);
 
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -828,6 +1037,7 @@ module.exports = {
   create,
   getById,
   list,
+  update,
   remove,
   changeStatus,
   getStats,
