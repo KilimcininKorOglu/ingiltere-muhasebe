@@ -676,9 +676,552 @@ function validateInvoiceForPdf(invoice) {
   };
 }
 
+// ========================================
+// VAT RETURN PDF GENERATION
+// ========================================
+
+const vatReturnTemplate = require('../templates/vatReturn');
+
+/**
+ * Gets VAT return labels for a specific language.
+ * 
+ * @param {string} [lang='en'] - Language code ('en' or 'tr')
+ * @returns {Object} Labels for the specified language
+ */
+function getVatReturnLabels(lang = 'en') {
+  return vatReturnTemplate.getLabels(lang);
+}
+
+/**
+ * Draws horizontal line for VAT return PDF.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {number} y - Y position
+ * @param {Object} [options={}] - Line options
+ */
+function drawVatReturnLine(doc, y, options = {}) {
+  const {
+    startX = vatReturnTemplate.layout.margins.left,
+    endX = doc.page.width - vatReturnTemplate.layout.margins.right,
+    color = vatReturnTemplate.colors.border,
+    width = 0.5
+  } = options;
+  
+  doc.strokeColor(color)
+     .lineWidth(width)
+     .moveTo(startX, y)
+     .lineTo(endX, y)
+     .stroke();
+}
+
+/**
+ * Draws the VAT return header with title and period info.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} vatReturn - VAT return data
+ * @param {Object} labels - Language-specific labels
+ * @returns {number} Y position after header
+ */
+function drawVatReturnHeader(doc, vatReturn, labels) {
+  let y = vatReturnTemplate.layout.margins.top;
+  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  
+  // Title
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(22)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(labels.title, vatReturnTemplate.layout.margins.left, y, { align: 'center', width: pageWidth });
+  
+  y += 30;
+  
+  // Subtitle
+  doc.font(vatReturnTemplate.fonts.italic)
+     .fontSize(10)
+     .fillColor(vatReturnTemplate.colors.textLight)
+     .text(labels.subtitle, vatReturnTemplate.layout.margins.left, y, { align: 'center', width: pageWidth });
+  
+  y += 25;
+  
+  // Draw separator
+  drawVatReturnLine(doc, y, { color: vatReturnTemplate.colors.primary, width: 2 });
+  
+  y += 15;
+  
+  // Period information box
+  const boxWidth = 250;
+  const boxX = vatReturnTemplate.layout.margins.left + (pageWidth - boxWidth) / 2;
+  const boxHeight = 50;
+  
+  doc.rect(boxX, y, boxWidth, boxHeight)
+     .fillColor(vatReturnTemplate.colors.background)
+     .fill();
+  
+  doc.rect(boxX, y, boxWidth, boxHeight)
+     .strokeColor(vatReturnTemplate.colors.border)
+     .lineWidth(1)
+     .stroke();
+  
+  // Period label
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(10)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(labels.periodLabel, boxX + 10, y + 10, { width: boxWidth - 20, align: 'center' });
+  
+  // Period dates
+  const periodStart = formatPdfDate(vatReturn.periodStart);
+  const periodEnd = formatPdfDate(vatReturn.periodEnd);
+  doc.font(vatReturnTemplate.fonts.regular)
+     .fontSize(11)
+     .fillColor(vatReturnTemplate.colors.text)
+     .text(`${periodStart}  -  ${periodEnd}`, boxX + 10, y + 28, { width: boxWidth - 20, align: 'center' });
+  
+  y += boxHeight + 15;
+  
+  // Status and reference row
+  const statusColor = vatReturnTemplate.getStatusColor(vatReturn.status);
+  const statusText = labels.statuses[vatReturn.status] || vatReturn.status?.toUpperCase() || 'DRAFT';
+  
+  // Left side: status
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(9)
+     .fillColor(vatReturnTemplate.colors.textLight)
+     .text(`${labels.status}: `, vatReturnTemplate.layout.margins.left, y, { continued: true });
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fillColor(statusColor)
+     .text(statusText);
+  
+  // Right side: reference number
+  if (vatReturn.id) {
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(`${labels.referenceNumber}: VAT-${String(vatReturn.id).padStart(6, '0')}`, 
+             vatReturnTemplate.layout.margins.left, y, 
+             { align: 'right', width: pageWidth });
+  }
+  
+  y += 20;
+  
+  return y;
+}
+
+/**
+ * Draws the business details section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} businessDetails - Business details from user
+ * @param {Object} labels - Language-specific labels
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after section
+ */
+function drawBusinessDetailsSection(doc, businessDetails, labels, startY) {
+  let y = startY;
+  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  
+  // Section header
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(12)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(labels.businessDetails, vatReturnTemplate.layout.margins.left, y);
+  
+  y += 18;
+  
+  // Draw separator
+  drawVatReturnLine(doc, y, { color: vatReturnTemplate.colors.border });
+  
+  y += 10;
+  
+  // Business details in two columns
+  const colWidth = pageWidth / 2 - 10;
+  const leftColX = vatReturnTemplate.layout.margins.left;
+  const rightColX = vatReturnTemplate.layout.margins.left + colWidth + 20;
+  
+  // Left column
+  if (businessDetails.businessName || businessDetails.name) {
+    doc.font(vatReturnTemplate.fonts.bold)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(labels.businessName, leftColX, y);
+    y += 12;
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(10)
+       .fillColor(vatReturnTemplate.colors.text)
+       .text(businessDetails.businessName || businessDetails.name, leftColX, y, { width: colWidth });
+    y += 15;
+  }
+  
+  if (businessDetails.businessAddress) {
+    doc.font(vatReturnTemplate.fonts.bold)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(labels.businessAddress, leftColX, y);
+    y += 12;
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.text)
+       .text(businessDetails.businessAddress, leftColX, y, { width: colWidth });
+    y += doc.heightOfString(businessDetails.businessAddress, { width: colWidth }) + 5;
+  }
+  
+  // Right column - reset Y for right column
+  let rightY = startY + 28;
+  
+  if (businessDetails.vatNumber) {
+    doc.font(vatReturnTemplate.fonts.bold)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(labels.vatNumber, rightColX, rightY);
+    rightY += 12;
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(10)
+       .fillColor(vatReturnTemplate.colors.text)
+       .text(businessDetails.vatNumber, rightColX, rightY);
+    rightY += 15;
+  }
+  
+  if (businessDetails.companyNumber) {
+    doc.font(vatReturnTemplate.fonts.bold)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(labels.companyNumber, rightColX, rightY);
+    rightY += 12;
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(10)
+       .fillColor(vatReturnTemplate.colors.text)
+       .text(businessDetails.companyNumber, rightColX, rightY);
+    rightY += 15;
+  }
+  
+  if (businessDetails.email) {
+    doc.font(vatReturnTemplate.fonts.bold)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.textLight)
+       .text(labels.email, rightColX, rightY);
+    rightY += 12;
+    doc.font(vatReturnTemplate.fonts.regular)
+       .fontSize(9)
+       .fillColor(vatReturnTemplate.colors.text)
+       .text(businessDetails.email, rightColX, rightY);
+    rightY += 15;
+  }
+  
+  // Use the maximum of left and right column positions
+  y = Math.max(y, rightY) + vatReturnTemplate.layout.sectionSpacing;
+  
+  return y;
+}
+
+/**
+ * Draws a single VAT box row.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {string} boxLabel - Box label (e.g., "Box 1")
+ * @param {string} description - Box description
+ * @param {number} amount - Amount in pence
+ * @param {number} y - Y position
+ * @param {Object} [options={}] - Drawing options
+ * @returns {number} Y position after row
+ */
+function drawVatBoxRow(doc, boxLabel, description, amount, y, options = {}) {
+  const {
+    isHighlighted = false,
+    isPositive = true,
+    currency = 'GBP'
+  } = options;
+  
+  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  const rowHeight = vatReturnTemplate.layout.boxRowHeight;
+  const leftMargin = vatReturnTemplate.layout.margins.left;
+  
+  // Background for highlighted rows (Box 3 and Box 5)
+  if (isHighlighted) {
+    doc.rect(leftMargin, y, pageWidth, rowHeight)
+       .fillColor(vatReturnTemplate.colors.headerBg)
+       .fill();
+  }
+  
+  // Box label column
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(10)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(boxLabel, leftMargin + 10, y + 12, { width: 60 });
+  
+  // Description column
+  doc.font(vatReturnTemplate.fonts.regular)
+     .fontSize(9)
+     .fillColor(vatReturnTemplate.colors.text)
+     .text(description, leftMargin + 75, y + 12, { width: pageWidth - 200 });
+  
+  // Amount column
+  const formattedAmount = formatMoney(Math.abs(amount), currency);
+  const displayAmount = amount < 0 ? `(${formattedAmount})` : formattedAmount;
+  const amountColor = amount < 0 ? vatReturnTemplate.colors.danger : 
+                       (isPositive ? vatReturnTemplate.colors.text : vatReturnTemplate.colors.success);
+  
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(10)
+     .fillColor(amountColor)
+     .text(displayAmount, leftMargin + pageWidth - 120, y + 12, { width: 110, align: 'right' });
+  
+  // Draw bottom border
+  drawVatReturnLine(doc, y + rowHeight, { color: vatReturnTemplate.colors.border });
+  
+  return y + rowHeight;
+}
+
+/**
+ * Draws a section header for VAT boxes.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {string} title - Section title
+ * @param {number} y - Y position
+ * @returns {number} Y position after header
+ */
+function drawVatSectionHeader(doc, title, y) {
+  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  const headerHeight = vatReturnTemplate.layout.sectionHeaderHeight;
+  const leftMargin = vatReturnTemplate.layout.margins.left;
+  
+  doc.rect(leftMargin, y, pageWidth, headerHeight)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .fill();
+  
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(10)
+     .fillColor(vatReturnTemplate.colors.white)
+     .text(title, leftMargin + 10, y + 8);
+  
+  return y + headerHeight;
+}
+
+/**
+ * Draws all nine VAT boxes.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} vatReturn - VAT return data
+ * @param {Object} labels - Language-specific labels
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after boxes
+ */
+function drawVatBoxes(doc, vatReturn, labels, startY) {
+  let y = startY;
+  
+  // Main title
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(12)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(labels.vatBoxesTitle, vatReturnTemplate.layout.margins.left, y);
+  
+  y += 20;
+  
+  // VAT Output Section (Boxes 1-3)
+  y = drawVatSectionHeader(doc, labels.vatOutputSection, y);
+  y = drawVatBoxRow(doc, labels.box1Label, labels.box1Description, vatReturn.box1 || 0, y);
+  y = drawVatBoxRow(doc, labels.box2Label, labels.box2Description, vatReturn.box2 || 0, y);
+  y = drawVatBoxRow(doc, labels.box3Label, labels.box3Description, vatReturn.box3 || 0, y, { isHighlighted: true });
+  
+  y += 10;
+  
+  // VAT Input Section (Box 4)
+  y = drawVatSectionHeader(doc, labels.vatInputSection, y);
+  y = drawVatBoxRow(doc, labels.box4Label, labels.box4Description, vatReturn.box4 || 0, y);
+  
+  y += 10;
+  
+  // VAT Summary Section (Box 5)
+  y = drawVatSectionHeader(doc, labels.vatSummarySection, y);
+  const box5Value = vatReturn.box5 || 0;
+  const box5Label = box5Value >= 0 ? labels.netVatPayable : labels.netVatRefund;
+  y = drawVatBoxRow(doc, labels.box5Label, labels.box5Description, box5Value, y, { 
+    isHighlighted: true,
+    isPositive: box5Value >= 0
+  });
+  
+  y += 10;
+  
+  // Sales and Purchases Section (Boxes 6-7)
+  y = drawVatSectionHeader(doc, labels.salesPurchasesSection, y);
+  y = drawVatBoxRow(doc, labels.box6Label, labels.box6Description, vatReturn.box6 || 0, y);
+  y = drawVatBoxRow(doc, labels.box7Label, labels.box7Description, vatReturn.box7 || 0, y);
+  
+  y += 10;
+  
+  // EU Trade Section (Boxes 8-9)
+  y = drawVatSectionHeader(doc, labels.euTradeSection, y);
+  y = drawVatBoxRow(doc, labels.box8Label, labels.box8Description, vatReturn.box8 || 0, y);
+  y = drawVatBoxRow(doc, labels.box9Label, labels.box9Description, vatReturn.box9 || 0, y);
+  
+  return y + vatReturnTemplate.layout.sectionSpacing;
+}
+
+/**
+ * Draws the notes section.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {string} notes - Notes text
+ * @param {Object} labels - Language-specific labels
+ * @param {number} startY - Starting Y position
+ * @returns {number} Y position after notes
+ */
+function drawVatReturnNotes(doc, notes, labels, startY) {
+  if (!notes) return startY;
+  
+  let y = startY;
+  
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(10)
+     .fillColor(vatReturnTemplate.colors.primary)
+     .text(labels.notes, vatReturnTemplate.layout.margins.left, y);
+  
+  y += 15;
+  
+  doc.font(vatReturnTemplate.fonts.regular)
+     .fontSize(9)
+     .fillColor(vatReturnTemplate.colors.text)
+     .text(notes, vatReturnTemplate.layout.margins.left, y, { 
+       width: doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right 
+     });
+  
+  y += doc.heightOfString(notes, { 
+    width: doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right 
+  }) + vatReturnTemplate.layout.sectionSpacing;
+  
+  return y;
+}
+
+/**
+ * Draws the disclaimer footer.
+ * 
+ * @param {PDFDocument} doc - PDF document instance
+ * @param {Object} labels - Language-specific labels
+ */
+function drawVatReturnFooter(doc, labels) {
+  const bottomY = doc.page.height - vatReturnTemplate.layout.margins.bottom;
+  const pageWidth = doc.page.width - vatReturnTemplate.layout.margins.left - vatReturnTemplate.layout.margins.right;
+  
+  // Draw separator
+  drawVatReturnLine(doc, bottomY - 55, { color: vatReturnTemplate.colors.warning, width: 1 });
+  
+  // Disclaimer box
+  doc.rect(vatReturnTemplate.layout.margins.left, bottomY - 52, pageWidth, 45)
+     .fillColor('#fff8f0')  // Light warning background
+     .fill();
+  
+  doc.font(vatReturnTemplate.fonts.bold)
+     .fontSize(7)
+     .fillColor(vatReturnTemplate.colors.warning)
+     .text(labels.disclaimer, vatReturnTemplate.layout.margins.left + 10, bottomY - 48, {
+       width: pageWidth - 20,
+       align: 'justify'
+     });
+  
+  // Generation timestamp
+  const timestamp = new Date().toISOString().split('T')[0];
+  doc.font(vatReturnTemplate.fonts.regular)
+     .fontSize(7)
+     .fillColor(vatReturnTemplate.colors.textLight)
+     .text(`${labels.generatedOn}: ${formatPdfDate(timestamp)} | ${labels.thankYou}`, 
+           vatReturnTemplate.layout.margins.left, bottomY - 5, {
+             width: pageWidth,
+             align: 'center'
+           });
+}
+
+/**
+ * Generates a PDF document for a VAT return.
+ * 
+ * @param {Object} vatReturn - VAT return data with all nine boxes
+ * @param {Object} businessDetails - Business/company details from user profile
+ * @param {Object} [options={}] - Generation options
+ * @param {string} [options.lang='en'] - Language code ('en' or 'tr')
+ * @returns {Promise<Buffer>} PDF document as a buffer
+ */
+async function generateVatReturnPdf(vatReturn, businessDetails, options = {}) {
+  const { lang = 'en' } = options;
+  const labels = getVatReturnLabels(lang);
+  
+  return new Promise((resolve, reject) => {
+    try {
+      // Create PDF document
+      const doc = new PDFDocument({
+        size: vatReturnTemplate.layout.pageSize,
+        margins: vatReturnTemplate.layout.margins,
+        info: {
+          Title: `${labels.title} - ${formatPdfDate(vatReturn.periodStart)} to ${formatPdfDate(vatReturn.periodEnd)}`,
+          Author: businessDetails.businessName || businessDetails.name || 'Company',
+          Subject: `VAT Return for period ${vatReturn.periodStart} to ${vatReturn.periodEnd}`,
+          Keywords: 'vat, return, hmrc, uk, tax',
+          Creator: 'UK Pre-Accounting System'
+        }
+      });
+      
+      // Collect PDF data into buffer
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+      
+      // Draw VAT return sections
+      let y = drawVatReturnHeader(doc, vatReturn, labels);
+      y = drawBusinessDetailsSection(doc, businessDetails, labels, y);
+      y = drawVatBoxes(doc, vatReturn, labels, y);
+      y = drawVatReturnNotes(doc, vatReturn.notes, labels, y);
+      
+      // Draw footer on last page
+      drawVatReturnFooter(doc, labels);
+      
+      // Finalize the document
+      doc.end();
+      
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+/**
+ * Validates that a VAT return has all required data for PDF generation.
+ * 
+ * @param {Object} vatReturn - VAT return data to validate
+ * @returns {{isValid: boolean, errors: string[]}} Validation result
+ */
+function validateVatReturnForPdf(vatReturn) {
+  const errors = [];
+  
+  if (!vatReturn) {
+    errors.push('VAT return data is required');
+    return { isValid: false, errors };
+  }
+  
+  if (!vatReturn.periodStart) {
+    errors.push('Period start date is required');
+  }
+  
+  if (!vatReturn.periodEnd) {
+    errors.push('Period end date is required');
+  }
+  
+  // Check that at least box values are present (can be 0)
+  const boxKeys = ['box1', 'box2', 'box3', 'box4', 'box5', 'box6', 'box7', 'box8', 'box9'];
+  for (const key of boxKeys) {
+    if (vatReturn[key] === undefined || vatReturn[key] === null) {
+      errors.push(`${key} value is required`);
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
 module.exports = {
   generateInvoicePdf,
   validateInvoiceForPdf,
+  
+  // VAT Return PDF functions
+  generateVatReturnPdf,
+  validateVatReturnForPdf,
   
   // Export helper functions for testing
   formatMoney,

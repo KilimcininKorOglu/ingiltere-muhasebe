@@ -22,7 +22,9 @@ const {
   updateVatReturnById,
   deleteVatReturnById,
   updateVatReturnStatus,
-  previewVatReturn
+  previewVatReturn,
+  // PDF Export
+  exportVatReturnPdf
 } = require('../controllers/vatController');
 const { requireAuth } = require('../middleware/auth');
 
@@ -258,6 +260,22 @@ router.put('/returns/:id', requireAuth, updateVatReturnById);
  * @returns { success: true, data: VatReturnData }
  */
 router.patch('/returns/:id/status', requireAuth, updateVatReturnStatus);
+
+/**
+ * @route   GET /api/vat/returns/:id/pdf
+ * @desc    Export a VAT return as a PDF document
+ * @header  Authorization: Bearer <token>
+ * @param   id - VAT return ID
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns PDF file download (application/pdf)
+ * @notes   PDF includes:
+ *          - All nine HMRC VAT boxes
+ *          - Business and period details
+ *          - Clear disclaimer about record-keeping only
+ *          - Bilingual support (English/Turkish)
+ */
+router.get('/returns/:id/pdf', requireAuth, exportVatReturnPdf);
 
 /**
  * @route   DELETE /api/vat/returns/:id

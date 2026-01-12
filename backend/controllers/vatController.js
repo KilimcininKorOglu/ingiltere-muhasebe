@@ -18,6 +18,10 @@ const {
   calculateAndPrepareVatReturn,
   getVatReturnPreview
 } = require('../services/vatCalculationService');
+const { 
+  generateVatReturnPdf,
+  validateVatReturnForPdf
+} = require('../services/pdfGenerator');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -1170,6 +1174,133 @@ async function previewVatReturn(req, res) {
   }
 }
 
+/**
+ * Exports a VAT return as a PDF document.
+ * The PDF includes all nine HMRC boxes, business details, period information,
+ * and a disclaimer for record-keeping purposes.
+ * 
+ * GET /api/vat/returns/:id/pdf
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - VAT return ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.lang='en'] - Language preference (en/tr)
+ * @param {Object} res - Express response object
+ */
+async function exportVatReturnPdf(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    // User should be set by auth middleware
+    if (!req.user) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+    
+    // Fetch the VAT return
+    const vatReturn = VatReturn.findById(parseInt(id, 10));
+    
+    if (!vatReturn) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'VAT return not found',
+            tr: 'KDV beyannamesi bulunamadı'
+          }
+        }
+      });
+    }
+    
+    // Check ownership
+    if (vatReturn.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+    
+    // Validate VAT return data for PDF generation
+    const validation = validateVatReturnForPdf(vatReturn);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'VAT return data is incomplete for PDF generation',
+            tr: 'PDF oluşturma için KDV beyannamesi verileri eksik'
+          },
+          details: validation.errors
+        }
+      });
+    }
+    
+    // Fetch user/business details
+    const user = findById(userId);
+    
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.RES_USER_NOT_FOUND.code,
+          message: ERROR_CODES.RES_USER_NOT_FOUND.message
+        }
+      });
+    }
+    
+    // Prepare business details for PDF
+    const businessDetails = {
+      name: user.name,
+      businessName: user.businessName,
+      businessAddress: user.businessAddress,
+      vatNumber: user.vatNumber,
+      companyNumber: user.companyNumber,
+      email: user.email,
+      isVatRegistered: Boolean(user.isVatRegistered)
+    };
+    
+    // Generate the PDF
+    const pdfBuffer = await generateVatReturnPdf(vatReturn, businessDetails, { lang });
+    
+    // Generate filename
+    const periodStart = vatReturn.periodStart.replace(/-/g, '');
+    const periodEnd = vatReturn.periodEnd.replace(/-/g, '');
+    const filename = `VAT-Return-${periodStart}-${periodEnd}.pdf`;
+    
+    // Set response headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    // Send the PDF
+    res.send(pdfBuffer);
+    
+  } catch (error) {
+    console.error('Export VAT return PDF error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   getThresholdStatus,
   getThresholdConfig,
@@ -1183,6 +1314,8 @@ module.exports = {
   deleteVatReturnById,
   updateVatReturnStatus,
   previewVatReturn,
+  // PDF Export
+  exportVatReturnPdf,
   // Export for testing
   WARNING_LEVELS
 };
