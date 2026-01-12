@@ -1207,6 +1207,286 @@ function sanitizeInvoice(req, res, next) {
   next();
 }
 
+/**
+ * Valid languages for user profile.
+ */
+const VALID_LANGUAGES = ['en', 'tr'];
+
+/**
+ * Validates profile update request body.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function validateProfileUpdate(req, res, next) {
+  const errors = [];
+  const { 
+    name, 
+    businessName, 
+    businessAddress, 
+    vatNumber, 
+    isVatRegistered, 
+    companyNumber, 
+    taxYearStart, 
+    preferredLanguage,
+    invoicePrefix,
+    nextInvoiceNumber
+  } = req.body;
+
+  // Name validation (optional on update, but if provided must be valid)
+  if (name !== undefined && name !== null) {
+    if (typeof name !== 'string') {
+      errors.push({
+        field: 'name',
+        message: 'Name must be a string',
+        messageTr: 'İsim metin olmalıdır'
+      });
+    } else if (name.trim().length < 2) {
+      errors.push({
+        field: 'name',
+        message: 'Name must be at least 2 characters long',
+        messageTr: 'İsim en az 2 karakter olmalıdır'
+      });
+    } else if (name.length > 255) {
+      errors.push({
+        field: 'name',
+        message: 'Name must not exceed 255 characters',
+        messageTr: 'İsim 255 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Business name validation (optional)
+  if (businessName !== undefined && businessName !== null && businessName !== '') {
+    if (typeof businessName !== 'string') {
+      errors.push({
+        field: 'businessName',
+        message: 'Business name must be a string',
+        messageTr: 'İşletme adı metin olmalıdır'
+      });
+    } else if (businessName.length > 255) {
+      errors.push({
+        field: 'businessName',
+        message: 'Business name must not exceed 255 characters',
+        messageTr: 'İşletme adı 255 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Business address validation (optional)
+  if (businessAddress !== undefined && businessAddress !== null && businessAddress !== '') {
+    if (typeof businessAddress !== 'string') {
+      errors.push({
+        field: 'businessAddress',
+        message: 'Business address must be a string',
+        messageTr: 'İşletme adresi metin olmalıdır'
+      });
+    } else if (businessAddress.length > 1000) {
+      errors.push({
+        field: 'businessAddress',
+        message: 'Business address must not exceed 1000 characters',
+        messageTr: 'İşletme adresi 1000 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // VAT number validation (optional)
+  if (vatNumber !== undefined && vatNumber !== null && vatNumber !== '') {
+    if (typeof vatNumber !== 'string') {
+      errors.push({
+        field: 'vatNumber',
+        message: 'VAT number must be a string',
+        messageTr: 'KDV numarası metin olmalıdır'
+      });
+    } else {
+      // UK VAT number format: GB followed by 9 or 12 digits
+      const cleanedVat = vatNumber.replace(/\s/g, '').toUpperCase();
+      const vatRegex = /^GB\d{9}$|^GB\d{12}$|^GBGD\d{3}$|^GBHA\d{3}$/;
+      if (!vatRegex.test(cleanedVat)) {
+        errors.push({
+          field: 'vatNumber',
+          message: 'Please enter a valid UK VAT number (e.g., GB123456789)',
+          messageTr: 'Lütfen geçerli bir UK KDV numarası girin (örn. GB123456789)'
+        });
+      }
+    }
+  }
+
+  // isVatRegistered validation (optional)
+  if (isVatRegistered !== undefined && isVatRegistered !== null) {
+    if (typeof isVatRegistered !== 'boolean') {
+      errors.push({
+        field: 'isVatRegistered',
+        message: 'VAT registration status must be a boolean',
+        messageTr: 'KDV kayıt durumu boolean olmalıdır'
+      });
+    }
+  }
+
+  // Company number validation (optional)
+  if (companyNumber !== undefined && companyNumber !== null && companyNumber !== '') {
+    if (typeof companyNumber !== 'string') {
+      errors.push({
+        field: 'companyNumber',
+        message: 'Company number must be a string',
+        messageTr: 'Şirket numarası metin olmalıdır'
+      });
+    } else {
+      // UK company number format: 8 alphanumeric characters
+      const cleanedCompany = companyNumber.replace(/\s/g, '').toUpperCase();
+      const companyRegex = /^[A-Z0-9]{8}$/;
+      if (!companyRegex.test(cleanedCompany)) {
+        errors.push({
+          field: 'companyNumber',
+          message: 'Please enter a valid UK company number (8 alphanumeric characters)',
+          messageTr: 'Lütfen geçerli bir UK şirket numarası girin (8 alfanümerik karakter)'
+        });
+      }
+    }
+  }
+
+  // Tax year start validation (optional)
+  if (taxYearStart !== undefined && taxYearStart !== null && taxYearStart !== '') {
+    if (typeof taxYearStart !== 'string') {
+      errors.push({
+        field: 'taxYearStart',
+        message: 'Tax year start must be a string',
+        messageTr: 'Vergi yılı başlangıcı metin olmalıdır'
+      });
+    } else {
+      // Format: MM-DD
+      const dateRegex = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+      if (!dateRegex.test(taxYearStart)) {
+        errors.push({
+          field: 'taxYearStart',
+          message: 'Tax year start must be in MM-DD format',
+          messageTr: 'Vergi yılı başlangıcı MM-DD formatında olmalıdır'
+        });
+      }
+    }
+  }
+
+  // Preferred language validation (optional)
+  if (preferredLanguage !== undefined && preferredLanguage !== null && preferredLanguage !== '') {
+    if (typeof preferredLanguage !== 'string') {
+      errors.push({
+        field: 'preferredLanguage',
+        message: 'Preferred language must be a string',
+        messageTr: 'Tercih edilen dil metin olmalıdır'
+      });
+    } else if (!VALID_LANGUAGES.includes(preferredLanguage)) {
+      errors.push({
+        field: 'preferredLanguage',
+        message: 'Preferred language must be "en" or "tr"',
+        messageTr: 'Tercih edilen dil "en" veya "tr" olmalıdır'
+      });
+    }
+  }
+
+  // Invoice prefix validation (optional)
+  if (invoicePrefix !== undefined && invoicePrefix !== null && invoicePrefix !== '') {
+    if (typeof invoicePrefix !== 'string') {
+      errors.push({
+        field: 'invoicePrefix',
+        message: 'Invoice prefix must be a string',
+        messageTr: 'Fatura öneki metin olmalıdır'
+      });
+    } else {
+      const trimmedPrefix = invoicePrefix.trim();
+      if (trimmedPrefix.length < 1) {
+        errors.push({
+          field: 'invoicePrefix',
+          message: 'Invoice prefix must be at least 1 character long',
+          messageTr: 'Fatura öneki en az 1 karakter olmalıdır'
+        });
+      } else if (trimmedPrefix.length > 20) {
+        errors.push({
+          field: 'invoicePrefix',
+          message: 'Invoice prefix must not exceed 20 characters',
+          messageTr: 'Fatura öneki 20 karakteri geçmemelidir'
+        });
+      } else {
+        const prefixRegex = /^[A-Za-z0-9\-_]+$/;
+        if (!prefixRegex.test(trimmedPrefix)) {
+          errors.push({
+            field: 'invoicePrefix',
+            message: 'Invoice prefix can only contain letters, numbers, hyphens, and underscores',
+            messageTr: 'Fatura öneki yalnızca harf, rakam, tire ve alt çizgi içerebilir'
+          });
+        }
+      }
+    }
+  }
+
+  // Next invoice number validation (optional)
+  if (nextInvoiceNumber !== undefined && nextInvoiceNumber !== null) {
+    if (typeof nextInvoiceNumber !== 'number' || !Number.isInteger(nextInvoiceNumber)) {
+      errors.push({
+        field: 'nextInvoiceNumber',
+        message: 'Next invoice number must be an integer',
+        messageTr: 'Sonraki fatura numarası bir tam sayı olmalıdır'
+      });
+    } else if (nextInvoiceNumber < 1) {
+      errors.push({
+        field: 'nextInvoiceNumber',
+        message: 'Next invoice number must be at least 1',
+        messageTr: 'Sonraki fatura numarası en az 1 olmalıdır'
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    return sendValidationError(res, errors);
+  }
+
+  next();
+}
+
+/**
+ * Sanitizes profile update request body.
+ * Trims strings and normalizes values.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function sanitizeProfileUpdate(req, res, next) {
+  const body = req.body;
+
+  // Trim name
+  if (body.name && typeof body.name === 'string') {
+    body.name = body.name.trim();
+  }
+
+  // Trim business name
+  if (body.businessName && typeof body.businessName === 'string') {
+    body.businessName = body.businessName.trim();
+  }
+
+  // Trim business address
+  if (body.businessAddress && typeof body.businessAddress === 'string') {
+    body.businessAddress = body.businessAddress.trim();
+  }
+
+  // Normalize VAT number (remove spaces, uppercase)
+  if (body.vatNumber && typeof body.vatNumber === 'string') {
+    body.vatNumber = body.vatNumber.replace(/\s/g, '').toUpperCase();
+  }
+
+  // Normalize company number (remove spaces, uppercase)
+  if (body.companyNumber && typeof body.companyNumber === 'string') {
+    body.companyNumber = body.companyNumber.replace(/\s/g, '').toUpperCase();
+  }
+
+  // Normalize invoice prefix (trim and uppercase)
+  if (body.invoicePrefix && typeof body.invoicePrefix === 'string') {
+    body.invoicePrefix = body.invoicePrefix.trim().toUpperCase();
+  }
+
+  next();
+}
+
 module.exports = {
   validateRegistration,
   validateLogin,
@@ -1224,6 +1504,9 @@ module.exports = {
   // Invoice validation
   validateInvoiceCreate,
   sanitizeInvoice,
+  // Profile validation
+  validateProfileUpdate,
+  sanitizeProfileUpdate,
   // Authentication
   authenticateToken,
   // Constants
@@ -1232,6 +1515,7 @@ module.exports = {
   UK_POSTCODE_REGEX,
   CUSTOMER_STATUSES,
   VALID_CURRENCIES,
+  VALID_LANGUAGES,
   INVOICE_CURRENCIES,
   INVOICE_STATUSES,
   VALID_VAT_RATE_IDS
