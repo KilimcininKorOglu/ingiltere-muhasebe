@@ -1,0 +1,109 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "reset": "Reset",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "expenses": "Expenses",
+    "reports": "Reports",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember me",
+    "loginSuccess": "Login successful",
+    "logoutSuccess": "Logout successful",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}!",
+    "totalRevenue": "Total Revenue",
+    "totalExpenses": "Total Expenses",
+    "netProfit": "Net Profit",
+    "recentTransactions": "Recent Transactions",
+    "upcomingTaxDeadlines": "Upcoming Tax Deadlines"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "createInvoice": "Create Invoice",
+    "invoiceNumber": "Invoice Number",
+    "client": "Client",
+    "amount": "Amount",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "paid": "Paid",
+    "pending": "Pending",
+    "overdue": "Overdue",
+    "draft": "Draft"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "addExpense": "Add Expense",
+    "category": "Category",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description",
+    "receipt": "Receipt",
+    "vendor": "Vendor"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "language": "Language",
+    "languageDescription": "Select your preferred language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "account": "Account",
+    "security": "Security",
+    "privacy": "Privacy"
+  },
+  "language": {
+    "select": "Select Language",
+    "current": "Current language: {{language}}",
+    "switchTo": "Switch to {{language}}"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "serverError": "Server error. Please try again later.",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to view this page.",
+    "forbidden": "Access forbidden.",
+    "validationError": "Please check your input and try again."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be no more than {{max}} characters",
+    "passwordMismatch": "Passwords do not match"
+  }
+}
