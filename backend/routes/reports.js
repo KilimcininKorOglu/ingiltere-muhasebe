@@ -25,7 +25,12 @@ const {
   getCashFlow,
   getCashFlowByTaxYear,
   getCashFlowByMonth,
-  getCashFlowByQuarter
+  getCashFlowByQuarter,
+  // Export functions
+  exportProfitLoss,
+  exportVatSummary,
+  exportCashFlow,
+  exportPayeSummary
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -330,5 +335,57 @@ router.get('/cash-flow/monthly/:year/:month', getCashFlowByMonth);
  * @returns Cash Flow Statement for the specified quarter
  */
 router.get('/cash-flow/quarterly/:year/:quarter', getCashFlowByQuarter);
+
+// =====================================
+// Report Export Routes (PDF & CSV)
+// =====================================
+
+/**
+ * @route   GET /api/reports/profit-loss/export
+ * @desc    Export Profit & Loss report as PDF or CSV
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   format - Export format: 'pdf' or 'csv' (default: 'pdf')
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Binary file (PDF or CSV)
+ */
+router.get('/profit-loss/export', exportProfitLoss);
+
+/**
+ * @route   GET /api/reports/vat-summary/export
+ * @desc    Export VAT Summary report as PDF or CSV
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   format - Export format: 'pdf' or 'csv' (default: 'pdf')
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Binary file (PDF or CSV)
+ */
+router.get('/vat-summary/export', exportVatSummary);
+
+/**
+ * @route   GET /api/reports/cash-flow/export
+ * @desc    Export Cash Flow Statement as PDF or CSV
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   format - Export format: 'pdf' or 'csv' (default: 'pdf')
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Binary file (PDF or CSV)
+ */
+router.get('/cash-flow/export', exportCashFlow);
+
+/**
+ * @route   GET /api/reports/paye-summary/export
+ * @desc    Export PAYE Summary report as PDF or CSV
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   format - Export format: 'pdf' or 'csv' (default: 'pdf')
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Binary file (PDF or CSV)
+ */
+router.get('/paye-summary/export', exportPayeSummary);
 
 module.exports = router;

@@ -12,6 +12,11 @@ const vatSummaryService = require('../services/vatSummaryService');
 const cashFlowService = require('../services/cashFlowService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
+// Import export generators
+const csvGenerator = require('../services/csvGenerator');
+const reportPdfGenerator = require('../services/reportPdfGenerator');
+const { findById } = require('../database/models/User');
+
 /**
  * Generates a PAYE summary report for a date range.
  * GET /api/reports/paye-summary
@@ -1332,6 +1337,414 @@ function getCashFlowByQuarter(req, res) {
   }
 }
 
+// =====================================
+// Report Export Functions (PDF & CSV)
+// =====================================
+
+/**
+ * Gets business details for the authenticated user.
+ * @param {number} userId - User ID
+ * @returns {Object} Business details
+ */
+function getBusinessDetails(userId) {
+  const user = findById(userId);
+  if (!user) return {};
+  
+  return {
+    name: user.name,
+    businessName: user.businessName,
+    businessAddress: user.businessAddress,
+    email: user.email,
+    vatNumber: user.vatNumber,
+    companyNumber: user.companyNumber
+  };
+}
+
+/**
+ * Exports a Profit & Loss report as PDF or CSV.
+ * GET /api/reports/profit-loss/export
+ * 
+ * Query Parameters:
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - format: Export format ('pdf' or 'csv', default: 'pdf')
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function exportProfitLoss(req, res) {
+  try {
+    const { lang = 'en', format = 'pdf' } = req.query;
+    const userId = req.user.id;
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate format
+    if (!['pdf', 'csv'].includes(format.toLowerCase())) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid format. Must be pdf or csv',
+            tr: 'Geçersiz format. pdf veya csv olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate date range
+    const validation = profitLossService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: { en: validation.error, tr: validation.error }
+        }
+      });
+    }
+    
+    // Generate the report
+    const report = profitLossService.generateProfitLossReport(userId, startDate, endDate, {
+      includeComparison: false
+    });
+    
+    const businessDetails = getBusinessDetails(userId);
+    const exportFormat = format.toLowerCase();
+    
+    if (exportFormat === 'csv') {
+      const csv = csvGenerator.generateProfitLossCSV(report, { lang, businessDetails });
+      const filename = `profit-loss-${startDate}-to-${endDate}.csv`;
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csv);
+    } else {
+      const pdfBuffer = await reportPdfGenerator.generateProfitLossPdf(report, businessDetails, { lang });
+      const filename = `profit-loss-${startDate}-to-${endDate}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(pdfBuffer);
+    }
+    
+  } catch (error) {
+    console.error('Export Profit & Loss error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Exports a VAT Summary report as PDF or CSV.
+ * GET /api/reports/vat-summary/export
+ * 
+ * Query Parameters:
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - format: Export format ('pdf' or 'csv', default: 'pdf')
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function exportVatSummary(req, res) {
+  try {
+    const { lang = 'en', format = 'pdf' } = req.query;
+    const userId = req.user.id;
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate format
+    if (!['pdf', 'csv'].includes(format.toLowerCase())) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid format. Must be pdf or csv',
+            tr: 'Geçersiz format. pdf veya csv olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate date range
+    const validation = vatSummaryService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: { en: validation.error, tr: validation.error }
+        }
+      });
+    }
+    
+    // Generate the report
+    const report = vatSummaryService.generateVatSummaryReport(userId, startDate, endDate, {
+      includeCategoryBreakdown: false,
+      includeMonthlyBreakdown: true
+    });
+    
+    const businessDetails = getBusinessDetails(userId);
+    const exportFormat = format.toLowerCase();
+    
+    if (exportFormat === 'csv') {
+      const csv = csvGenerator.generateVatSummaryCSV(report, { lang, businessDetails });
+      const filename = `vat-summary-${startDate}-to-${endDate}.csv`;
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csv);
+    } else {
+      const pdfBuffer = await reportPdfGenerator.generateVatSummaryPdf(report, businessDetails, { lang });
+      const filename = `vat-summary-${startDate}-to-${endDate}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(pdfBuffer);
+    }
+    
+  } catch (error) {
+    console.error('Export VAT Summary error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Exports a Cash Flow Statement as PDF or CSV.
+ * GET /api/reports/cash-flow/export
+ * 
+ * Query Parameters:
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - format: Export format ('pdf' or 'csv', default: 'pdf')
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function exportCashFlow(req, res) {
+  try {
+    const { lang = 'en', format = 'pdf' } = req.query;
+    const userId = req.user.id;
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate format
+    if (!['pdf', 'csv'].includes(format.toLowerCase())) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid format. Must be pdf or csv',
+            tr: 'Geçersiz format. pdf veya csv olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate date range
+    const validation = cashFlowService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: { en: validation.error, tr: validation.error }
+        }
+      });
+    }
+    
+    // Generate the report
+    const report = cashFlowService.generateCashFlowReport(userId, startDate, endDate, {
+      includeComparison: false,
+      includeBankMovements: true,
+      includeMonthlyBreakdown: true
+    });
+    
+    const businessDetails = getBusinessDetails(userId);
+    const exportFormat = format.toLowerCase();
+    
+    if (exportFormat === 'csv') {
+      const csv = csvGenerator.generateCashFlowCSV(report, { lang, businessDetails });
+      const filename = `cash-flow-${startDate}-to-${endDate}.csv`;
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csv);
+    } else {
+      const pdfBuffer = await reportPdfGenerator.generateCashFlowPdf(report, businessDetails, { lang });
+      const filename = `cash-flow-${startDate}-to-${endDate}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(pdfBuffer);
+    }
+    
+  } catch (error) {
+    console.error('Export Cash Flow error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Exports a PAYE Summary report as PDF or CSV.
+ * GET /api/reports/paye-summary/export
+ * 
+ * Query Parameters:
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - format: Export format ('pdf' or 'csv', default: 'pdf')
+ * - lang: Language preference (en/tr)
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function exportPayeSummary(req, res) {
+  try {
+    const { lang = 'en', format = 'pdf' } = req.query;
+    const userId = req.user.id;
+    const { startDate, endDate } = req.query;
+    
+    // Validate required parameters
+    if (!startDate || !endDate) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
+          }
+        }
+      });
+    }
+    
+    // Validate format
+    if (!['pdf', 'csv'].includes(format.toLowerCase())) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid format. Must be pdf or csv',
+            tr: 'Geçersiz format. pdf veya csv olmalıdır'
+          }
+        }
+      });
+    }
+    
+    // Validate date range
+    const validation = payeSummaryService.validateDateRange(startDate, endDate);
+    if (!validation.isValid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: { en: validation.error, tr: validation.error }
+        }
+      });
+    }
+    
+    // Generate the report
+    const report = payeSummaryService.generatePayeSummary(userId, startDate, endDate);
+    
+    const businessDetails = getBusinessDetails(userId);
+    const exportFormat = format.toLowerCase();
+    
+    if (exportFormat === 'csv') {
+      const csv = csvGenerator.generatePayeSummaryCSV(report, { lang, businessDetails });
+      const filename = `paye-summary-${startDate}-to-${endDate}.csv`;
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csv);
+    } else {
+      const pdfBuffer = await reportPdfGenerator.generatePayeSummaryPdf(report, businessDetails, { lang });
+      const filename = `paye-summary-${startDate}-to-${endDate}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(pdfBuffer);
+    }
+    
+  } catch (error) {
+    console.error('Export PAYE Summary error:', error);
+    
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   // PAYE Summary reports
   getPayeSummary,
@@ -1355,5 +1768,11 @@ module.exports = {
   getCashFlow,
   getCashFlowByTaxYear,
   getCashFlowByMonth,
-  getCashFlowByQuarter
+  getCashFlowByQuarter,
+  
+  // Export functions (PDF & CSV)
+  exportProfitLoss,
+  exportVatSummary,
+  exportCashFlow,
+  exportPayeSummary
 };
