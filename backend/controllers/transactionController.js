@@ -2,11 +2,13 @@
  * Transaction Controller
  * Handles HTTP requests for transaction operations.
  * Supports income, expense, and transfer transactions with VAT calculation.
+ * Includes audit trail logging for all transaction changes.
  * 
  * @module controllers/transactionController
  */
 
 const Transaction = require('../database/models/Transaction');
+const TransactionAuditLog = require('../database/models/TransactionAuditLog');
 const Category = require('../database/models/Category');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 const { 
@@ -14,6 +16,11 @@ const {
   getVatRateBasisPoints,
   VAT_RATES_BASIS_POINTS
 } = require('../utils/vatCalculator');
+const { 
+  logTransactionCreate, 
+  logTransactionUpdate, 
+  logTransactionDelete 
+} = require('../middleware/auditLogger');
 
 /**
  * Maps transaction type to compatible category types.
@@ -168,6 +175,9 @@ async function create(req, res) {
         }
       });
     }
+
+    // Log audit trail for transaction creation
+    logTransactionCreate(req, result.data.id, result.data);
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
@@ -467,6 +477,9 @@ async function update(req, res) {
       });
     }
 
+    // Log audit trail for transaction update with previous values
+    logTransactionUpdate(req, parseInt(id, 10), Transaction.sanitizeTransaction(transaction), result.data);
+
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: result.data,
@@ -528,6 +541,9 @@ async function remove(req, res) {
       });
     }
 
+    // Store transaction data before deletion for audit log
+    const transactionDataBeforeDelete = Transaction.sanitizeTransaction(transaction);
+
     const result = Transaction.deleteTransaction(parseInt(id, 10));
 
     if (!result.success) {
@@ -542,6 +558,9 @@ async function remove(req, res) {
         }
       });
     }
+
+    // Log audit trail for transaction deletion
+    logTransactionDelete(req, parseInt(id, 10), transactionDataBeforeDelete);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -853,6 +872,84 @@ async function updateStatus(req, res) {
   }
 }
 
+/**
+ * Gets the audit history for a transaction.
+ * GET /api/transactions/:id/history
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function getHistory(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const {
+      page = 1,
+      limit = 50,
+      action,
+      sortOrder = 'DESC'
+    } = req.query;
+
+    // First verify the transaction exists and belongs to the user
+    const transaction = Transaction.findById(parseInt(id, 10));
+
+    if (!transaction) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_NOT_FOUND',
+          message: {
+            en: 'Transaction not found',
+            tr: 'İşlem bulunamadı'
+          }
+        }
+      });
+    }
+
+    // Check ownership
+    if (transaction.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get the audit history
+    const result = TransactionAuditLog.getTransactionHistory(parseInt(id, 10), {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      action,
+      sortOrder
+    });
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        transactionId: parseInt(id, 10)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get transaction history error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   create,
   list,
@@ -863,5 +960,6 @@ module.exports = {
   getVatSummary,
   search,
   getStats,
-  updateStatus
+  updateStatus,
+  getHistory
 };

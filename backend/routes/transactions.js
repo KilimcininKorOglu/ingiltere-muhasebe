@@ -19,7 +19,8 @@ const {
   getVatSummary,
   search,
   getStats,
-  updateStatus
+  updateStatus,
+  getHistory
 } = require('../controllers/transactionController');
 
 const { authenticate } = require('../middleware/auth');
@@ -87,6 +88,20 @@ router.get('/stats', authenticate, getStats);
  * @returns { success: true, data: { transactions, total, page, limit } }
  */
 router.get('/', authenticate, list);
+
+/**
+ * @route   GET /api/transactions/:id/history
+ * @desc    Get audit history for a transaction
+ * @header  Authorization: Bearer <token>
+ * @param   id - Transaction ID
+ * @query   page - Page number (default: 1)
+ * @query   limit - Items per page (default: 50)
+ * @query   action - Filter by action type (create, update, delete)
+ * @query   sortOrder - Sort order (ASC, DESC)
+ * @access  Private
+ * @returns { success: true, data: { entries, total, page, limit } }
+ */
+router.get('/:id/history', authenticate, getHistory);
 
 /**
  * @route   GET /api/transactions/:id
