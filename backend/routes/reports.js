@@ -18,10 +18,10 @@ const {
   getProfitLossByTaxYear,
   getProfitLossByMonth,
   getProfitLossByQuarter,
-  getBalanceSheet,
-  getBalanceSheetByTaxYear,
-  getBalanceSheetByMonth,
-  getBalanceSheetByQuarter
+  getVatSummary,
+  getVatSummaryByTaxYear,
+  getVatSummaryByMonth,
+  getVatSummaryByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -175,84 +175,74 @@ router.get('/profit-loss/monthly/:year/:month', getProfitLossByMonth);
 router.get('/profit-loss/quarterly/:year/:quarter', getProfitLossByQuarter);
 
 // =====================================
-// Balance Sheet Routes
+// VAT Summary Report Routes
 // =====================================
 
 /**
- * @route   GET /api/reports/balance-sheet
- * @desc    Get Balance Sheet report for a specific as-of date
- * @query   asOfDate - The as-of date in YYYY-MM-DD format (required)
- * @query   includeComparison - Include previous period comparison (optional, default: false)
+ * @route   GET /api/reports/vat-summary
+ * @desc    Get VAT summary report for a date range
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional, default: false)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional, default: true)
  * @query   lang - Language preference (en/tr)
  * @access  Private
  * @returns {
  *   success: true,
  *   data: {
- *     asOfDate: string,
- *     taxYear: string,
- *     assets: {
- *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
- *       total: number,
- *       transactionCount: number
+ *     period: { startDate, endDate, taxYear },
+ *     outputVat: {
+ *       byRate: [{ vatRate, vatRatePercent, transactionCount, netAmount, vatAmount, grossAmount, rateName }],
+ *       totals: { netAmount, vatAmount, grossAmount, transactionCount }
  *     },
- *     liabilities: {
- *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
- *       total: number,
- *       transactionCount: number
+ *     inputVat: {
+ *       byRate: [{ vatRate, vatRatePercent, transactionCount, netAmount, vatAmount, grossAmount, rateName }],
+ *       totals: { netAmount, vatAmount, grossAmount, transactionCount }
  *     },
- *     equity: {
- *       categories: [{ categoryId, categoryCode, categoryName, balance, transactionCount }],
- *       retainedEarnings: number,
- *       currentPeriodEarnings: { income, expenses, netIncome, periodStart, periodEnd },
- *       total: number,
- *       transactionCount: number
- *     },
- *     summary: {
- *       totalAssets: number,
- *       totalLiabilities: number,
- *       totalEquity: number,
- *       isBalanced: boolean,
- *       balanceDifference: number
- *     },
- *     comparison?: { previousDate, previous, changes }
+ *     netPosition: { outputVat, inputVat, netVat, isRefundDue, description },
+ *     transactionCounts: { output, input, total },
+ *     monthlyBreakdown?: [...],
+ *     categoryBreakdown?: { output: [...], input: [...] }
  *   }
  * }
  */
-router.get('/balance-sheet', getBalanceSheet);
+router.get('/vat-summary', getVatSummary);
 
 /**
- * @route   GET /api/reports/balance-sheet/tax-year/:taxYear
- * @desc    Get Balance Sheet report for a specific UK tax year end
+ * @route   GET /api/reports/vat-summary/tax-year/:taxYear
+ * @desc    Get VAT summary report for a specific UK tax year
  * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
- * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Balance Sheet report for the specified tax year end
+ * @returns VAT summary report for the specified tax year
  */
-router.get('/balance-sheet/tax-year/:taxYear', getBalanceSheetByTaxYear);
+router.get('/vat-summary/tax-year/:taxYear', getVatSummaryByTaxYear);
 
 /**
- * @route   GET /api/reports/balance-sheet/monthly/:year/:month
- * @desc    Get Balance Sheet report for a specific month end
+ * @route   GET /api/reports/vat-summary/monthly/:year/:month
+ * @desc    Get VAT summary report for a specific month
  * @param   year - The year (e.g., 2025)
  * @param   month - The month (1-12)
- * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Balance Sheet report for the specified month end
+ * @returns VAT summary report for the specified month
  */
-router.get('/balance-sheet/monthly/:year/:month', getBalanceSheetByMonth);
+router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
 
 /**
- * @route   GET /api/reports/balance-sheet/quarterly/:year/:quarter
- * @desc    Get Balance Sheet report for a specific quarter end
+ * @route   GET /api/reports/vat-summary/quarterly/:year/:quarter
+ * @desc    Get VAT summary report for a specific quarter
  * @param   year - The year (e.g., 2025)
  * @param   quarter - The quarter (1-4)
- * @query   includeComparison - Include previous period comparison (optional)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
  * @query   lang - Language preference (en/tr)
  * @access  Private
- * @returns Balance Sheet report for the specified quarter end
+ * @returns VAT summary report for the specified quarter
  */
-router.get('/balance-sheet/quarterly/:year/:quarter', getBalanceSheetByQuarter);
+router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
 
 module.exports = router;

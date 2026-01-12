@@ -1,14 +1,14 @@
 /**
  * Report Controller
  * Handles report generation operations including PAYE summary reports,
- * Profit & Loss (Income Statement) reports, and Balance Sheet reports.
+ * Profit & Loss (Income Statement) reports, and VAT Summary reports.
  * 
  * @module controllers/reportController
  */
 
 const payeSummaryService = require('../services/payeSummaryService');
 const profitLossService = require('../services/profitLossService');
-const balanceSheetService = require('../services/balanceSheetService');
+const vatSummaryService = require('../services/vatSummaryService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -649,16 +649,18 @@ function getProfitLossByQuarter(req, res) {
 }
 
 // =====================================
-// Balance Sheet Report Functions
+// VAT Summary Report Functions
 // =====================================
 
 /**
- * Generates a Balance Sheet report for a specific as-of date.
- * GET /api/reports/balance-sheet
+ * Generates a VAT summary report for a date range.
+ * GET /api/reports/vat-summary
  * 
  * Query Parameters:
- * - asOfDate: The as-of date in YYYY-MM-DD format (required)
- * - includeComparison: Whether to include previous period comparison (optional, default: false)
+ * - startDate: Start date in YYYY-MM-DD format (required)
+ * - endDate: End date in YYYY-MM-DD format (required)
+ * - includeCategoryBreakdown: Include category breakdown (optional, default: false)
+ * - includeMonthlyBreakdown: Include monthly breakdown (optional, default: true)
  * - lang: Language preference (en/tr)
  * 
  * @param {Object} req - Express request object
@@ -666,29 +668,33 @@ function getProfitLossByQuarter(req, res) {
  * @param {Object} req.query - Query parameters
  * @param {Object} res - Express response object
  */
-function getBalanceSheet(req, res) {
+function getVatSummary(req, res) {
   try {
-    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      includeCategoryBreakdown = 'false',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
     const userId = req.user.id;
     
-    const { asOfDate } = req.query;
+    const { startDate, endDate } = req.query;
     
     // Validate required parameters
-    if (!asOfDate) {
+    if (!startDate || !endDate) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
           message: {
-            en: 'As-of date is required',
-            tr: 'Bilanço tarihi gereklidir'
+            en: 'Start date and end date are required',
+            tr: 'Başlangıç ve bitiş tarihleri gereklidir'
           }
         }
       });
     }
     
-    // Validate date format
-    const validation = balanceSheetService.validateAsOfDate(asOfDate);
+    // Validate date format and range
+    const validation = vatSummaryService.validateDateRange(startDate, endDate);
     if (!validation.isValid) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -702,9 +708,10 @@ function getBalanceSheet(req, res) {
       });
     }
     
-    // Generate the Balance Sheet report
-    const report = balanceSheetService.generateBalanceSheetReport(userId, asOfDate, {
-      includeComparison: includeComparison === 'true' || includeComparison === true
+    // Generate the VAT summary report
+    const report = vatSummaryService.generateVatSummaryReport(userId, startDate, endDate, {
+      includeCategoryBreakdown: includeCategoryBreakdown === 'true' || includeCategoryBreakdown === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -713,12 +720,12 @@ function getBalanceSheet(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'balance-sheet'
+        reportType: 'vat-summary'
       }
     });
     
   } catch (error) {
-    console.error('Get Balance Sheet error:', error);
+    console.error('Get VAT summary error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -731,8 +738,8 @@ function getBalanceSheet(req, res) {
 }
 
 /**
- * Generates a Balance Sheet report for a specific tax year end.
- * GET /api/reports/balance-sheet/tax-year/:taxYear
+ * Generates a VAT summary report for a specific tax year.
+ * GET /api/reports/vat-summary/tax-year/:taxYear
  * 
  * URL Parameters:
  * - taxYear: Tax year in YYYY-YY format (e.g., '2025-26')
@@ -742,9 +749,13 @@ function getBalanceSheet(req, res) {
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getBalanceSheetByTaxYear(req, res) {
+function getVatSummaryByTaxYear(req, res) {
   try {
-    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      includeCategoryBreakdown = 'false',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
     const userId = req.user.id;
     
     const { taxYear } = req.params;
@@ -780,9 +791,10 @@ function getBalanceSheetByTaxYear(req, res) {
       });
     }
     
-    // Generate the Balance Sheet report for tax year end
-    const report = balanceSheetService.generateBalanceSheetForTaxYear(userId, taxYear, {
-      includeComparison: includeComparison === 'true' || includeComparison === true
+    // Generate the VAT summary report for tax year
+    const report = vatSummaryService.generateVatSummaryForTaxYear(userId, taxYear, {
+      includeCategoryBreakdown: includeCategoryBreakdown === 'true' || includeCategoryBreakdown === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -791,12 +803,12 @@ function getBalanceSheetByTaxYear(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'balance-sheet-tax-year'
+        reportType: 'vat-summary-tax-year'
       }
     });
     
   } catch (error) {
-    console.error('Get Balance Sheet by tax year error:', error);
+    console.error('Get VAT summary by tax year error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -809,8 +821,8 @@ function getBalanceSheetByTaxYear(req, res) {
 }
 
 /**
- * Generates a Balance Sheet report for a specific month end.
- * GET /api/reports/balance-sheet/monthly/:year/:month
+ * Generates a VAT summary report for a specific month.
+ * GET /api/reports/vat-summary/monthly/:year/:month
  * 
  * URL Parameters:
  * - year: The year (e.g., 2025)
@@ -821,9 +833,12 @@ function getBalanceSheetByTaxYear(req, res) {
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getBalanceSheetByMonth(req, res) {
+function getVatSummaryByMonth(req, res) {
   try {
-    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      includeCategoryBreakdown = 'false'
+    } = req.query;
     const userId = req.user.id;
     
     const year = parseInt(req.params.year, 10);
@@ -857,9 +872,9 @@ function getBalanceSheetByMonth(req, res) {
       });
     }
     
-    // Generate the Balance Sheet report for the month end
-    const report = balanceSheetService.generateBalanceSheetForMonth(userId, year, month, {
-      includeComparison: includeComparison === 'true' || includeComparison === true
+    // Generate the VAT summary report for the month
+    const report = vatSummaryService.generateVatSummaryForMonth(userId, year, month, {
+      includeCategoryBreakdown: includeCategoryBreakdown === 'true' || includeCategoryBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -868,13 +883,13 @@ function getBalanceSheetByMonth(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'balance-sheet-monthly',
-        monthName: balanceSheetService.getMonthName(month)
+        reportType: 'vat-summary-monthly',
+        monthName: vatSummaryService.getMonthName(month)
       }
     });
     
   } catch (error) {
-    console.error('Get Balance Sheet by month error:', error);
+    console.error('Get VAT summary by month error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -887,8 +902,8 @@ function getBalanceSheetByMonth(req, res) {
 }
 
 /**
- * Generates a Balance Sheet report for a specific quarter end.
- * GET /api/reports/balance-sheet/quarterly/:year/:quarter
+ * Generates a VAT summary report for a specific quarter.
+ * GET /api/reports/vat-summary/quarterly/:year/:quarter
  * 
  * URL Parameters:
  * - year: The year (e.g., 2025)
@@ -899,9 +914,13 @@ function getBalanceSheetByMonth(req, res) {
  * @param {Object} req.params - URL parameters
  * @param {Object} res - Express response object
  */
-function getBalanceSheetByQuarter(req, res) {
+function getVatSummaryByQuarter(req, res) {
   try {
-    const { lang = 'en', includeComparison = 'false' } = req.query;
+    const { 
+      lang = 'en',
+      includeCategoryBreakdown = 'false',
+      includeMonthlyBreakdown = 'true'
+    } = req.query;
     const userId = req.user.id;
     
     const year = parseInt(req.params.year, 10);
@@ -935,9 +954,10 @@ function getBalanceSheetByQuarter(req, res) {
       });
     }
     
-    // Generate the Balance Sheet report for the quarter end
-    const report = balanceSheetService.generateBalanceSheetForQuarter(userId, year, quarter, {
-      includeComparison: includeComparison === 'true' || includeComparison === true
+    // Generate the VAT summary report for the quarter
+    const report = vatSummaryService.generateVatSummaryForQuarter(userId, year, quarter, {
+      includeCategoryBreakdown: includeCategoryBreakdown === 'true' || includeCategoryBreakdown === true,
+      includeMonthlyBreakdown: includeMonthlyBreakdown === 'true' || includeMonthlyBreakdown === true
     });
     
     res.status(HTTP_STATUS.OK).json({
@@ -946,14 +966,14 @@ function getBalanceSheetByQuarter(req, res) {
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        reportType: 'balance-sheet-quarterly',
+        reportType: 'vat-summary-quarterly',
         quarter: quarter,
         quarterName: `Q${quarter}`
       }
     });
     
   } catch (error) {
-    console.error('Get Balance Sheet by quarter error:', error);
+    console.error('Get VAT summary by quarter error:', error);
     
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -978,9 +998,9 @@ module.exports = {
   getProfitLossByMonth,
   getProfitLossByQuarter,
   
-  // Balance Sheet reports
-  getBalanceSheet,
-  getBalanceSheetByTaxYear,
-  getBalanceSheetByMonth,
-  getBalanceSheetByQuarter
+  // VAT Summary reports
+  getVatSummary,
+  getVatSummaryByTaxYear,
+  getVatSummaryByMonth,
+  getVatSummaryByQuarter
 };
