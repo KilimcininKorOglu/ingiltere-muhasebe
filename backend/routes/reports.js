@@ -21,7 +21,11 @@ const {
   getVatSummary,
   getVatSummaryByTaxYear,
   getVatSummaryByMonth,
-  getVatSummaryByQuarter
+  getVatSummaryByQuarter,
+  getSelfAssessment,
+  getSelfAssessmentByTaxYear,
+  getSelfAssessmentByMonth,
+  getSelfAssessmentByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -244,5 +248,75 @@ router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
  * @returns VAT summary report for the specified quarter
  */
 router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
+
+// =====================================
+// Self Assessment Summary Report Routes
+// =====================================
+
+/**
+ * @route   GET /api/reports/self-assessment
+ * @desc    Get Self Assessment summary report for a date range
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   isScottish - Whether to use Scottish tax rates (optional, default: false)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     period: { startDate, endDate, taxYear },
+ *     profit: { income, expenses, netProfit },
+ *     incomeTax: {
+ *       personalAllowance: { base, adjusted, reduction },
+ *       taxableIncome, totalTax, effectiveRate, isScottish,
+ *       bands: [{ name, rate, ratePercent, taxableAmount, tax }]
+ *     },
+ *     nationalInsurance: {
+ *       class2: { isLiable, weeklyRate, weeks, annualAmount, smallProfitsThreshold, isVoluntary },
+ *       class4: { lowerProfitsLimit, upperProfitsLimit, mainRate, additionalRate, mainRateAmount, additionalRateAmount, totalAmount, breakdown },
+ *       totalNI
+ *     },
+ *     summary: { netProfit, incomeTax, class2NI, class4NI, totalNI, totalTaxLiability, effectiveTotalRate, takeHome },
+ *     paymentsOnAccount: { required, threshold, firstPayment, secondPayment, totalPaymentsOnAccount, firstPaymentDate, secondPaymentDate },
+ *     deadlines: { taxYear, registrationDeadline, paperReturnDeadline, onlineReturnDeadline, paymentDeadline, secondPaymentOnAccount, deadlines }
+ *   }
+ * }
+ */
+router.get('/self-assessment', getSelfAssessment);
+
+/**
+ * @route   GET /api/reports/self-assessment/tax-year/:taxYear
+ * @desc    Get Self Assessment summary report for a specific UK tax year
+ * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
+ * @query   isScottish - Whether to use Scottish tax rates (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Self Assessment summary for the specified tax year
+ */
+router.get('/self-assessment/tax-year/:taxYear', getSelfAssessmentByTaxYear);
+
+/**
+ * @route   GET /api/reports/self-assessment/monthly/:year/:month
+ * @desc    Get Self Assessment summary report for a specific month
+ * @param   year - The year (e.g., 2025)
+ * @param   month - The month (1-12)
+ * @query   isScottish - Whether to use Scottish tax rates (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Self Assessment summary for the specified month
+ */
+router.get('/self-assessment/monthly/:year/:month', getSelfAssessmentByMonth);
+
+/**
+ * @route   GET /api/reports/self-assessment/quarterly/:year/:quarter
+ * @desc    Get Self Assessment summary report for a specific quarter
+ * @param   year - The year (e.g., 2025)
+ * @param   quarter - The quarter (1-4)
+ * @query   isScottish - Whether to use Scottish tax rates (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns Self Assessment summary for the specified quarter
+ */
+router.get('/self-assessment/quarterly/:year/:quarter', getSelfAssessmentByQuarter);
 
 module.exports = router;
