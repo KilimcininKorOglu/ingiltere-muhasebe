@@ -1,0 +1,308 @@
+{
+  "wizard": {
+    "title": "Welcome to UK Pre-Accounting",
+    "subtitle": "Let's set up your account",
+    "progress": "Step {{current}} of {{total}}",
+    "skip": "Skip for now",
+    "skipConfirm": "Are you sure you want to skip? You can complete setup later.",
+    "skipReminder": "Reminder: Complete your setup to unlock all features",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish Setup",
+    "getStarted": "Get Started"
+  },
+  "steps": {
+    "welcome": "Welcome",
+    "businessType": "Business Type",
+    "vatStatus": "VAT Status",
+    "taxYear": "Tax Year",
+    "companyDetails": "Company Details",
+    "bankAccount": "Bank Account",
+    "tour": "Feature Tour",
+    "checklist": "Getting Started"
+  },
+  "welcome": {
+    "title": "Welcome to UK Pre-Accounting",
+    "subtitle": "Your complete accounting assistant for UK businesses",
+    "description": "This app helps Turkish entrepreneurs in the UK manage their finances, stay compliant with HMRC, and make tax time stress-free.",
+    "features": {
+      "title": "What you can do:",
+      "trackIncome": "Track income and expenses",
+      "manageInvoices": "Create and manage invoices",
+      "vatReturns": "Prepare VAT returns",
+      "taxReports": "Generate tax reports",
+      "bankReconciliation": "Reconcile bank transactions"
+    },
+    "letsBegin": "Let's set up your account in a few simple steps.",
+    "estimatedTime": "This takes about 5 minutes"
+  },
+  "businessType": {
+    "title": "What type of business do you have?",
+    "subtitle": "This helps us customize your experience",
+    "soleTrader": {
+      "title": "Sole Trader",
+      "description": "You're self-employed and run your business as an individual. You file a Self Assessment tax return.",
+      "examples": "Examples: Freelancers, consultants, tradespeople"
+    },
+    "limitedCompany": {
+      "title": "Limited Company",
+      "description": "Your business is registered at Companies House as a private limited company (Ltd).",
+      "examples": "Examples: Ltd companies, registered businesses"
+    },
+    "partnership": {
+      "title": "Partnership",
+      "description": "You run a business with one or more partners and share profits.",
+      "examples": "Examples: Law firms, accounting practices"
+    },
+    "notSure": "Not sure? You can change this later in settings."
+  },
+  "vatStatus": {
+    "title": "Are you VAT registered?",
+    "subtitle": "VAT registration is required when your taxable turnover exceeds £85,000",
+    "registered": {
+      "title": "Yes, I'm VAT registered",
+      "description": "I have a VAT number and need to file VAT returns"
+    },
+    "notRegistered": {
+      "title": "No, I'm not VAT registered",
+      "description": "My turnover is below the threshold or I haven't registered yet"
+    },
+    "vatNumber": {
+      "label": "VAT Number",
+      "placeholder": "GB123456789",
+      "hint": "Your 9-digit VAT registration number",
+      "validation": "Please enter a valid UK VAT number"
+    },
+    "vatScheme": {
+      "label": "VAT Scheme",
+      "standard": "Standard VAT Accounting",
+      "flatRate": "Flat Rate Scheme",
+      "cashAccounting": "Cash Accounting Scheme",
+      "annualAccounting": "Annual Accounting Scheme"
+    },
+    "info": {
+      "threshold": "The current VAT threshold is £85,000",
+      "voluntaryRegistration": "You can voluntarily register for VAT even if you're below the threshold"
+    }
+  },
+  "taxYear": {
+    "title": "Confirm your tax year dates",
+    "subtitle": "The UK tax year runs from 6 April to 5 April",
+    "currentYear": "Current Tax Year",
+    "dateRange": "{{startDate}} to {{endDate}}",
+    "startDate": {
+      "label": "Tax Year Start",
+      "value": "6 April"
+    },
+    "endDate": {
+      "label": "Tax Year End",
+      "value": "5 April"
+    },
+    "fiscalYearInfo": {
+      "title": "About the UK Tax Year",
+      "description": "The UK tax year is different from the calendar year. It starts on 6 April and ends on 5 April the following year.",
+      "example": "For example, the 2025/26 tax year runs from 6 April 2025 to 5 April 2026."
+    },
+    "companyYearEnd": {
+      "title": "Company Year End",
+      "description": "If you have a limited company, you can choose a different accounting year end. This doesn't affect your personal tax year.",
+      "label": "Company Year End Date",
+      "hint": "Leave blank to use the standard tax year"
+    }
+  },
+  "companyDetails": {
+    "title": "Tell us about your business",
+    "subtitle": "This information will appear on your invoices and documents",
+    "businessName": {
+      "label": "Business Name",
+      "placeholder": "Your Business Ltd",
+      "hint": "The name your business trades under"
+    },
+    "tradingName": {
+      "label": "Trading Name (if different)",
+      "placeholder": "Optional trading name",
+      "hint": "Leave blank if same as business name"
+    },
+    "companyNumber": {
+      "label": "Company Registration Number",
+      "placeholder": "12345678",
+      "hint": "Your 8-digit Companies House number (Ltd companies only)",
+      "validation": "Please enter a valid 8-digit company number"
+    },
+    "utr": {
+      "label": "Unique Taxpayer Reference (UTR)",
+      "placeholder": "1234567890",
+      "hint": "Your 10-digit HMRC reference number",
+      "validation": "Please enter a valid 10-digit UTR"
+    },
+    "address": {
+      "title": "Business Address",
+      "line1": {
+        "label": "Address Line 1",
+        "placeholder": "123 Business Street"
+      },
+      "line2": {
+        "label": "Address Line 2",
+        "placeholder": "Suite 100 (optional)"
+      },
+      "city": {
+        "label": "City",
+        "placeholder": "London"
+      },
+      "county": {
+        "label": "County",
+        "placeholder": "Greater London"
+      },
+      "postcode": {
+        "label": "Postcode",
+        "placeholder": "SW1A 1AA",
+        "validation": "Please enter a valid UK postcode"
+      }
+    },
+    "contact": {
+      "title": "Contact Information",
+      "email": {
+        "label": "Business Email",
+        "placeholder": "hello@yourbusiness.co.uk"
+      },
+      "phone": {
+        "label": "Business Phone",
+        "placeholder": "+44 20 1234 5678"
+      },
+      "website": {
+        "label": "Website",
+        "placeholder": "www.yourbusiness.co.uk (optional)"
+      }
+    }
+  },
+  "bankAccount": {
+    "title": "Add your bank account",
+    "subtitle": "Connect your bank account to track transactions",
+    "optional": "This step is optional - you can add accounts later",
+    "skipForNow": "Skip for now",
+    "addAccount": "Add Bank Account",
+    "accountName": {
+      "label": "Account Name",
+      "placeholder": "Business Current Account",
+      "hint": "A friendly name to identify this account"
+    },
+    "bankName": {
+      "label": "Bank Name",
+      "placeholder": "Barclays",
+      "hint": "The name of your bank"
+    },
+    "accountType": {
+      "label": "Account Type",
+      "current": "Current Account",
+      "savings": "Savings Account",
+      "business": "Business Account"
+    },
+    "sortCode": {
+      "label": "Sort Code",
+      "placeholder": "12-34-56",
+      "hint": "6-digit sort code",
+      "validation": "Please enter a valid sort code (e.g., 12-34-56)"
+    },
+    "accountNumber": {
+      "label": "Account Number",
+      "placeholder": "12345678",
+      "hint": "8-digit account number",
+      "validation": "Please enter a valid 8-digit account number"
+    },
+    "openingBalance": {
+      "label": "Opening Balance",
+      "placeholder": "0.00",
+      "hint": "Current balance in the account"
+    },
+    "currency": {
+      "label": "Currency",
+      "gbp": "GBP - British Pound",
+      "eur": "EUR - Euro",
+      "usd": "USD - US Dollar"
+    },
+    "benefits": {
+      "title": "Why add a bank account?",
+      "reconciliation": "Easily reconcile your transactions",
+      "accuracy": "Improve the accuracy of your records",
+      "reports": "Generate better financial reports"
+    }
+  },
+  "tour": {
+    "title": "Quick Tour of Your Dashboard",
+    "subtitle": "Here's what you can do with UK Pre-Accounting",
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Your financial overview at a glance. See income, expenses, and key metrics."
+    },
+    "transactions": {
+      "title": "Transactions",
+      "description": "Record and categorize your income and expenses. Keep track of every pound."
+    },
+    "invoices": {
+      "title": "Invoices",
+      "description": "Create professional invoices, send them to clients, and track payments."
+    },
+    "vat": {
+      "title": "VAT Returns",
+      "description": "Calculate and prepare your VAT returns ready for HMRC submission."
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Generate profit & loss, balance sheets, and tax summaries."
+    },
+    "bank": {
+      "title": "Bank Reconciliation",
+      "description": "Match your bank transactions with your records for accurate books."
+    },
+    "continue": "Continue to Checklist"
+  },
+  "checklist": {
+    "title": "Getting Started Checklist",
+    "subtitle": "Complete these tasks to get the most out of your account",
+    "completed": "{{count}} of {{total}} completed",
+    "allDone": "All done! You're ready to go.",
+    "items": {
+      "profile": {
+        "title": "Complete your profile",
+        "description": "Add your business details and logo"
+      },
+      "bankAccount": {
+        "title": "Add a bank account",
+        "description": "Connect your first bank account"
+      },
+      "firstTransaction": {
+        "title": "Record your first transaction",
+        "description": "Add an income or expense"
+      },
+      "firstInvoice": {
+        "title": "Create your first invoice",
+        "description": "Send a professional invoice to a client"
+      },
+      "setupVat": {
+        "title": "Set up VAT (if applicable)",
+        "description": "Configure your VAT settings"
+      },
+      "inviteAccountant": {
+        "title": "Invite your accountant",
+        "description": "Share access with your accountant"
+      }
+    },
+    "goToDashboard": "Go to Dashboard",
+    "doThisLater": "I'll do this later"
+  },
+  "validation": {
+    "required": "This field is required",
+    "businessTypeRequired": "Please select a business type",
+    "vatNumberRequired": "Please enter your VAT number",
+    "invalidVatNumber": "Please enter a valid UK VAT number (e.g., GB123456789)",
+    "businessNameRequired": "Please enter your business name",
+    "addressRequired": "Please enter your business address",
+    "postcodeRequired": "Please enter your postcode",
+    "invalidPostcode": "Please enter a valid UK postcode"
+  },
+  "progress": {
+    "saved": "Your progress has been saved",
+    "autoSave": "Changes are saved automatically",
+    "resuming": "Continuing from where you left off"
+  }
+}
