@@ -1,0 +1,346 @@
+{
+  "categories": [
+    {
+      "id": "tax",
+      "nameEn": "Tax Terms",
+      "nameTr": "Vergi Terimleri"
+    },
+    {
+      "id": "accounting",
+      "nameEn": "Accounting Terms",
+      "nameTr": "Muhasebe Terimleri"
+    },
+    {
+      "id": "business",
+      "nameEn": "Business Terms",
+      "nameTr": "İş Terimleri"
+    },
+    {
+      "id": "banking",
+      "nameEn": "Banking Terms",
+      "nameTr": "Bankacılık Terimleri"
+    }
+  ],
+  "terms": [
+    {
+      "id": "vat",
+      "term": "VAT",
+      "translationTr": "KDV",
+      "fullEnglish": "Value Added Tax",
+      "fullTurkish": "Katma Değer Vergisi",
+      "explanation": "A consumption tax added to products and services at each stage of production or distribution. In the UK, the standard rate is 20%.",
+      "explanationTr": "Üretim veya dağıtımın her aşamasında ürün ve hizmetlere eklenen tüketim vergisi. İngiltere'de standart oran %20'dir.",
+      "category": "tax"
+    },
+    {
+      "id": "paye",
+      "term": "PAYE",
+      "translationTr": "PAYE (Kaynakta Kesinti)",
+      "fullEnglish": "Pay As You Earn",
+      "fullTurkish": "Kazandıkça Öde",
+      "explanation": "The system HMRC uses to collect Income Tax and National Insurance from employment. Tax is deducted by employers before paying wages.",
+      "explanationTr": "HMRC'nin istihdamdan Gelir Vergisi ve Ulusal Sigorta toplamak için kullandığı sistem. Vergi, işverenler tarafından maaş ödenmeden önce kesilir.",
+      "category": "tax"
+    },
+    {
+      "id": "hmrc",
+      "term": "HMRC",
+      "translationTr": "HMRC",
+      "fullEnglish": "Her Majesty's Revenue and Customs",
+      "fullTurkish": "İngiltere Gelir ve Gümrük İdaresi",
+      "explanation": "The UK government department responsible for collecting taxes, paying some forms of state support, and administering other regulatory regimes.",
+      "explanationTr": "Vergi toplama, bazı devlet yardımlarını ödeme ve diğer düzenleyici rejimleri yönetmekten sorumlu Birleşik Krallık hükümet departmanı.",
+      "category": "tax"
+    },
+    {
+      "id": "national-insurance",
+      "term": "National Insurance",
+      "translationTr": "Ulusal Sigorta",
+      "fullEnglish": "National Insurance",
+      "fullTurkish": "Ulusal Sigorta",
+      "explanation": "A tax on earnings and self-employed profits that helps build your entitlement to certain state benefits, including the State Pension.",
+      "explanationTr": "Devlet Emekli Maaşı dahil belirli devlet yardımlarına hak kazanmanıza yardımcı olan, kazançlar ve serbest meslek karları üzerinden alınan bir vergi.",
+      "category": "tax"
+    },
+    {
+      "id": "corporation-tax",
+      "term": "Corporation Tax",
+      "translationTr": "Kurumlar Vergisi",
+      "fullEnglish": "Corporation Tax",
+      "fullTurkish": "Kurumlar Vergisi",
+      "explanation": "A tax on the profits made by UK limited companies and some organisations. The main rate is currently 25% for profits over £250,000.",
+      "explanationTr": "Birleşik Krallık limited şirketleri ve bazı kuruluşların elde ettiği karlar üzerinden alınan vergi. Ana oran şu anda £250.000'in üzerindeki karlar için %25'tir.",
+      "category": "tax"
+    },
+    {
+      "id": "self-assessment",
+      "term": "Self Assessment",
+      "translationTr": "Beyanname",
+      "fullEnglish": "Self Assessment",
+      "fullTurkish": "Beyanname Sistemi",
+      "explanation": "The system HMRC uses to collect Income Tax from people who need to report income that isn't taxed at source, such as self-employed individuals.",
+      "explanationTr": "HMRC'nin serbest meslek sahipleri gibi kaynakta vergilendirilmeyen gelirleri bildirmesi gereken kişilerden Gelir Vergisi toplamak için kullandığı sistem.",
+      "category": "tax"
+    },
+    {
+      "id": "capital-gains-tax",
+      "term": "Capital Gains Tax",
+      "translationTr": "Sermaye Kazancı Vergisi",
+      "fullEnglish": "Capital Gains Tax",
+      "fullTurkish": "Sermaye Kazancı Vergisi",
+      "explanation": "A tax on the profit when you sell or dispose of an asset that has increased in value, such as shares, property, or business assets.",
+      "explanationTr": "Hisse senetleri, mülk veya işletme varlıkları gibi değeri artan bir varlığı sattığınızda veya elden çıkardığınızda elde ettiğiniz kar üzerinden alınan vergi.",
+      "category": "tax"
+    },
+    {
+      "id": "income-tax",
+      "term": "Income Tax",
+      "translationTr": "Gelir Vergisi",
+      "fullEnglish": "Income Tax",
+      "fullTurkish": "Gelir Vergisi",
+      "explanation": "A tax you pay on income, including earnings from employment, self-employment, most pensions, interest on savings, and rental income.",
+      "explanationTr": "İstihdam, serbest meslek, çoğu emekli maaşı, tasarruf faizi ve kira geliri dahil olmak üzere gelir üzerinden ödediğiniz vergi.",
+      "category": "tax"
+    },
+    {
+      "id": "personal-allowance",
+      "term": "Personal Allowance",
+      "translationTr": "Kişisel Muafiyet",
+      "fullEnglish": "Personal Allowance",
+      "fullTurkish": "Kişisel Muafiyet",
+      "explanation": "The amount of income you can earn each year without paying Income Tax. Currently £12,570 for most people.",
+      "explanationTr": "Her yıl Gelir Vergisi ödemeden kazanabileceğiniz gelir miktarı. Şu anda çoğu kişi için £12.570.",
+      "category": "tax"
+    },
+    {
+      "id": "balance-sheet",
+      "term": "Balance Sheet",
+      "translationTr": "Bilanço",
+      "fullEnglish": "Balance Sheet",
+      "fullTurkish": "Bilanço",
+      "explanation": "A financial statement that shows a company's assets, liabilities, and shareholders' equity at a specific point in time.",
+      "explanationTr": "Bir şirketin belirli bir zaman noktasındaki varlıklarını, borçlarını ve hissedar öz sermayesini gösteren mali tablo.",
+      "category": "accounting"
+    },
+    {
+      "id": "profit-and-loss",
+      "term": "Profit and Loss",
+      "translationTr": "Kar ve Zarar",
+      "fullEnglish": "Profit and Loss Account",
+      "fullTurkish": "Kar ve Zarar Hesabı",
+      "explanation": "A financial statement that summarises revenues, costs, and expenses incurred during a specific period, showing net profit or loss.",
+      "explanationTr": "Belirli bir dönemde elde edilen gelirleri, maliyetleri ve giderleri özetleyen ve net kar veya zararı gösteren mali tablo.",
+      "category": "accounting"
+    },
+    {
+      "id": "cash-flow",
+      "term": "Cash Flow",
+      "translationTr": "Nakit Akışı",
+      "fullEnglish": "Cash Flow",
+      "fullTurkish": "Nakit Akışı",
+      "explanation": "The movement of money into and out of a business. Positive cash flow means more money coming in than going out.",
+      "explanationTr": "Bir işletmeye giren ve çıkan para hareketi. Pozitif nakit akışı, çıkandan daha fazla paranın girdiği anlamına gelir.",
+      "category": "accounting"
+    },
+    {
+      "id": "depreciation",
+      "term": "Depreciation",
+      "translationTr": "Amortisman",
+      "fullEnglish": "Depreciation",
+      "fullTurkish": "Amortisman",
+      "explanation": "The gradual reduction in the value of an asset over time due to wear and tear. Used to spread the cost of an asset over its useful life.",
+      "explanationTr": "Aşınma ve yıpranma nedeniyle bir varlığın zaman içinde değerinin kademeli olarak azalması. Bir varlığın maliyetini faydalı ömrüne yaymak için kullanılır.",
+      "category": "accounting"
+    },
+    {
+      "id": "accounts-payable",
+      "term": "Accounts Payable",
+      "translationTr": "Borç Hesapları",
+      "fullEnglish": "Accounts Payable",
+      "fullTurkish": "Borç Hesapları",
+      "explanation": "Money owed by a business to its suppliers for goods or services purchased on credit. A liability on the balance sheet.",
+      "explanationTr": "Bir işletmenin kredili olarak satın aldığı mal veya hizmetler için tedarikçilerine borçlu olduğu para. Bilançoda bir yükümlülük.",
+      "category": "accounting"
+    },
+    {
+      "id": "accounts-receivable",
+      "term": "Accounts Receivable",
+      "translationTr": "Alacak Hesapları",
+      "fullEnglish": "Accounts Receivable",
+      "fullTurkish": "Alacak Hesapları",
+      "explanation": "Money owed to a business by its customers for goods or services delivered on credit. An asset on the balance sheet.",
+      "explanationTr": "Bir işletmenin kredili olarak teslim ettiği mal veya hizmetler için müşterilerinden alacağı para. Bilançoda bir varlık.",
+      "category": "accounting"
+    },
+    {
+      "id": "gross-profit",
+      "term": "Gross Profit",
+      "translationTr": "Brüt Kar",
+      "fullEnglish": "Gross Profit",
+      "fullTurkish": "Brüt Kar",
+      "explanation": "Revenue minus the cost of goods sold. It shows how efficiently a company uses labour and supplies in producing goods.",
+      "explanationTr": "Gelir eksi satılan malın maliyeti. Bir şirketin mal üretiminde işgücünü ve malzemeleri ne kadar verimli kullandığını gösterir.",
+      "category": "accounting"
+    },
+    {
+      "id": "net-profit",
+      "term": "Net Profit",
+      "translationTr": "Net Kar",
+      "fullEnglish": "Net Profit",
+      "fullTurkish": "Net Kar",
+      "explanation": "The actual profit after all expenses, including operating expenses, interest, and taxes, have been deducted from total revenue.",
+      "explanationTr": "Faaliyet giderleri, faiz ve vergiler dahil tüm giderler toplam gelirden düşüldükten sonra kalan gerçek kar.",
+      "category": "accounting"
+    },
+    {
+      "id": "double-entry",
+      "term": "Double Entry Bookkeeping",
+      "translationTr": "Çift Kayıt Sistemi",
+      "fullEnglish": "Double Entry Bookkeeping",
+      "fullTurkish": "Çift Kayıt Defter Tutma",
+      "explanation": "An accounting system where every transaction affects at least two accounts. For every debit entry, there must be an equal credit entry.",
+      "explanationTr": "Her işlemin en az iki hesabı etkilediği muhasebe sistemi. Her borç kaydı için eşit bir alacak kaydı olmalıdır.",
+      "category": "accounting"
+    },
+    {
+      "id": "trial-balance",
+      "term": "Trial Balance",
+      "translationTr": "Mizan",
+      "fullEnglish": "Trial Balance",
+      "fullTurkish": "Mizan",
+      "explanation": "A bookkeeping worksheet that lists the balances in all ledger accounts. Used to check that debits equal credits.",
+      "explanationTr": "Tüm defter hesaplarındaki bakiyeleri listeleyen defter tutma çalışma sayfası. Borçların alacaklara eşit olup olmadığını kontrol etmek için kullanılır.",
+      "category": "accounting"
+    },
+    {
+      "id": "general-ledger",
+      "term": "General Ledger",
+      "translationTr": "Büyük Defter",
+      "fullEnglish": "General Ledger",
+      "fullTurkish": "Büyük Defter",
+      "explanation": "The master set of accounts that summarises all transactions occurring within a company. The foundation of a company's financial records.",
+      "explanationTr": "Bir şirkette gerçekleşen tüm işlemleri özetleyen ana hesap seti. Bir şirketin mali kayıtlarının temeli.",
+      "category": "accounting"
+    },
+    {
+      "id": "sole-trader",
+      "term": "Sole Trader",
+      "translationTr": "Şahıs Şirketi",
+      "fullEnglish": "Sole Trader",
+      "fullTurkish": "Şahıs Şirketi",
+      "explanation": "A self-employed person who owns and runs their business as an individual. The simplest business structure in the UK.",
+      "explanationTr": "İşini bireysel olarak sahibi olan ve yürüten serbest meslek sahibi. İngiltere'deki en basit iş yapısı.",
+      "category": "business"
+    },
+    {
+      "id": "limited-company",
+      "term": "Limited Company",
+      "translationTr": "Limited Şirket",
+      "fullEnglish": "Limited Company",
+      "fullTurkish": "Limited Şirket",
+      "explanation": "A company whose owners' liability is limited to the amount they invested. It is a separate legal entity from its owners.",
+      "explanationTr": "Sahiplerinin sorumluluğunun yatırdıkları miktarla sınırlı olduğu şirket. Sahiplerinden ayrı bir tüzel kişiliktir.",
+      "category": "business"
+    },
+    {
+      "id": "dividend",
+      "term": "Dividend",
+      "translationTr": "Temettü",
+      "fullEnglish": "Dividend",
+      "fullTurkish": "Temettü",
+      "explanation": "A payment made to shareholders from a company's profits. Must be paid out of available profits after Corporation Tax.",
+      "explanationTr": "Bir şirketin karından hissedarlara yapılan ödeme. Kurumlar Vergisi sonrası mevcut karlardan ödenmelidir.",
+      "category": "business"
+    },
+    {
+      "id": "shareholder",
+      "term": "Shareholder",
+      "translationTr": "Hissedar",
+      "fullEnglish": "Shareholder",
+      "fullTurkish": "Hissedar",
+      "explanation": "A person or organisation that owns shares in a company. Also known as a stockholder. Shareholders are part owners of the company.",
+      "explanationTr": "Bir şirkette hisse sahibi olan kişi veya kuruluş. Pay sahibi olarak da bilinir. Hissedarlar şirketin kısmi sahipleridir.",
+      "category": "business"
+    },
+    {
+      "id": "invoice",
+      "term": "Invoice",
+      "translationTr": "Fatura",
+      "fullEnglish": "Invoice",
+      "fullTurkish": "Fatura",
+      "explanation": "A document sent to a customer requesting payment for goods or services provided. Must include certain details for VAT purposes.",
+      "explanationTr": "Sağlanan mal veya hizmetler için ödeme talep eden müşteriye gönderilen belge. KDV amaçları için belirli ayrıntıları içermelidir.",
+      "category": "business"
+    },
+    {
+      "id": "credit-note",
+      "term": "Credit Note",
+      "translationTr": "Alacak Dekontu",
+      "fullEnglish": "Credit Note",
+      "fullTurkish": "Alacak Dekontu",
+      "explanation": "A document issued to reduce the amount owed by a customer, often for returns or overcharges. Reduces VAT liability.",
+      "explanationTr": "İadeler veya fazla ücretlendirmeler için bir müşterinin borçlu olduğu tutarı azaltmak için düzenlenen belge. KDV yükümlülüğünü azaltır.",
+      "category": "business"
+    },
+    {
+      "id": "bank-reconciliation",
+      "term": "Bank Reconciliation",
+      "translationTr": "Banka Mutabakatı",
+      "fullEnglish": "Bank Reconciliation",
+      "fullTurkish": "Banka Mutabakatı",
+      "explanation": "The process of matching transactions recorded in the company books with the bank statement to ensure accuracy.",
+      "explanationTr": "Doğruluğu sağlamak için şirket defterlerinde kaydedilen işlemlerin banka ekstresiyle eşleştirilmesi süreci.",
+      "category": "banking"
+    },
+    {
+      "id": "direct-debit",
+      "term": "Direct Debit",
+      "translationTr": "Otomatik Ödeme",
+      "fullEnglish": "Direct Debit",
+      "fullTurkish": "Otomatik Ödeme",
+      "explanation": "An instruction from you to your bank, allowing a third party to take payments from your account. Protected by the Direct Debit Guarantee.",
+      "explanationTr": "Bankanıza, üçüncü bir tarafın hesabınızdan ödeme almasına izin veren talimat. Otomatik Ödeme Garantisi ile korunur.",
+      "category": "banking"
+    },
+    {
+      "id": "standing-order",
+      "term": "Standing Order",
+      "translationTr": "Düzenli Ödeme Talimatı",
+      "fullEnglish": "Standing Order",
+      "fullTurkish": "Düzenli Ödeme Talimatı",
+      "explanation": "A fixed regular payment that you set up with your bank to pay to another account. You control the amount and timing.",
+      "explanationTr": "Başka bir hesaba ödeme yapmak için bankanızla kurduğunuz sabit düzenli ödeme. Miktar ve zamanlamayı siz kontrol edersiniz.",
+      "category": "banking"
+    },
+    {
+      "id": "bacs",
+      "term": "BACS",
+      "translationTr": "BACS",
+      "fullEnglish": "Bankers' Automated Clearing Services",
+      "fullTurkish": "Otomatik Banka Takas Hizmetleri",
+      "explanation": "The UK system for making electronic payments directly from one bank account to another. Takes 2-3 working days to clear.",
+      "explanationTr": "Bir banka hesabından diğerine doğrudan elektronik ödeme yapmak için İngiltere sistemi. Onaylanması 2-3 iş günü sürer.",
+      "category": "banking"
+    },
+    {
+      "id": "faster-payments",
+      "term": "Faster Payments",
+      "translationTr": "Hızlı Ödeme",
+      "fullEnglish": "Faster Payments",
+      "fullTurkish": "Hızlı Ödeme",
+      "explanation": "A UK banking service that allows near-instantaneous electronic payments to be made. Most payments arrive within seconds.",
+      "explanationTr": "Neredeyse anında elektronik ödeme yapılmasına olanak tanıyan İngiltere bankacılık hizmeti. Çoğu ödeme saniyeler içinde ulaşır.",
+      "category": "banking"
+    },
+    {
+      "id": "overdraft",
+      "term": "Overdraft",
+      "translationTr": "Kredili Mevduat Hesabı",
+      "fullEnglish": "Overdraft",
+      "fullTurkish": "Kredili Mevduat Hesabı",
+      "explanation": "A facility allowing you to spend more than the balance in your current account, up to an agreed limit. Interest is charged on the amount used.",
+      "explanationTr": "Cari hesabınızdaki bakiyeden, üzerinde anlaşılan bir limite kadar daha fazla harcama yapmanıza olanak tanıyan olanak. Kullanılan tutar üzerinden faiz alınır.",
+      "category": "banking"
+    }
+  ]
+}
