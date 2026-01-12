@@ -27,6 +27,11 @@ const {
 } = require('../controllers/bankTransactionController');
 
 const {
+  autoReconcile,
+  getReconciliationSummary
+} = require('../controllers/reconciliationController');
+
+const {
   validateCreateBankAccount,
   validateUpdateBankAccount,
   sanitizeBankAccountData,
@@ -187,5 +192,34 @@ router.get('/:bankAccountId/transactions/summary', authenticateToken, getTransac
  * @returns { success: true, data: { transactions: BankTransactionData[], pagination: {...}, summary: {...} } }
  */
 router.get('/:bankAccountId/transactions', authenticateToken, getBankTransactions);
+
+// ==========================================
+// Reconciliation Routes (nested under bank accounts)
+// ==========================================
+
+/**
+ * @route   GET /api/bank-accounts/:bankAccountId/reconciliation-summary
+ * @desc    Get reconciliation summary for a bank account
+ * @param   bankAccountId - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { bankAccount: {...}, bankTransactionSummary: {...}, reconciliationSummary: {...} } }
+ */
+router.get('/:bankAccountId/reconciliation-summary', authenticateToken, getReconciliationSummary);
+
+/**
+ * @route   POST /api/bank-accounts/:bankAccountId/auto-reconcile
+ * @desc    Auto-reconcile bank transactions based on high-confidence matches
+ * @param   bankAccountId - Bank account ID
+ * @body    { minConfidence?: number (default: 90), dryRun?: boolean (default: false) }
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { matches: [...], matchedCount: number, skippedCount: number } }
+ */
+router.post('/:bankAccountId/auto-reconcile', authenticateToken, autoReconcile);
 
 module.exports = router;
