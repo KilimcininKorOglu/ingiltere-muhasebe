@@ -310,6 +310,31 @@ const taxRates = {
             }
           }
         },
+        // Warning levels for VAT registration threshold monitoring
+        // These are percentages of the registration threshold
+        warningLevels: {
+          approaching: {
+            percentage: 0.75, // 75% of threshold
+            description: {
+              en: 'Approaching VAT threshold - You are at 75% or more of the VAT registration threshold',
+              tr: 'KDV eşiğine yaklaşıyorsunuz - KDV kayıt eşiğinin %75 veya üzerinde bulunuyorsunuz'
+            }
+          },
+          imminent: {
+            percentage: 0.90, // 90% of threshold
+            description: {
+              en: 'VAT registration imminent - You are at 90% or more of the VAT registration threshold',
+              tr: 'KDV kaydı yakın - KDV kayıt eşiğinin %90 veya üzerinde bulunuyorsunuz'
+            }
+          },
+          exceeded: {
+            percentage: 1.00, // 100% of threshold
+            description: {
+              en: 'VAT threshold exceeded - You must register for VAT within 30 days',
+              tr: 'KDV eşiği aşıldı - 30 gün içinde KDV kaydı yaptırmanız gerekiyor'
+            }
+          }
+        },
         flatRateScheme: {
           description: {
             en: 'VAT Flat Rate Scheme',
