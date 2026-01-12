@@ -17,7 +17,11 @@ const {
   getProfitLoss,
   getProfitLossByTaxYear,
   getProfitLossByMonth,
-  getProfitLossByQuarter
+  getProfitLossByQuarter,
+  getVatSummary,
+  getVatSummaryByTaxYear,
+  getVatSummaryByMonth,
+  getVatSummaryByQuarter
 } = require('../controllers/reportController');
 
 const { requireAuth } = require('../middleware/auth');
@@ -169,5 +173,76 @@ router.get('/profit-loss/monthly/:year/:month', getProfitLossByMonth);
  * @returns Profit & Loss report for the specified quarter
  */
 router.get('/profit-loss/quarterly/:year/:quarter', getProfitLossByQuarter);
+
+// =====================================
+// VAT Summary Report Routes
+// =====================================
+
+/**
+ * @route   GET /api/reports/vat-summary
+ * @desc    Get VAT summary report for a date range
+ * @query   startDate - Start date (YYYY-MM-DD) (required)
+ * @query   endDate - End date (YYYY-MM-DD) (required)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional, default: false)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional, default: true)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns {
+ *   success: true,
+ *   data: {
+ *     period: { startDate, endDate, taxYear },
+ *     outputVat: {
+ *       byRate: [{ vatRate, vatRatePercent, transactionCount, netAmount, vatAmount, grossAmount, rateName }],
+ *       totals: { netAmount, vatAmount, grossAmount, transactionCount }
+ *     },
+ *     inputVat: {
+ *       byRate: [{ vatRate, vatRatePercent, transactionCount, netAmount, vatAmount, grossAmount, rateName }],
+ *       totals: { netAmount, vatAmount, grossAmount, transactionCount }
+ *     },
+ *     netPosition: { outputVat, inputVat, netVat, isRefundDue, description },
+ *     transactionCounts: { output, input, total },
+ *     monthlyBreakdown?: [...],
+ *     categoryBreakdown?: { output: [...], input: [...] }
+ *   }
+ * }
+ */
+router.get('/vat-summary', getVatSummary);
+
+/**
+ * @route   GET /api/reports/vat-summary/tax-year/:taxYear
+ * @desc    Get VAT summary report for a specific UK tax year
+ * @param   taxYear - Tax year in YYYY-YY format (e.g., 2025-26)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns VAT summary report for the specified tax year
+ */
+router.get('/vat-summary/tax-year/:taxYear', getVatSummaryByTaxYear);
+
+/**
+ * @route   GET /api/reports/vat-summary/monthly/:year/:month
+ * @desc    Get VAT summary report for a specific month
+ * @param   year - The year (e.g., 2025)
+ * @param   month - The month (1-12)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns VAT summary report for the specified month
+ */
+router.get('/vat-summary/monthly/:year/:month', getVatSummaryByMonth);
+
+/**
+ * @route   GET /api/reports/vat-summary/quarterly/:year/:quarter
+ * @desc    Get VAT summary report for a specific quarter
+ * @param   year - The year (e.g., 2025)
+ * @param   quarter - The quarter (1-4)
+ * @query   includeCategoryBreakdown - Include category breakdown (optional)
+ * @query   includeMonthlyBreakdown - Include monthly breakdown (optional)
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns VAT summary report for the specified quarter
+ */
+router.get('/vat-summary/quarterly/:year/:quarter', getVatSummaryByQuarter);
 
 module.exports = router;
