@@ -15,6 +15,7 @@ const { standardLimiter, strictLimiter } = require('./middleware/rateLimiter');
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
 const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
@@ -69,6 +70,7 @@ app.get('/api', (req, res) => {
     },
     endpoints: {
       auth: '/api/auth',
+      users: '/api/users',
       taxRates: '/api/tax-rates',
       employees: '/api/employees',
       suppliers: '/api/suppliers',
@@ -81,6 +83,10 @@ app.get('/api', (req, res) => {
         login: 'POST /api/auth/login',
         logout: 'POST /api/auth/logout',
         me: 'GET /api/auth/me'
+      },
+      users: {
+        getProfile: 'GET /api/users/me',
+        updateProfile: 'PUT /api/users/me'
       },
       taxRates: {
         all: 'GET /api/tax-rates',
@@ -136,6 +142,7 @@ app.use('/api', standardLimiter);
 // Mount routes
 // Auth routes have additional strict rate limiting applied in the route file
 app.use('/api/auth', authRoutes);
+app.use('/api/users', usersRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
