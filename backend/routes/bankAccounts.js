@@ -21,6 +21,12 @@ const {
 } = require('../controllers/bankAccountController');
 
 const {
+  getBankTransactions,
+  getTransactionSummary,
+  searchBankTransactions
+} = require('../controllers/bankTransactionController');
+
+const {
   validateCreateBankAccount,
   validateUpdateBankAccount,
   sanitizeBankAccountData,
@@ -133,5 +139,53 @@ router.post('/:id/default', authenticateToken, setDefaultBankAccount);
  * @returns { success: true, data: { bankAccount: BankAccountData } }
  */
 router.post('/:id/reactivate', authenticateToken, reactivateBankAccount);
+
+// ==========================================
+// Bank Transaction Routes (nested under bank accounts)
+// ==========================================
+
+/**
+ * @route   GET /api/bank-accounts/:bankAccountId/transactions/search
+ * @desc    Search transactions by description or reference
+ * @param   bankAccountId - Bank account ID
+ * @query   q - Search term
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { transactions: BankTransactionData[], count: number } }
+ */
+router.get('/:bankAccountId/transactions/search', authenticateToken, searchBankTransactions);
+
+/**
+ * @route   GET /api/bank-accounts/:bankAccountId/transactions/summary
+ * @desc    Get transaction summary for a bank account
+ * @param   bankAccountId - Bank account ID
+ * @query   startDate - Start date (YYYY-MM-DD)
+ * @query   endDate - End date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { summary: {...}, reconciliationCounts: {...}, bankAccount: {...} } }
+ */
+router.get('/:bankAccountId/transactions/summary', authenticateToken, getTransactionSummary);
+
+/**
+ * @route   GET /api/bank-accounts/:bankAccountId/transactions
+ * @desc    Get all transactions for a bank account with pagination and filtering
+ * @param   bankAccountId - Bank account ID
+ * @query   page - Page number (default: 1)
+ * @query   limit - Items per page (default: 50)
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   transactionType - Filter by type (credit/debit)
+ * @query   reconciliationStatus - Filter by reconciliation status
+ * @query   sortBy - Sort field (default: transactionDate)
+ * @query   sortOrder - Sort order (default: DESC)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { transactions: BankTransactionData[], pagination: {...}, summary: {...} } }
+ */
+router.get('/:bankAccountId/transactions', authenticateToken, getBankTransactions);
 
 module.exports = router;
