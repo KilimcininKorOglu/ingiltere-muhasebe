@@ -1,0 +1,28 @@
+{
+  "name": "ingiltere-muhasebe-backend",
+  "version": "1.0.0",
+  "description": "UK Accounting Application Backend API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "accounting",
+    "uk",
+    "vat",
+    "tax"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}
