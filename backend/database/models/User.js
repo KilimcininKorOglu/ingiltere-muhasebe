@@ -21,6 +21,16 @@ const SALT_ROUNDS = 12;
 const VALID_LANGUAGES = ['en', 'tr'];
 
 /**
+ * Valid VAT accounting schemes recognized by HMRC.
+ * - standard: Standard VAT accounting (default)
+ * - flat_rate: Flat Rate Scheme - simplified fixed percentage
+ * - cash: Cash Accounting Scheme - VAT on cash received/paid
+ * - annual: Annual Accounting Scheme - annual VAT payments
+ * - retail: Retail Schemes - for retail businesses
+ */
+const VALID_VAT_SCHEMES = ['standard', 'flat_rate', 'cash', 'annual', 'retail'];
+
+/**
  * User field definitions with validation rules.
  * @typedef {Object} UserFieldDefinition
  * @property {string} type - Data type
@@ -177,6 +187,17 @@ const fieldDefinitions = {
         if (!Number.isInteger(value) || value < 1) {
           return 'Next invoice number must be a positive integer';
         }
+      }
+      return null;
+    }
+  },
+  vatScheme: {
+    type: 'string',
+    required: false,
+    default: 'standard',
+    validate: (value) => {
+      if (value && !VALID_VAT_SCHEMES.includes(value)) {
+        return `Invalid VAT scheme. Must be one of: ${VALID_VAT_SCHEMES.join(', ')}`;
       }
       return null;
     }
@@ -351,18 +372,19 @@ async function createUser(userData) {
       taxYearStart: userData.taxYearStart || '04-06',
       preferredLanguage: userData.preferredLanguage || 'en',
       invoicePrefix: userData.invoicePrefix?.trim().toUpperCase() || 'INV',
-      nextInvoiceNumber: userData.nextInvoiceNumber || 1
+      nextInvoiceNumber: userData.nextInvoiceNumber || 1,
+      vatScheme: userData.vatScheme || 'standard'
     };
 
     const result = execute(`
       INSERT INTO users (
         email, passwordHash, name, businessName, businessAddress,
         vatNumber, isVatRegistered, companyNumber, taxYearStart, preferredLanguage,
-        invoicePrefix, nextInvoiceNumber
+        invoicePrefix, nextInvoiceNumber, vatScheme
       ) VALUES (
         @email, @passwordHash, @name, @businessName, @businessAddress,
         @vatNumber, @isVatRegistered, @companyNumber, @taxYearStart, @preferredLanguage,
-        @invoicePrefix, @nextInvoiceNumber
+        @invoicePrefix, @nextInvoiceNumber, @vatScheme
       )
     `, insertData);
 
@@ -519,6 +541,11 @@ async function updateUser(id, userData) {
       updateParams.nextInvoiceNumber = userData.nextInvoiceNumber;
     }
 
+    if (userData.vatScheme !== undefined) {
+      updateFields.push('vatScheme = @vatScheme');
+      updateParams.vatScheme = userData.vatScheme || 'standard';
+    }
+
     // Always update the updatedAt timestamp
     updateFields.push("updatedAt = datetime('now')");
 
@@ -648,5 +675,6 @@ module.exports = {
   
   // Constants
   VALID_LANGUAGES,
+  VALID_VAT_SCHEMES,
   SALT_ROUNDS
 };

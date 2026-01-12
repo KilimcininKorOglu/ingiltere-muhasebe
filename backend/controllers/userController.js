@@ -113,6 +113,7 @@ async function updateProfile(req, res) {
       businessAddress,
       vatNumber,
       isVatRegistered,
+      vatScheme,
       companyNumber,
       taxYearStart,
       preferredLanguage,
@@ -137,6 +138,9 @@ async function updateProfile(req, res) {
     }
     if (isVatRegistered !== undefined) {
       updateData.isVatRegistered = isVatRegistered;
+    }
+    if (vatScheme !== undefined) {
+      updateData.vatScheme = vatScheme;
     }
     if (companyNumber !== undefined) {
       updateData.companyNumber = companyNumber;

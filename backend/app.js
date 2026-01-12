@@ -20,6 +20,7 @@ const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
 const categoriesRoutes = require('./routes/categories');
+const settingsRoutes = require('./routes/settings');
 
 // Initialize Express app
 const app = express();
@@ -72,6 +73,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
+      settings: '/api/settings',
       taxRates: '/api/tax-rates',
       categories: '/api/categories',
       employees: '/api/employees',
@@ -89,6 +91,11 @@ app.get('/api', (req, res) => {
       users: {
         getProfile: 'GET /api/users/me',
         updateProfile: 'PUT /api/users/me'
+      },
+      settings: {
+        getVatSettings: 'GET /api/settings/vat',
+        updateVatSettings: 'PUT /api/settings/vat',
+        getVatSchemes: 'GET /api/settings/vat/schemes'
       },
       taxRates: {
         all: 'GET /api/tax-rates',
@@ -156,6 +163,7 @@ app.use('/api', standardLimiter);
 // Auth routes have additional strict rate limiting applied in the route file
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/employees', employeesRoutes);

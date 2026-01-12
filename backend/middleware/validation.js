@@ -1213,6 +1213,11 @@ function sanitizeInvoice(req, res, next) {
 const VALID_LANGUAGES = ['en', 'tr'];
 
 /**
+ * Valid VAT accounting schemes recognized by HMRC.
+ */
+const VALID_VAT_SCHEMES = ['standard', 'flat_rate', 'cash', 'annual', 'retail'];
+
+/**
  * Validates profile update request body.
  * 
  * @param {Object} req - Express request object
@@ -1226,7 +1231,8 @@ function validateProfileUpdate(req, res, next) {
     businessName, 
     businessAddress, 
     vatNumber, 
-    isVatRegistered, 
+    isVatRegistered,
+    vatScheme,
     companyNumber, 
     taxYearStart, 
     preferredLanguage,
@@ -1320,6 +1326,23 @@ function validateProfileUpdate(req, res, next) {
         field: 'isVatRegistered',
         message: 'VAT registration status must be a boolean',
         messageTr: 'KDV kayıt durumu boolean olmalıdır'
+      });
+    }
+  }
+
+  // VAT scheme validation (optional)
+  if (vatScheme !== undefined && vatScheme !== null && vatScheme !== '') {
+    if (typeof vatScheme !== 'string') {
+      errors.push({
+        field: 'vatScheme',
+        message: 'VAT scheme must be a string',
+        messageTr: 'KDV planı metin olmalıdır'
+      });
+    } else if (!VALID_VAT_SCHEMES.includes(vatScheme)) {
+      errors.push({
+        field: 'vatScheme',
+        message: `Invalid VAT scheme. Must be one of: ${VALID_VAT_SCHEMES.join(', ')}`,
+        messageTr: `Geçersiz KDV planı. Şunlardan biri olmalıdır: ${VALID_VAT_SCHEMES.join(', ')}`
       });
     }
   }
@@ -1474,6 +1497,11 @@ function sanitizeProfileUpdate(req, res, next) {
     body.vatNumber = body.vatNumber.replace(/\s/g, '').toUpperCase();
   }
 
+  // Normalize vatScheme (lowercase to match enum)
+  if (body.vatScheme && typeof body.vatScheme === 'string') {
+    body.vatScheme = body.vatScheme.toLowerCase();
+  }
+
   // Normalize company number (remove spaces, uppercase)
   if (body.companyNumber && typeof body.companyNumber === 'string') {
     body.companyNumber = body.companyNumber.replace(/\s/g, '').toUpperCase();
@@ -1516,6 +1544,7 @@ module.exports = {
   CUSTOMER_STATUSES,
   VALID_CURRENCIES,
   VALID_LANGUAGES,
+  VALID_VAT_SCHEMES,
   INVOICE_CURRENCIES,
   INVOICE_STATUSES,
   VALID_VAT_RATE_IDS
