@@ -6,6 +6,9 @@ const request = require('supertest');
 const app = require('../app');
 const { query, execute } = require('../database/index');
 const { seedCategories } = require('../database/seeds/categories');
+const { generateToken } = require('../utils/jwt');
+const { createUser } = require('../database/models/User');
+const { clearStore } = require('../middleware/rateLimiter');
 
 // Seed categories before tests
 seedCategories();
@@ -715,6 +718,123 @@ describe('Transactions API', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(404);
+    });
+  });
+
+  describe('Authorization - Cannot modify other user\'s transactions', () => {
+    let secondAuthToken;
+    let secondUserId;
+    let firstUserTransactionId;
+
+    beforeAll(async () => {
+      // Clear rate limiter store to avoid any limits
+      clearStore();
+      
+      // Ensure first user is logged in (in case outer beforeAll was skipped)
+      if (!authToken) {
+        await setupAuth();
+      }
+      
+      // Create a transaction owned by the first user
+      const createRes = await request(app)
+        .post('/api/transactions')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          type: 'expense',
+          transactionDate: '2026-01-12',
+          description: 'First user private transaction',
+          amount: 5000
+        });
+      
+      expect(createRes.status).toBe(201);
+      firstUserTransactionId = createRes.body.data.id;
+
+      // Create second user directly in database to bypass rate limiter
+      const secondUserResult = await createUser({
+        email: `txntest2_${Date.now()}@example.com`,
+        password: 'Test1234!',
+        name: 'Second Transaction Test User'
+      });
+      
+      expect(secondUserResult.success).toBe(true);
+      secondUserId = secondUserResult.data.id;
+      secondAuthToken = generateToken(secondUserResult.data);
+    });
+
+    afterAll(async () => {
+      // Cleanup second user's transactions
+      if (secondUserId) {
+        try {
+          execute('DELETE FROM transactions WHERE userId = ?', [secondUserId]);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    });
+
+    it('should return 403 when trying to GET another user\'s transaction', async () => {
+      expect(secondAuthToken).toBeDefined();
+      
+      const res = await request(app)
+        .get(`/api/transactions/${firstUserTransactionId}`)
+        .set('Authorization', `Bearer ${secondAuthToken}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
+    });
+
+    it('should return 403 when trying to PUT (update) another user\'s transaction', async () => {
+      expect(secondAuthToken).toBeDefined();
+      
+      const res = await request(app)
+        .put(`/api/transactions/${firstUserTransactionId}`)
+        .set('Authorization', `Bearer ${secondAuthToken}`)
+        .send({
+          description: 'Unauthorized update attempt'
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
+    });
+
+    it('should return 403 when trying to DELETE another user\'s transaction', async () => {
+      expect(secondAuthToken).toBeDefined();
+      
+      const res = await request(app)
+        .delete(`/api/transactions/${firstUserTransactionId}`)
+        .set('Authorization', `Bearer ${secondAuthToken}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
+    });
+
+    it('should return 403 when trying to PATCH status of another user\'s transaction', async () => {
+      expect(secondAuthToken).toBeDefined();
+      
+      const res = await request(app)
+        .patch(`/api/transactions/${firstUserTransactionId}/status`)
+        .set('Authorization', `Bearer ${secondAuthToken}`)
+        .send({
+          status: 'cleared'
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
+    });
+
+    it('should confirm the original user can still access their transaction', async () => {
+      const res = await request(app)
+        .get(`/api/transactions/${firstUserTransactionId}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBe(firstUserTransactionId);
+      expect(res.body.data.description).toBe('First user private transaction');
     });
   });
 });
