@@ -78,6 +78,10 @@ beforeAll(async () => {
   });
 
   testCustomer = customerResult.data;
+  
+  // Clear rate limiter store to start fresh
+  const { clearStore } = require('../middleware/rateLimiter');
+  clearStore();
 });
 
 /**
@@ -682,6 +686,10 @@ describe('Invoice API', () => {
     let testInvoiceId;
 
     beforeEach(async () => {
+      // Clear rate limiter store to prevent test failures
+      const { clearStore } = require('../middleware/rateLimiter');
+      clearStore();
+      
       // Create a fresh test invoice for each status test
       const invoiceData = {
         customerId: testCustomer.id,
@@ -1078,6 +1086,590 @@ describe('Invoice API', () => {
         // Verify it's a valid timestamp format
         expect(response.body.data.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
       });
+    });
+  });
+
+  describe('PUT /api/invoices/:id', () => {
+    let testInvoiceId;
+
+    beforeEach(async () => {
+      // Clear rate limiter store to prevent test failures
+      const { clearStore } = require('../middleware/rateLimiter');
+      clearStore();
+      
+      // Create a fresh test invoice for each update test
+      const invoiceData = {
+        customerId: testCustomer.id,
+        invoiceDate: '2026-01-12',
+        dueDate: '2026-02-12',
+        notes: 'Original notes',
+        items: [
+          { description: 'Original Service', quantity: 1, unitPrice: 10000, vatRate: 20 }
+        ]
+      };
+
+      const response = await request(app)
+        .post('/api/invoices')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(invoiceData);
+
+      testInvoiceId = response.body.data.id;
+    });
+
+    afterEach(() => {
+      if (testInvoiceId) {
+        try {
+          const { execute } = require('../database/index');
+          execute('DELETE FROM invoices WHERE id = ?', [testInvoiceId]);
+        } catch {}
+        testInvoiceId = null;
+      }
+    });
+
+    describe('Successful updates', () => {
+      it('should update invoice notes', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Updated payment terms: Net 60 days' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.notes).toBe('Updated payment terms: Net 60 days');
+        expect(response.body.data.id).toBe(testInvoiceId);
+      });
+
+      it('should update invoice due date', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ dueDate: '2026-03-15' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.dueDate).toBe('2026-03-15');
+      });
+
+      it('should update invoice date', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ invoiceDate: '2026-01-15', dueDate: '2026-02-15' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.issueDate).toBe('2026-01-15');
+        expect(response.body.data.dueDate).toBe('2026-02-15');
+      });
+
+      it('should update invoice currency', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ currency: 'EUR' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.currency).toBe('EUR');
+      });
+
+      it('should update multiple fields at once', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            dueDate: '2026-04-12',
+            notes: 'Multiple field update',
+            currency: 'USD'
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.dueDate).toBe('2026-04-12');
+        expect(response.body.data.notes).toBe('Multiple field update');
+        expect(response.body.data.currency).toBe('USD');
+      });
+    });
+
+    describe('Line item management', () => {
+      it('should replace all line items when items array is provided', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'New Service A', quantity: 2, unitPrice: 15000, vatRate: 20 },
+              { description: 'New Service B', quantity: 1, unitPrice: 5000, vatRate: 'reduced' }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.items).toHaveLength(2);
+        expect(response.body.data.items[0].description).toBe('New Service A');
+        expect(response.body.data.items[1].description).toBe('New Service B');
+      });
+
+      it('should recalculate totals when items are updated', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Service 1', quantity: 2, unitPrice: 10000, vatRate: 20 },
+              { description: 'Service 2', quantity: 1, unitPrice: 5000, vatRate: 0 }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        // Service 1: 2 * £100 = £200, VAT = £40
+        // Service 2: 1 * £50 = £50, VAT = £0
+        // Subtotal: £250 = 25000 pence
+        // VAT: £40 = 4000 pence
+        // Total: £290 = 29000 pence
+        expect(response.body.data.subtotal).toBe(25000);
+        expect(response.body.data.vatAmount).toBe(4000);
+        expect(response.body.data.totalAmount).toBe(29000);
+      });
+
+      it('should add more items by replacing with larger array', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Item 1', quantity: 1, unitPrice: 10000, vatRate: 20 },
+              { description: 'Item 2', quantity: 1, unitPrice: 20000, vatRate: 20 },
+              { description: 'Item 3', quantity: 1, unitPrice: 30000, vatRate: 20 }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.items).toHaveLength(3);
+      });
+
+      it('should support removing items by providing fewer items', async () => {
+        // First add multiple items
+        await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Item 1', quantity: 1, unitPrice: 10000, vatRate: 20 },
+              { description: 'Item 2', quantity: 1, unitPrice: 20000, vatRate: 20 }
+            ]
+          });
+
+        // Then reduce to one item
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Single remaining item', quantity: 1, unitPrice: 15000, vatRate: 20 }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.items).toHaveLength(1);
+        expect(response.body.data.items[0].description).toBe('Single remaining item');
+      });
+
+      it('should preserve items if items array is not provided', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Just updating notes' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.items).toHaveLength(1);
+        expect(response.body.data.items[0].description).toBe('Original Service');
+      });
+
+      it('should handle different VAT rates in updated items', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Standard rate item', quantity: 1, unitPrice: 10000, vatRate: 'standard' },
+              { description: 'Reduced rate item', quantity: 1, unitPrice: 10000, vatRate: 'reduced' },
+              { description: 'Zero rate item', quantity: 1, unitPrice: 10000, vatRate: 'zero' }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        // Subtotal: 3 * £100 = £300 = 30000 pence
+        // VAT: £20 (standard) + £5 (reduced) + £0 (zero) = £25 = 2500 pence
+        expect(response.body.data.subtotal).toBe(30000);
+        expect(response.body.data.vatAmount).toBe(2500);
+        expect(response.body.data.totalAmount).toBe(32500);
+      });
+    });
+
+    describe('Pending invoice updates', () => {
+      it('should allow updating pending invoices', async () => {
+        // Change status to pending
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Update the pending invoice
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Updated while pending' })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.notes).toBe('Updated while pending');
+      });
+
+      it('should allow updating line items on pending invoices', async () => {
+        // Change status to pending
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        // Update items
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [
+              { description: 'Updated while pending', quantity: 2, unitPrice: 25000, vatRate: 20 }
+            ]
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.items[0].description).toBe('Updated while pending');
+      });
+    });
+
+    describe('Restrictions for non-modifiable invoices', () => {
+      it('should return 409 when trying to update paid invoice', async () => {
+        // Change status to pending then paid
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' });
+
+        // Try to update
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Try to update paid invoice' })
+          .expect(409);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVOICE_NOT_MODIFIABLE');
+      });
+
+      it('should return 409 when trying to update cancelled invoice', async () => {
+        // Cancel the invoice
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'cancelled' });
+
+        // Try to update
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Try to update cancelled invoice' })
+          .expect(409);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVOICE_NOT_MODIFIABLE');
+      });
+
+      it('should return 409 when trying to update refunded invoice', async () => {
+        // Change status to pending -> paid -> refunded
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'pending' });
+
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'paid' });
+
+        await request(app)
+          .patch(`/api/invoices/${testInvoiceId}/status`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ status: 'refunded' });
+
+        // Try to update
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Try to update refunded invoice' })
+          .expect(409);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('BUS_INVOICE_NOT_MODIFIABLE');
+      });
+    });
+
+    describe('Validation', () => {
+      it('should return 400 for invalid date format', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ dueDate: 'invalid-date' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('VALIDATION_ERROR');
+      });
+
+      it('should return 400 for dueDate before invoiceDate', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            invoiceDate: '2026-03-01',
+            dueDate: '2026-02-01'
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.details.some(d => d.field === 'dueDate')).toBe(true);
+      });
+
+      it('should return 400 for empty items array', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ items: [] })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.details.some(d => d.field === 'items')).toBe(true);
+      });
+
+      it('should return 400 for item missing description', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [{ quantity: 1, unitPrice: 10000 }]
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.details.some(d => d.field === 'items[0].description')).toBe(true);
+      });
+
+      it('should return 400 for item missing unitPrice', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({
+            items: [{ description: 'Missing price', quantity: 1 }]
+          })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.details.some(d => d.field === 'items[0].unitPrice')).toBe(true);
+      });
+
+      it('should return 400 for invalid currency', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ currency: 'INVALID' })
+          .expect(400);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.details.some(d => d.field === 'currency')).toBe(true);
+      });
+    });
+
+    describe('Error handling', () => {
+      it('should return 404 for non-existent invoice', async () => {
+        const response = await request(app)
+          .put('/api/invoices/999999')
+          .set('Authorization', `Bearer ${authToken}`)
+          .send({ notes: 'Update non-existent' })
+          .expect(404);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('RES_NOT_FOUND');
+      });
+
+      it('should return 401 without authentication', async () => {
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .send({ notes: 'Unauthorized update' })
+          .expect(401);
+
+        expect(response.body.success).toBe(false);
+      });
+
+      it('should return 403 for invoice owned by another user', async () => {
+        // Create another user and invoice
+        const { createUser } = require('../database/models/User');
+        const otherUserResult = await createUser({
+          email: `other-user-${Date.now()}@example.com`,
+          password: 'ValidPass123',
+          name: 'Other User'
+        });
+        const otherToken = require('../utils/jwt').generateToken(otherUserResult.data);
+
+        // Try to update with other user's token
+        const response = await request(app)
+          .put(`/api/invoices/${testInvoiceId}`)
+          .set('Authorization', `Bearer ${otherToken}`)
+          .send({ notes: "Try to update another user's invoice" })
+          .expect(403);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
+      });
+    });
+  });
+
+  describe('DELETE /api/invoices/:id', () => {
+    let testInvoiceId;
+
+    beforeEach(async () => {
+      // Clear rate limiter store to prevent test failures
+      const { clearStore } = require('../middleware/rateLimiter');
+      clearStore();
+      
+      // Create a fresh test invoice for each delete test
+      const invoiceData = {
+        customerId: testCustomer.id,
+        invoiceDate: '2026-01-12',
+        dueDate: '2026-02-12',
+        items: [
+          { description: 'Test Service', quantity: 1, unitPrice: 10000, vatRate: 20 }
+        ]
+      };
+
+      const response = await request(app)
+        .post('/api/invoices')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(invoiceData);
+
+      testInvoiceId = response.body.data.id;
+    });
+
+    afterEach(() => {
+      if (testInvoiceId) {
+        try {
+          const { execute } = require('../database/index');
+          execute('DELETE FROM invoices WHERE id = ?', [testInvoiceId]);
+        } catch {}
+        testInvoiceId = null;
+      }
+    });
+
+    it('should delete a draft invoice', async () => {
+      const response = await request(app)
+        .delete(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBeDefined();
+
+      // Verify invoice is deleted
+      await request(app)
+        .get(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404);
+
+      testInvoiceId = null; // Mark as cleaned up
+    });
+
+    it('should return 409 when trying to delete pending invoice', async () => {
+      // Change status to pending
+      await request(app)
+        .patch(`/api/invoices/${testInvoiceId}/status`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ status: 'pending' });
+
+      const response = await request(app)
+        .delete(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(409);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('BUS_INVOICE_NOT_DELETABLE');
+    });
+
+    it('should return 409 when trying to delete paid invoice', async () => {
+      // Change status to pending then paid
+      await request(app)
+        .patch(`/api/invoices/${testInvoiceId}/status`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ status: 'pending' });
+
+      await request(app)
+        .patch(`/api/invoices/${testInvoiceId}/status`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ status: 'paid' });
+
+      const response = await request(app)
+        .delete(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(409);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('BUS_INVOICE_NOT_DELETABLE');
+    });
+
+    it('should return 404 for non-existent invoice', async () => {
+      const response = await request(app)
+        .delete('/api/invoices/999999')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('RES_NOT_FOUND');
+    });
+
+    it('should return 401 without authentication', async () => {
+      const response = await request(app)
+        .delete(`/api/invoices/${testInvoiceId}`)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+    });
+
+    it('should return 403 for invoice owned by another user', async () => {
+      // Create another user
+      const { createUser } = require('../database/models/User');
+      const otherUserResult = await createUser({
+        email: `delete-other-user-${Date.now()}@example.com`,
+        password: 'ValidPass123',
+        name: 'Delete Other User'
+      });
+      const otherToken = require('../utils/jwt').generateToken(otherUserResult.data);
+
+      const response = await request(app)
+        .delete(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${otherToken}`)
+        .expect(403);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('AUTHZ_RESOURCE_OWNER_ONLY');
     });
   });
 });

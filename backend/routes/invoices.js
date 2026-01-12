@@ -13,6 +13,7 @@ const {
   create,
   getById,
   list,
+  update,
   remove,
   changeStatus,
   getStats,
@@ -22,6 +23,7 @@ const {
 const { authenticate } = require('../middleware/auth');
 const {
   validateInvoiceCreate,
+  validateInvoiceUpdate,
   sanitizeInvoice
 } = require('../middleware/validation');
 
@@ -109,6 +111,48 @@ router.get('/:id', authenticate, getById);
  * }
  */
 router.post('/', authenticate, sanitizeInvoice, validateInvoiceCreate, create);
+
+/**
+ * @route   PUT /api/invoices/:id
+ * @desc    Update an invoice with optional line item changes
+ * @header  Authorization: Bearer <token>
+ * @param   id - Invoice ID
+ * @body    {
+ *            invoiceDate?: string - Invoice date in YYYY-MM-DD format,
+ *            dueDate?: string - Due date in YYYY-MM-DD format,
+ *            taxPoint?: string - Tax point date for UK VAT (YYYY-MM-DD),
+ *            notes?: string - Additional notes or payment terms,
+ *            currency?: string - Currency code (GBP, EUR, USD),
+ *            items?: [
+ *              {
+ *                description: string (required) - Item description,
+ *                quantity?: number - Quantity (default: 1),
+ *                unitPrice: number (required) - Unit price in pence,
+ *                vatRate?: string|number - VAT rate (standard, reduced, zero, exempt, or percentage)
+ *              }
+ *            ]
+ *          }
+ * @access  Private
+ * @returns { success: true, data: InvoiceData with items }
+ * 
+ * @notes   Restrictions:
+ *          - Only draft and pending invoices can be modified
+ *          - Paid, cancelled, and refunded invoices cannot be modified
+ *          - If items array is provided, all existing items are replaced
+ *          - Totals are automatically recalculated when items change
+ * 
+ * @example
+ * PUT /api/invoices/1
+ * {
+ *   "dueDate": "2026-03-12",
+ *   "notes": "Updated payment terms: Net 60 days",
+ *   "items": [
+ *     { "description": "Consulting Service - Updated", "quantity": 3, "unitPrice": 10000, "vatRate": 20 },
+ *     { "description": "New Service", "quantity": 1, "unitPrice": 25000, "vatRate": "standard" }
+ *   ]
+ * }
+ */
+router.put('/:id', authenticate, sanitizeInvoice, validateInvoiceUpdate, update);
 
 /**
  * @route   PATCH /api/invoices/:id/status
