@@ -1160,3 +1160,1091 @@ button {
 .form-field--radio .form-field__label-wrapper {
   margin-bottom: 0;
 }
+
+/* ===================================
+   ONBOARDING WIZARD STYLES
+   =================================== */
+
+/* Wizard Container */
+.onboarding-wizard {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.onboarding-wizard__container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  margin: 1rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+/* Wizard Header */
+.onboarding-wizard__header {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.onboarding-wizard__title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Progress Bar */
+.onboarding-wizard__progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.onboarding-wizard__progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.onboarding-wizard__progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.onboarding-wizard__progress-text {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+/* Step Indicators */
+.onboarding-wizard__steps {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.onboarding-wizard__step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.onboarding-wizard__step-indicator--active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.onboarding-wizard__step-indicator--completed {
+  opacity: 0.7;
+}
+
+.onboarding-wizard__step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+.onboarding-wizard__step-indicator--completed .onboarding-wizard__step-number {
+  background: rgba(34, 197, 94, 0.8);
+}
+
+.onboarding-wizard__step-name {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .onboarding-wizard__step-name {
+    display: inline;
+  }
+}
+
+/* Wizard Content */
+.onboarding-wizard__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+/* Wizard Footer */
+.onboarding-wizard__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.onboarding-wizard__footer-left,
+.onboarding-wizard__footer-right {
+  min-width: 120px;
+}
+
+.onboarding-wizard__footer-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* Wizard Buttons */
+.onboarding-wizard__button {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-wizard__button--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.onboarding-wizard__button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.onboarding-wizard__button--secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.onboarding-wizard__button--secondary:hover {
+  background: #f3f4f6;
+}
+
+.onboarding-wizard__button--danger {
+  background: #dc2626;
+  color: white;
+}
+
+.onboarding-wizard__button--danger:hover {
+  background: #b91c1c;
+}
+
+.onboarding-wizard__skip-button {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.onboarding-wizard__skip-button:hover {
+  color: #374151;
+}
+
+/* Skip Confirmation Overlay */
+.onboarding-wizard__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+}
+
+.onboarding-wizard__confirm-dialog {
+  max-width: 400px;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.onboarding-wizard__confirm-dialog h3 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.onboarding-wizard__confirm-dialog p {
+  margin: 0 0 1.5rem;
+  color: #6b7280;
+}
+
+.onboarding-wizard__confirm-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* ===================================
+   ONBOARDING STEP STYLES
+   =================================== */
+
+.onboarding-step {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.onboarding-step__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
+
+.onboarding-step__subtitle {
+  margin: 0 0 2rem;
+  font-size: 1rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.onboarding-step__description {
+  margin: 0 0 1.5rem;
+  color: #4b5563;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Welcome Step Icon */
+.onboarding-step__icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__icon svg {
+  width: 80px;
+  height: 80px;
+  color: #667eea;
+}
+
+/* Features List */
+.onboarding-step__features {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__features-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.onboarding-step__features-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.onboarding-step__feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #4b5563;
+}
+
+.onboarding-step__feature-icon {
+  width: 20px;
+  height: 20px;
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+/* CTA Elements */
+.onboarding-step__call-to-action {
+  margin: 1.5rem 0;
+  font-size: 1rem;
+  color: #374151;
+  text-align: center;
+}
+
+.onboarding-step__time-estimate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.onboarding-step__time-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.onboarding-step__cta-button {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Options (Business Type, VAT Status) */
+.onboarding-step__options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__options--compact {
+  gap: 0.75rem;
+}
+
+.onboarding-step__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__option:hover {
+  border-color: #667eea;
+  background: #f8f9ff;
+}
+
+.onboarding-step__option--selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.onboarding-step__option-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  color: #667eea;
+}
+
+.onboarding-step__option-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.onboarding-step__option-content {
+  flex: 1;
+}
+
+.onboarding-step__option-title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.onboarding-step__option-description {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.onboarding-step__option-examples {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.onboarding-step__option-check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #667eea;
+}
+
+/* Step Errors */
+.onboarding-step__error {
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+/* Step Hints */
+.onboarding-step__hint {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Form Sections */
+.onboarding-step__form-section {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__section-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Form Fields */
+.onboarding-step__field {
+  margin-bottom: 1rem;
+}
+
+.onboarding-step__field:last-child {
+  margin-bottom: 0;
+}
+
+.onboarding-step__field-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.onboarding-step__field--half {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.onboarding-step__label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.onboarding-step__label--required::after {
+  content: ' *';
+  color: #dc2626;
+}
+
+.onboarding-step__input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.onboarding-step__input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.onboarding-step__input--error {
+  border-color: #dc2626;
+}
+
+.onboarding-step__select {
+  width: 100%;
+  padding: 0.625rem 2rem 0.625rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.onboarding-step__field-hint {
+  margin: 0.375rem 0 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.onboarding-step__field-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.onboarding-step__field-description {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Info Box */
+.onboarding-step__info-box {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.onboarding-step__info-box--large {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.onboarding-step__info-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+}
+
+.onboarding-step__info-content {
+  font-size: 0.875rem;
+  color: #1e40af;
+}
+
+.onboarding-step__info-content p {
+  margin: 0 0 0.5rem;
+}
+
+.onboarding-step__info-content p:last-child {
+  margin-bottom: 0;
+}
+
+.onboarding-step__info-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.onboarding-step__info-description {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: #1e40af;
+}
+
+.onboarding-step__info-example {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #3b82f6;
+  font-style: italic;
+}
+
+/* Tax Year Display */
+.onboarding-step__tax-year-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: white;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__tax-year-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.onboarding-step__tax-year-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.onboarding-step__tax-year-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.onboarding-step__tax-year-dates {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.onboarding-step__tax-date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.onboarding-step__tax-date-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.onboarding-step__tax-date-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.onboarding-step__tax-date-arrow {
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+}
+
+.onboarding-step__confirmation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.onboarding-step__confirmation-icon {
+  width: 64px;
+  height: 64px;
+  color: #667eea;
+}
+
+.onboarding-step__confirmation-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Optional Notice */
+.onboarding-step__optional-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #854d0e;
+}
+
+.onboarding-step__optional-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #ca8a04;
+}
+
+/* Benefits List */
+.onboarding-step__benefits {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__benefits-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #166534;
+}
+
+.onboarding-step__benefits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.onboarding-step__benefit {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #166534;
+}
+
+.onboarding-step__benefit-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #22c55e;
+}
+
+/* Action Buttons */
+.onboarding-step__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.onboarding-step__action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__action-button--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.onboarding-step__action-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.onboarding-step__action-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.onboarding-step__skip-form-button {
+  margin-top: 1rem;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.onboarding-step__skip-form-button:hover {
+  color: #374151;
+}
+
+/* ===================================
+   FEATURE TOUR STYLES
+   =================================== */
+
+.onboarding-step__tour-container {
+  margin-bottom: 2rem;
+}
+
+.onboarding-step__tour-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.onboarding-step__tour-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__tour-nav-item:hover {
+  background: #e5e7eb;
+}
+
+.onboarding-step__tour-nav-item--active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.onboarding-step__tour-nav-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+.onboarding-step__tour-nav-item--active .onboarding-step__tour-nav-number {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.onboarding-step__tour-content {
+  text-align: center;
+}
+
+.onboarding-step__tour-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.onboarding-step__tour-icon {
+  width: 80px;
+  height: 80px;
+  color: #667eea;
+}
+
+.onboarding-step__tour-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.onboarding-step__tour-details {
+  text-align: center;
+}
+
+.onboarding-step__tour-feature-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.onboarding-step__tour-feature-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 400px;
+}
+
+.onboarding-step__tour-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .onboarding-step__tour-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.onboarding-step__tour-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onboarding-step__tour-card:hover {
+  border-color: #667eea;
+}
+
+.onboarding-step__tour-card--active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.onboarding-step__tour-card-icon {
+  width: 32px;
+  height: 32px;
+  color: #667eea;
+}
+
+.onboarding-step__tour-card-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.onboarding-step__tour-card-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ===================================
+   GETTING STARTED CHECKLIST STYLES
+   =================================== */
+
+.onboarding-checklist__progress {
+  margin-bottom: 2rem;
+}
+
+.onboarding-checklist__progress-bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.onboarding-checklist__progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.onboarding-checklist__progress-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+  display: block;
+}
+
+.onboarding-checklist__list {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+
+.onboarding-checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.onboarding-checklist__item:hover {
+  background: #f9fafb;
+}
+
+.onboarding-checklist__item--complete {
+  opacity: 0.6;
+}
+
+.onboarding-checklist__item-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.onboarding-checklist__item-icon--complete {
+  color: #22c55e;
+}
+
+.onboarding-checklist__item-icon--pending {
+  color: #d1d5db;
+}
+
+.onboarding-checklist__item-content {
+  flex: 1;
+}
+
+.onboarding-checklist__item-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.125rem;
+}
+
+.onboarding-checklist__item--complete .onboarding-checklist__item-title {
+  text-decoration: line-through;
+}
+
+.onboarding-checklist__item-description {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.onboarding-checklist__celebration {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.onboarding-checklist__celebration svg {
+  width: 64px;
+  height: 64px;
+}
+
+.onboarding-checklist__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.onboarding-checklist__later-button {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.onboarding-checklist__later-button:hover {
+  color: #374151;
+}

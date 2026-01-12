@@ -1,0 +1,308 @@
+{
+  "wizard": {
+    "title": "UK Ön Muhasebe'ye Hoş Geldiniz",
+    "subtitle": "Hesabınızı kuralım",
+    "progress": "Adım {{current}} / {{total}}",
+    "skip": "Şimdilik atla",
+    "skipConfirm": "Atlamak istediğinizden emin misiniz? Kurulumu daha sonra tamamlayabilirsiniz.",
+    "skipReminder": "Hatırlatma: Tüm özelliklerin kilidini açmak için kurulumunuzu tamamlayın",
+    "back": "Geri",
+    "next": "İleri",
+    "finish": "Kurulumu Tamamla",
+    "getStarted": "Başlayalım"
+  },
+  "steps": {
+    "welcome": "Hoş Geldiniz",
+    "businessType": "İşletme Türü",
+    "vatStatus": "KDV Durumu",
+    "taxYear": "Vergi Yılı",
+    "companyDetails": "Şirket Bilgileri",
+    "bankAccount": "Banka Hesabı",
+    "tour": "Özellik Turu",
+    "checklist": "Başlangıç"
+  },
+  "welcome": {
+    "title": "UK Ön Muhasebe'ye Hoş Geldiniz",
+    "subtitle": "Birleşik Krallık işletmeleri için eksiksiz muhasebe asistanınız",
+    "description": "Bu uygulama, İngiltere'deki Türk girişimcilerin finanslarını yönetmelerine, HMRC ile uyumlu kalmalarına ve vergi dönemini stressiz geçirmelerine yardımcı olur.",
+    "features": {
+      "title": "Neler yapabilirsiniz:",
+      "trackIncome": "Gelir ve giderleri takip edin",
+      "manageInvoices": "Fatura oluşturun ve yönetin",
+      "vatReturns": "KDV beyannamesi hazırlayın",
+      "taxReports": "Vergi raporları oluşturun",
+      "bankReconciliation": "Banka işlemlerini mutabakat edin"
+    },
+    "letsBegin": "Birkaç basit adımda hesabınızı kuralım.",
+    "estimatedTime": "Bu yaklaşık 5 dakika sürer"
+  },
+  "businessType": {
+    "title": "İşletme türünüz nedir?",
+    "subtitle": "Bu, deneyiminizi özelleştirmemize yardımcı olur",
+    "soleTrader": {
+      "title": "Serbest Meslek (Sole Trader)",
+      "description": "Serbest çalışıyor ve işinizi bireysel olarak yürütüyorsunuz. Self Assessment vergi beyannamesi veriyorsunuz.",
+      "examples": "Örnekler: Serbest çalışanlar, danışmanlar, esnaflar"
+    },
+    "limitedCompany": {
+      "title": "Limited Şirket",
+      "description": "İşletmeniz Companies House'da özel limited şirket (Ltd) olarak kayıtlı.",
+      "examples": "Örnekler: Ltd şirketler, tescilli işletmeler"
+    },
+    "partnership": {
+      "title": "Ortaklık",
+      "description": "Bir veya daha fazla ortakla birlikte işletme yürütüyor ve kârı paylaşıyorsunuz.",
+      "examples": "Örnekler: Hukuk büroları, muhasebe firmaları"
+    },
+    "notSure": "Emin değil misiniz? Bunu daha sonra ayarlardan değiştirebilirsiniz."
+  },
+  "vatStatus": {
+    "title": "KDV kaydınız var mı?",
+    "subtitle": "Vergilendirilebilir cironuz £85,000'i aştığında KDV kaydı zorunludur",
+    "registered": {
+      "title": "Evet, KDV kaydım var",
+      "description": "KDV numaram var ve KDV beyannamesi vermem gerekiyor"
+    },
+    "notRegistered": {
+      "title": "Hayır, KDV kaydım yok",
+      "description": "Cirom eşiğin altında veya henüz kayıt yaptırmadım"
+    },
+    "vatNumber": {
+      "label": "KDV Numarası",
+      "placeholder": "GB123456789",
+      "hint": "9 haneli KDV kayıt numaranız",
+      "validation": "Lütfen geçerli bir İngiltere KDV numarası girin"
+    },
+    "vatScheme": {
+      "label": "KDV Sistemi",
+      "standard": "Standart KDV Muhasebesi",
+      "flatRate": "Sabit Oran Sistemi",
+      "cashAccounting": "Nakit Muhasebe Sistemi",
+      "annualAccounting": "Yıllık Muhasebe Sistemi"
+    },
+    "info": {
+      "threshold": "Mevcut KDV eşiği £85,000'dir",
+      "voluntaryRegistration": "Eşiğin altında olsanız bile gönüllü olarak KDV kaydı yaptırabilirsiniz"
+    }
+  },
+  "taxYear": {
+    "title": "Vergi yılı tarihlerinizi onaylayın",
+    "subtitle": "İngiltere vergi yılı 6 Nisan'dan 5 Nisan'a kadar sürer",
+    "currentYear": "Mevcut Vergi Yılı",
+    "dateRange": "{{startDate}} - {{endDate}}",
+    "startDate": {
+      "label": "Vergi Yılı Başlangıcı",
+      "value": "6 Nisan"
+    },
+    "endDate": {
+      "label": "Vergi Yılı Sonu",
+      "value": "5 Nisan"
+    },
+    "fiscalYearInfo": {
+      "title": "İngiltere Vergi Yılı Hakkında",
+      "description": "İngiltere vergi yılı takvim yılından farklıdır. 6 Nisan'da başlar ve ertesi yıl 5 Nisan'da sona erer.",
+      "example": "Örneğin, 2025/26 vergi yılı 6 Nisan 2025'ten 5 Nisan 2026'ya kadar sürer."
+    },
+    "companyYearEnd": {
+      "title": "Şirket Yıl Sonu",
+      "description": "Limited şirketiniz varsa, farklı bir muhasebe yıl sonu seçebilirsiniz. Bu, kişisel vergi yılınızı etkilemez.",
+      "label": "Şirket Yıl Sonu Tarihi",
+      "hint": "Standart vergi yılını kullanmak için boş bırakın"
+    }
+  },
+  "companyDetails": {
+    "title": "İşletmeniz hakkında bilgi verin",
+    "subtitle": "Bu bilgiler fatura ve belgelerinizde görünecektir",
+    "businessName": {
+      "label": "İşletme Adı",
+      "placeholder": "İşletmeniz Ltd",
+      "hint": "İşletmenizin ticaret unvanı"
+    },
+    "tradingName": {
+      "label": "Ticaret Unvanı (farklıysa)",
+      "placeholder": "Opsiyonel ticaret unvanı",
+      "hint": "İşletme adıyla aynıysa boş bırakın"
+    },
+    "companyNumber": {
+      "label": "Şirket Kayıt Numarası",
+      "placeholder": "12345678",
+      "hint": "8 haneli Companies House numaranız (sadece Ltd şirketler)",
+      "validation": "Lütfen geçerli bir 8 haneli şirket numarası girin"
+    },
+    "utr": {
+      "label": "Benzersiz Vergi Mükellefi Referansı (UTR)",
+      "placeholder": "1234567890",
+      "hint": "10 haneli HMRC referans numaranız",
+      "validation": "Lütfen geçerli bir 10 haneli UTR girin"
+    },
+    "address": {
+      "title": "İşletme Adresi",
+      "line1": {
+        "label": "Adres Satırı 1",
+        "placeholder": "123 İş Sokağı"
+      },
+      "line2": {
+        "label": "Adres Satırı 2",
+        "placeholder": "Suit 100 (opsiyonel)"
+      },
+      "city": {
+        "label": "Şehir",
+        "placeholder": "Londra"
+      },
+      "county": {
+        "label": "İlçe",
+        "placeholder": "Büyük Londra"
+      },
+      "postcode": {
+        "label": "Posta Kodu",
+        "placeholder": "SW1A 1AA",
+        "validation": "Lütfen geçerli bir İngiltere posta kodu girin"
+      }
+    },
+    "contact": {
+      "title": "İletişim Bilgileri",
+      "email": {
+        "label": "İşletme E-postası",
+        "placeholder": "merhaba@isletmeniz.co.uk"
+      },
+      "phone": {
+        "label": "İşletme Telefonu",
+        "placeholder": "+44 20 1234 5678"
+      },
+      "website": {
+        "label": "Web Sitesi",
+        "placeholder": "www.isletmeniz.co.uk (opsiyonel)"
+      }
+    }
+  },
+  "bankAccount": {
+    "title": "Banka hesabınızı ekleyin",
+    "subtitle": "İşlemleri takip etmek için banka hesabınızı bağlayın",
+    "optional": "Bu adım opsiyoneldir - hesapları daha sonra ekleyebilirsiniz",
+    "skipForNow": "Şimdilik atla",
+    "addAccount": "Banka Hesabı Ekle",
+    "accountName": {
+      "label": "Hesap Adı",
+      "placeholder": "İşletme Vadesiz Hesabı",
+      "hint": "Bu hesabı tanımlamak için kolay bir isim"
+    },
+    "bankName": {
+      "label": "Banka Adı",
+      "placeholder": "Barclays",
+      "hint": "Bankanızın adı"
+    },
+    "accountType": {
+      "label": "Hesap Türü",
+      "current": "Vadesiz Hesap",
+      "savings": "Tasarruf Hesabı",
+      "business": "İşletme Hesabı"
+    },
+    "sortCode": {
+      "label": "Sort Kodu",
+      "placeholder": "12-34-56",
+      "hint": "6 haneli sort kodu",
+      "validation": "Lütfen geçerli bir sort kodu girin (örn. 12-34-56)"
+    },
+    "accountNumber": {
+      "label": "Hesap Numarası",
+      "placeholder": "12345678",
+      "hint": "8 haneli hesap numarası",
+      "validation": "Lütfen geçerli bir 8 haneli hesap numarası girin"
+    },
+    "openingBalance": {
+      "label": "Açılış Bakiyesi",
+      "placeholder": "0.00",
+      "hint": "Hesaptaki mevcut bakiye"
+    },
+    "currency": {
+      "label": "Para Birimi",
+      "gbp": "GBP - İngiliz Sterlini",
+      "eur": "EUR - Euro",
+      "usd": "USD - ABD Doları"
+    },
+    "benefits": {
+      "title": "Neden banka hesabı eklemeliyim?",
+      "reconciliation": "İşlemlerinizi kolayca mutabakat edin",
+      "accuracy": "Kayıtlarınızın doğruluğunu artırın",
+      "reports": "Daha iyi finansal raporlar oluşturun"
+    }
+  },
+  "tour": {
+    "title": "Kontrol Panelinizin Hızlı Turu",
+    "subtitle": "UK Ön Muhasebe ile neler yapabilirsiniz",
+    "dashboard": {
+      "title": "Kontrol Paneli",
+      "description": "Bir bakışta finansal genel görünümünüz. Gelir, gider ve temel metrikleri görün."
+    },
+    "transactions": {
+      "title": "İşlemler",
+      "description": "Gelir ve giderlerinizi kaydedin ve kategorize edin. Her sterlini takip edin."
+    },
+    "invoices": {
+      "title": "Faturalar",
+      "description": "Profesyonel faturalar oluşturun, müşterilere gönderin ve ödemeleri takip edin."
+    },
+    "vat": {
+      "title": "KDV Beyannameleri",
+      "description": "HMRC'ye gönderime hazır KDV beyannamelerinizi hesaplayın ve hazırlayın."
+    },
+    "reports": {
+      "title": "Raporlar",
+      "description": "Kâr ve zarar, bilanço ve vergi özetleri oluşturun."
+    },
+    "bank": {
+      "title": "Banka Mutabakatı",
+      "description": "Doğru defterler için banka işlemlerinizi kayıtlarınızla eşleştirin."
+    },
+    "continue": "Kontrol Listesine Devam Et"
+  },
+  "checklist": {
+    "title": "Başlangıç Kontrol Listesi",
+    "subtitle": "Hesabınızdan en iyi şekilde yararlanmak için bu görevleri tamamlayın",
+    "completed": "{{count}} / {{total}} tamamlandı",
+    "allDone": "Hepsi tamam! Hazırsınız.",
+    "items": {
+      "profile": {
+        "title": "Profilinizi tamamlayın",
+        "description": "İşletme bilgilerinizi ve logonuzu ekleyin"
+      },
+      "bankAccount": {
+        "title": "Banka hesabı ekleyin",
+        "description": "İlk banka hesabınızı bağlayın"
+      },
+      "firstTransaction": {
+        "title": "İlk işleminizi kaydedin",
+        "description": "Bir gelir veya gider ekleyin"
+      },
+      "firstInvoice": {
+        "title": "İlk faturanızı oluşturun",
+        "description": "Bir müşteriye profesyonel fatura gönderin"
+      },
+      "setupVat": {
+        "title": "KDV'yi ayarlayın (varsa)",
+        "description": "KDV ayarlarınızı yapılandırın"
+      },
+      "inviteAccountant": {
+        "title": "Muhasebecinizi davet edin",
+        "description": "Muhasebecinizle erişim paylaşın"
+      }
+    },
+    "goToDashboard": "Kontrol Paneline Git",
+    "doThisLater": "Bunu daha sonra yapacağım"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "businessTypeRequired": "Lütfen bir işletme türü seçin",
+    "vatNumberRequired": "Lütfen KDV numaranızı girin",
+    "invalidVatNumber": "Lütfen geçerli bir İngiltere KDV numarası girin (örn. GB123456789)",
+    "businessNameRequired": "Lütfen işletme adınızı girin",
+    "addressRequired": "Lütfen işletme adresinizi girin",
+    "postcodeRequired": "Lütfen posta kodunuzu girin",
+    "invalidPostcode": "Lütfen geçerli bir İngiltere posta kodu girin"
+  },
+  "progress": {
+    "saved": "İlerlemeniz kaydedildi",
+    "autoSave": "Değişiklikler otomatik olarak kaydedilir",
+    "resuming": "Kaldığınız yerden devam ediliyor"
+  }
+}
