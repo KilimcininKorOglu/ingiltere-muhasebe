@@ -18,6 +18,8 @@ const {
   CATEGORY_TYPES
 } = require('../database/models/Category');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
+const { localizeCategory, localizeCategories, getRequestLanguage } = require('../middleware/localization');
+const { t, tBilingual, getCategoryTypeLabel } = require('../utils/i18n');
 
 /**
  * Gets all categories with optional filtering and pagination.
@@ -35,7 +37,8 @@ const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
  */
 async function list(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     
     const {
       type,
@@ -52,10 +55,7 @@ async function list(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: `Invalid type. Must be one of: ${CATEGORY_TYPES.join(', ')}`,
-            tr: `Geçersiz tip. Şunlardan biri olmalıdır: ${CATEGORY_TYPES.join(', ')}`
-          }
+          message: tBilingual('category.invalidType', { types: CATEGORY_TYPES.join(', ') })
         }
       });
     }
@@ -69,9 +69,15 @@ async function list(req, res) {
       sortOrder
     });
 
+    // Localize categories
+    const localizedCategories = localizeCategories(result.categories, lang, multilingual);
+
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: result,
+      data: {
+        ...result,
+        categories: localizedCategories
+      },
       meta: {
         language: lang,
         timestamp: new Date().toISOString()
@@ -101,7 +107,8 @@ async function list(req, res) {
  */
 async function getById(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     const { id } = req.params;
 
     const category = findById(parseInt(id, 10));
@@ -111,15 +118,12 @@ async function getById(req, res) {
         success: false,
         error: {
           code: 'RES_NOT_FOUND',
-          message: {
-            en: 'Category not found',
-            tr: 'Kategori bulunamadı'
-          }
+          message: tBilingual('category.notFound')
         }
       });
     }
 
-    // Sanitize booleans
+    // Sanitize booleans and localize
     const sanitizedCategory = {
       ...category,
       isSystem: Boolean(category.isSystem),
@@ -127,9 +131,11 @@ async function getById(req, res) {
       vatApplicable: Boolean(category.vatApplicable)
     };
 
+    const localizedCategory = localizeCategory(sanitizedCategory, lang, multilingual);
+
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: sanitizedCategory,
+      data: localizedCategory,
       meta: {
         language: lang,
         timestamp: new Date().toISOString()
@@ -159,7 +165,8 @@ async function getById(req, res) {
  */
 async function getByCode(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     const { code } = req.params;
 
     const category = findByCode(code);
@@ -169,15 +176,12 @@ async function getByCode(req, res) {
         success: false,
         error: {
           code: 'RES_NOT_FOUND',
-          message: {
-            en: `Category with code '${code}' not found`,
-            tr: `'${code}' kodlu kategori bulunamadı`
-          }
+          message: tBilingual('category.codeNotFound', { code })
         }
       });
     }
 
-    // Sanitize booleans
+    // Sanitize booleans and localize
     const sanitizedCategory = {
       ...category,
       isSystem: Boolean(category.isSystem),
@@ -185,9 +189,11 @@ async function getByCode(req, res) {
       vatApplicable: Boolean(category.vatApplicable)
     };
 
+    const localizedCategory = localizeCategory(sanitizedCategory, lang, multilingual);
+
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: sanitizedCategory,
+      data: localizedCategory,
       meta: {
         language: lang,
         timestamp: new Date().toISOString()
@@ -217,7 +223,8 @@ async function getByCode(req, res) {
  */
 async function listByType(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     const { type } = req.params;
     const { activeOnly = 'true' } = req.query;
 
@@ -226,23 +233,21 @@ async function listByType(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: `Invalid type. Must be one of: ${CATEGORY_TYPES.join(', ')}`,
-            tr: `Geçersiz tip. Şunlardan biri olmalıdır: ${CATEGORY_TYPES.join(', ')}`
-          }
+          message: tBilingual('category.invalidType', { types: CATEGORY_TYPES.join(', ') })
         }
       });
     }
 
     const categories = getByType(type, activeOnly === 'true');
+    const localizedCategories = localizeCategories(categories, lang, multilingual);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: categories,
+      data: localizedCategories,
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        count: categories.length
+        count: localizedCategories.length
       }
     });
 
@@ -268,14 +273,26 @@ async function listByType(req, res) {
  */
 async function getTree(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     const { activeOnly = 'true' } = req.query;
 
     const tree = getCategoryTree(activeOnly === 'true');
+    
+    // Recursively localize tree
+    function localizeTreeNode(node) {
+      const localized = localizeCategory(node, lang, multilingual);
+      if (localized.children && Array.isArray(localized.children)) {
+        localized.children = localized.children.map(localizeTreeNode);
+      }
+      return localized;
+    }
+    
+    const localizedTree = tree.map(localizeTreeNode);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: tree,
+      data: localizedTree,
       meta: {
         language: lang,
         timestamp: new Date().toISOString()
@@ -304,18 +321,20 @@ async function getTree(req, res) {
  */
 async function getTopLevel(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
     const { activeOnly = 'true' } = req.query;
 
     const categories = getTopLevelCategories(activeOnly === 'true');
+    const localizedCategories = localizeCategories(categories, lang, multilingual);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: categories,
+      data: localizedCategories,
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
-        count: categories.length
+        count: localizedCategories.length
       }
     });
 
@@ -342,31 +361,31 @@ async function getTopLevel(req, res) {
  */
 async function search(req, res) {
   try {
-    const { lang = 'en', q, activeOnly = 'true' } = req.query;
+    const lang = getRequestLanguage(req);
+    const multilingual = req.query.multilingual === 'true';
+    const { q, activeOnly = 'true' } = req.query;
 
     if (!q || !q.trim()) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: 'Search query is required',
-            tr: 'Arama sorgusu gereklidir'
-          }
+          message: tBilingual('category.searchRequired')
         }
       });
     }
 
     const categories = searchCategories(q.trim(), activeOnly === 'true');
+    const localizedCategories = localizeCategories(categories, lang, multilingual);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: categories,
+      data: localizedCategories,
       meta: {
         language: lang,
         timestamp: new Date().toISOString(),
         searchTerm: q.trim(),
-        count: categories.length
+        count: localizedCategories.length
       }
     });
 
@@ -392,7 +411,7 @@ async function search(req, res) {
  */
 async function getStats(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
 
     const counts = getTypeCounts();
 
@@ -427,19 +446,13 @@ async function getStats(req, res) {
  */
 async function getTypes(req, res) {
   try {
-    const { lang = 'en' } = req.query;
+    const lang = getRequestLanguage(req);
 
     const typesWithLabels = CATEGORY_TYPES.map(type => ({
       value: type,
       label: {
-        en: type.charAt(0).toUpperCase() + type.slice(1),
-        tr: {
-          asset: 'Varlık',
-          liability: 'Borç',
-          equity: 'Öz Sermaye',
-          income: 'Gelir',
-          expense: 'Gider'
-        }[type] || type
+        en: getCategoryTypeLabel(type, 'en'),
+        tr: getCategoryTypeLabel(type, 'tr')
       }
     }));
 
