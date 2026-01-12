@@ -1,0 +1,74 @@
+{
+  "id": "vat-explained",
+  "slug": "vat-explained",
+  "category": "tax",
+  "icon": "📊",
+  "readTime": 8,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "what-is-vat",
+      "type": "content"
+    },
+    {
+      "id": "vat-rates",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "registration",
+      "type": "content"
+    },
+    {
+      "id": "threshold",
+      "type": "highlight"
+    },
+    {
+      "id": "charging-vat",
+      "type": "content"
+    },
+    {
+      "id": "vat-returns",
+      "type": "content"
+    },
+    {
+      "id": "quarterly-example",
+      "type": "example"
+    },
+    {
+      "id": "reclaiming",
+      "type": "content"
+    },
+    {
+      "id": "making-tax-digital",
+      "type": "content"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["corporation-tax", "expenses", "tax-calendar"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:vatExplained.links.hmrcVat",
+      "url": "https://www.gov.uk/vat-registration"
+    },
+    {
+      "titleKey": "articles:vatExplained.links.vatRates",
+      "url": "https://www.gov.uk/vat-rates"
+    },
+    {
+      "titleKey": "articles:vatExplained.links.mtd",
+      "url": "https://www.gov.uk/making-tax-digital-vat"
+    }
+  ]
+}

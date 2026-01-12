@@ -21,8 +21,12 @@ import enTranslation from '../locales/en/translation.json';
 import trTranslation from '../locales/tr/translation.json';
 import enWarnings from '../locales/en/warnings.json';
 import trWarnings from '../locales/tr/warnings.json';
-import enErrors from '../locales/en/errors.json';
-import trErrors from '../locales/tr/errors.json';
+import enHelp from '../locales/en/help.json';
+import trHelp from '../locales/tr/help.json';
+import enArticles from '../locales/en/articles.json';
+import trArticles from '../locales/tr/articles.json';
+import enGuides from '../locales/en/guides.json';
+import trGuides from '../locales/tr/guides.json';
 
 /**
  * Translation resources organized by language and namespace
@@ -31,12 +35,16 @@ const resources = {
   en: {
     translation: enTranslation,
     warnings: enWarnings,
-    errors: enErrors,
+    help: enHelp,
+    articles: enArticles,
+    guides: enGuides,
   },
   tr: {
     translation: trTranslation,
     warnings: trWarnings,
-    errors: trErrors,
+    help: trHelp,
+    articles: trArticles,
+    guides: trGuides,
   },
 };
 
@@ -63,7 +71,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE, 'warnings', 'errors'],
+    ns: [DEFAULT_NAMESPACE, 'warnings', 'help', 'articles', 'guides'],
 
     // Language detection configuration
     detection: {

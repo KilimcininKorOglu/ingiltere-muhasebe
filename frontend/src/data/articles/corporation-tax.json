@@ -1,0 +1,82 @@
+{
+  "id": "corporation-tax",
+  "slug": "corporation-tax",
+  "category": "tax",
+  "icon": "🏢",
+  "readTime": 10,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "what-is-ct",
+      "type": "content"
+    },
+    {
+      "id": "who-pays",
+      "type": "content"
+    },
+    {
+      "id": "rates",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "marginal-relief",
+      "type": "highlight"
+    },
+    {
+      "id": "calculating",
+      "type": "content"
+    },
+    {
+      "id": "calculation-example",
+      "type": "example"
+    },
+    {
+      "id": "allowable-deductions",
+      "type": "list"
+    },
+    {
+      "id": "capital-allowances",
+      "type": "content"
+    },
+    {
+      "id": "filing-paying",
+      "type": "content"
+    },
+    {
+      "id": "deadlines",
+      "type": "highlight"
+    },
+    {
+      "id": "losses",
+      "type": "content"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["vat-explained", "expenses", "tax-calendar"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:corporationTax.links.hmrcCt",
+      "url": "https://www.gov.uk/corporation-tax"
+    },
+    {
+      "titleKey": "articles:corporationTax.links.rates",
+      "url": "https://www.gov.uk/corporation-tax-rates"
+    },
+    {
+      "titleKey": "articles:corporationTax.links.filing",
+      "url": "https://www.gov.uk/company-tax-returns"
+    }
+  ]
+}

@@ -1,0 +1,647 @@
+{
+  "pageTitle": "Learn About UK Taxes",
+  "pageDescription": "Comprehensive guides to help you understand the UK tax system. Whether you're new to the UK or starting a business, these articles explain everything you need to know.",
+  "welcomeMessage": "New to UK taxes? Start with our articles to understand how the system works. Each article includes practical examples using realistic UK figures.",
+  "backToArticles": "Back to Articles",
+  "articleNotFound": "Article not found.",
+  "exampleLabel": "Example",
+  "summaryTitle": "Summary",
+  "usefulLinks": "Useful Links",
+  "relatedArticles": "Related Articles",
+  "disclaimer": "This content is for informational purposes only and does not constitute professional tax advice. Tax rules change regularly. Always verify current rates and thresholds with HMRC or a qualified accountant.",
+  "lastUpdated": "Last updated: {{date}}",
+  "readTime": "{{minutes}} min read",
+  "articleCount": "{{count}} article",
+  "articleCount_other": "{{count}} articles",
+  "noArticles": "No articles found in this category.",
+  "filters": {
+    "ariaLabel": "Filter articles by category"
+  },
+  "categories": {
+    "all": "All Topics",
+    "tax": "Taxes",
+    "accounting": "Accounting",
+    "planning": "Planning"
+  },
+  "vatExplained": {
+    "title": "Understanding VAT in the UK",
+    "summary": "Learn how Value Added Tax works, when you need to register, and how to submit VAT returns to HMRC.",
+    "sections": {
+      "intro": {
+        "content": "Value Added Tax (VAT) is one of the most important taxes for UK businesses. This comprehensive guide explains everything you need to know about VAT, from registration to filing returns."
+      },
+      "what-is-vat": {
+        "title": "What is VAT?",
+        "content": "VAT is a consumption tax added to most goods and services sold in the UK. It's charged at each stage of the supply chain but is ultimately paid by the final consumer. As a business, you collect VAT from your customers and pay it to HMRC, minus any VAT you've paid on business purchases."
+      },
+      "vat-rates": {
+        "title": "VAT Rates",
+        "content": "There are three VAT rates in the UK. Most goods and services are charged at the standard rate. Some items like children's clothing, food, and books qualify for reduced or zero rates.",
+        "table": {
+          "headers": ["Rate", "Percentage", "Applies To"],
+          "rows": [
+            ["Standard Rate", "20%", "Most goods and services"],
+            ["Reduced Rate", "5%", "Home energy, children's car seats, sanitary products"],
+            ["Zero Rate", "0%", "Food (most), children's clothing, books, newspapers"]
+          ]
+        }
+      },
+      "registration": {
+        "title": "When to Register for VAT",
+        "content": "You must register for VAT if your taxable turnover exceeds the VAT threshold. You can also voluntarily register if your turnover is below the threshold, which can be beneficial if you sell to VAT-registered businesses."
+      },
+      "threshold": {
+        "title": "VAT Registration Threshold",
+        "content": "The current VAT registration threshold is £90,000. If your taxable turnover in the last 12 months exceeds this amount, or you expect it to exceed this in the next 30 days, you must register for VAT within 30 days."
+      },
+      "charging-vat": {
+        "title": "Charging VAT to Customers",
+        "content": "Once registered, you must charge VAT on all taxable goods and services at the appropriate rate. VAT should be shown separately on your invoices. For example, if you sell a product for £100 plus VAT at 20%, the customer pays £120 (£100 + £20 VAT)."
+      },
+      "vat-returns": {
+        "title": "VAT Returns",
+        "content": "Most businesses submit VAT returns quarterly. On each return, you report the VAT you've charged (output VAT) and the VAT you've paid on purchases (input VAT). You either pay HMRC the difference or receive a refund if your input VAT exceeds output VAT."
+      },
+      "quarterly-example": {
+        "title": "Quarterly VAT Calculation",
+        "content": "Sarah runs a consulting business. In Q1, she invoiced £30,000 plus £6,000 VAT to clients. She paid £2,000 VAT on business expenses. Her VAT return shows: Output VAT (£6,000) minus Input VAT (£2,000) = £4,000 to pay HMRC."
+      },
+      "reclaiming": {
+        "title": "Reclaiming VAT on Purchases",
+        "content": "You can reclaim VAT on goods and services used for your business. Keep all VAT receipts and invoices as evidence. Common reclaimable items include office supplies, professional services, and business equipment. You cannot reclaim VAT on personal purchases or entertainment expenses."
+      },
+      "making-tax-digital": {
+        "title": "Making Tax Digital for VAT",
+        "content": "All VAT-registered businesses must use Making Tax Digital (MTD) compatible software to keep digital records and submit VAT returns. This means you can no longer submit VAT returns directly through the HMRC website—you must use approved accounting software."
+      },
+      "common-mistakes": {
+        "title": "Common VAT Mistakes to Avoid",
+        "content": "Watch out for these frequent errors that can lead to penalties:",
+        "items": [
+          "Missing the registration deadline when turnover exceeds the threshold",
+          "Claiming VAT on non-business expenses or entertainment",
+          "Forgetting to charge VAT on all taxable sales",
+          "Not keeping proper VAT records for at least 6 years",
+          "Submitting VAT returns late or paying late"
+        ]
+      },
+      "summary": {
+        "content": "VAT is a key tax for UK businesses. Register when your turnover exceeds £90,000, charge 20% on most sales, submit quarterly returns, and use MTD-compatible software. Keep accurate records and claim back VAT on legitimate business expenses to manage your cash flow effectively."
+      }
+    },
+    "links": {
+      "hmrcVat": "HMRC VAT Registration Guide",
+      "vatRates": "Check VAT Rates",
+      "mtd": "Making Tax Digital for VAT"
+    }
+  },
+  "corporationTax": {
+    "title": "Corporation Tax for Limited Companies",
+    "summary": "Everything limited company directors need to know about Corporation Tax, including rates, deadlines, and how to calculate your tax bill.",
+    "sections": {
+      "intro": {
+        "content": "Corporation Tax is the tax UK limited companies pay on their profits. Understanding how it works is essential for any company director. This guide covers everything from rates to filing requirements."
+      },
+      "what-is-ct": {
+        "title": "What is Corporation Tax?",
+        "content": "Corporation Tax is a tax on the profits of UK limited companies and some organisations. Unlike income tax, which individuals pay, Corporation Tax applies to the company as a separate legal entity. Profits include both trading profits and capital gains."
+      },
+      "who-pays": {
+        "title": "Who Pays Corporation Tax?",
+        "content": "All UK limited companies must pay Corporation Tax on their worldwide profits. This includes private limited companies (Ltd), public limited companies (PLC), and overseas companies with a UK branch or office. Sole traders and partnerships do not pay Corporation Tax—they pay Income Tax instead."
+      },
+      "rates": {
+        "title": "Corporation Tax Rates (2024/25)",
+        "content": "Corporation Tax rates depend on your company's profit level. Small companies with profits up to £50,000 pay a lower rate, while larger companies pay the main rate.",
+        "table": {
+          "headers": ["Profit Level", "Rate", "Notes"],
+          "rows": [
+            ["Up to £50,000", "19%", "Small profits rate"],
+            ["£50,001 - £250,000", "19-25%", "Marginal Relief applies"],
+            ["Over £250,000", "25%", "Main rate"]
+          ]
+        }
+      },
+      "marginal-relief": {
+        "title": "Marginal Relief",
+        "content": "If your profits are between £50,000 and £250,000, you can claim Marginal Relief to reduce your tax bill. This creates a gradual increase in the effective rate from 19% to 25%, rather than a sudden jump. HMRC's online calculator can help you work out the exact amount."
+      },
+      "calculating": {
+        "title": "Calculating Corporation Tax",
+        "content": "To calculate Corporation Tax, start with your total revenue, then deduct allowable business expenses to find your taxable profit. Apply the appropriate rate to this profit figure."
+      },
+      "calculation-example": {
+        "title": "Calculation Example",
+        "content": "TechStart Ltd has revenue of £200,000 and allowable expenses of £160,000, giving taxable profits of £40,000. At the small profits rate of 19%, Corporation Tax due is £40,000 × 19% = £7,600."
+      },
+      "allowable-deductions": {
+        "title": "Allowable Deductions",
+        "content": "You can deduct many expenses to reduce your Corporation Tax bill:",
+        "items": [
+          "Staff salaries, wages, and employer National Insurance",
+          "Rent, utilities, and business rates for premises",
+          "Office supplies and equipment costs",
+          "Professional fees (accountant, solicitor)",
+          "Marketing and advertising costs",
+          "Travel and subsistence for business purposes",
+          "Training costs for employees",
+          "Interest on business loans"
+        ]
+      },
+      "capital-allowances": {
+        "title": "Capital Allowances",
+        "content": "When you buy assets like machinery, vehicles, or equipment, you can't deduct the full cost immediately. Instead, you claim Capital Allowances to spread the tax relief over time. The Annual Investment Allowance (AIA) lets you deduct up to £1 million of qualifying capital expenditure in the year of purchase."
+      },
+      "filing-paying": {
+        "title": "Filing and Paying",
+        "content": "You must file a Company Tax Return (CT600) with HMRC. This is separate from your annual accounts filed at Companies House. You'll need to attach detailed accounts and a tax computation showing how you calculated the tax owed."
+      },
+      "deadlines": {
+        "title": "Important Deadlines",
+        "content": "Payment is due 9 months and 1 day after your accounting period ends. Your CT600 return must be filed within 12 months of the accounting period end. For a year ending 31 March, pay by 1 January and file by 31 March of the following year."
+      },
+      "losses": {
+        "title": "Dealing with Losses",
+        "content": "If your company makes a loss, you can carry it forward to reduce profits in future years, or in some cases, carry it back to get a refund on tax already paid. You can also offset losses against other income sources in the same period."
+      },
+      "common-mistakes": {
+        "title": "Common Mistakes",
+        "content": "Avoid these errors that can result in penalties or overpaying tax:",
+        "items": [
+          "Missing the 9-month payment deadline",
+          "Confusing the CT600 filing deadline with Companies House accounts",
+          "Not claiming all allowable expenses",
+          "Forgetting to claim Capital Allowances",
+          "Not keeping adequate records of expenses",
+          "Mixing personal expenses with business costs"
+        ]
+      },
+      "summary": {
+        "content": "Limited companies pay Corporation Tax on profits at rates between 19% and 25%, depending on profit level. Pay within 9 months and file your CT600 within 12 months of year-end. Maximise deductions through allowable expenses and Capital Allowances to reduce your tax bill legally."
+      }
+    },
+    "links": {
+      "hmrcCt": "HMRC Corporation Tax Guide",
+      "rates": "Corporation Tax Rates",
+      "filing": "File Your Company Tax Return"
+    }
+  },
+  "selfAssessment": {
+    "title": "Self Assessment for Sole Traders",
+    "summary": "A complete guide to Self Assessment tax returns for self-employed individuals, including registration, deadlines, and tax calculations.",
+    "sections": {
+      "intro": {
+        "content": "If you're self-employed, receive rental income, or have untaxed income, you'll need to complete a Self Assessment tax return. This guide walks you through everything from registration to filing."
+      },
+      "what-is-sa": {
+        "title": "What is Self Assessment?",
+        "content": "Self Assessment is the system HMRC uses to collect Income Tax that isn't automatically deducted (like from wages). You calculate your own tax bill, report your income, and pay any tax owed. It's called 'Self Assessment' because you're responsible for assessing your own tax liability."
+      },
+      "who-needs": {
+        "title": "Who Needs to File?",
+        "content": "You must file a Self Assessment return if you:",
+        "items": [
+          "Are self-employed as a sole trader or in a partnership",
+          "Are a company director with income outside PAYE",
+          "Have rental income over £2,500",
+          "Earn over £100,000 from any source",
+          "Have income from savings or investments over £10,000",
+          "Receive foreign income that needs to be reported",
+          "Need to claim tax reliefs or expenses",
+          "Owe Capital Gains Tax"
+        ]
+      },
+      "registering": {
+        "title": "Registering for Self Assessment",
+        "content": "Register with HMRC as soon as you start trading or become aware you need to file. You can register online at gov.uk. HMRC will send you a Unique Taxpayer Reference (UTR) number within 10 working days, which you'll need to file your return."
+      },
+      "tax-year": {
+        "title": "The UK Tax Year",
+        "content": "The UK tax year runs from 6 April to 5 April. Your Self Assessment return covers this period. For example, the 2024/25 tax year runs from 6 April 2024 to 5 April 2025, and the return must be filed by 31 January 2026."
+      },
+      "income-types": {
+        "title": "Types of Income to Report",
+        "content": "Report all taxable income on your Self Assessment return, including self-employment profits, rental income, dividends, savings interest, and any employment income. If tax has already been deducted (like from PAYE employment), still report it—HMRC will credit any tax already paid."
+      },
+      "tax-bands": {
+        "title": "Income Tax Rates (2024/25)",
+        "content": "Income Tax is charged in bands. You get a Personal Allowance before any tax is due, then pay increasing rates on income above that.",
+        "table": {
+          "headers": ["Band", "Taxable Income", "Tax Rate"],
+          "rows": [
+            ["Personal Allowance", "Up to £12,570", "0%"],
+            ["Basic Rate", "£12,571 to £50,270", "20%"],
+            ["Higher Rate", "£50,271 to £125,140", "40%"],
+            ["Additional Rate", "Over £125,140", "45%"]
+          ]
+        }
+      },
+      "calculation-example": {
+        "title": "Tax Calculation Example",
+        "content": "James is a sole trader with net profit of £45,000. His tax calculation: Personal Allowance (£12,570) is tax-free. Remaining £32,430 is taxed at 20% = £6,486. Plus Class 2 NI (£179.40) and Class 4 NI on profits above £12,570 at 6% (£1,945.80). Total tax and NI: approximately £8,611."
+      },
+      "allowances": {
+        "title": "Allowances and Reliefs",
+        "content": "Various allowances can reduce your tax bill. Beyond the Personal Allowance, you can claim tax relief on pension contributions, charitable donations through Gift Aid, and certain business expenses. Higher earners lose £1 of Personal Allowance for every £2 earned over £100,000."
+      },
+      "national-insurance": {
+        "title": "National Insurance for Self-Employed",
+        "content": "Self-employed people pay two types of National Insurance: Class 2 and Class 4. These contributions count towards your State Pension entitlement and are collected through Self Assessment."
+      },
+      "ni-rates": {
+        "title": "Self-Employed NI Rates (2024/25)",
+        "content": "National Insurance is calculated based on your profits:",
+        "table": {
+          "headers": ["Class", "Rate", "When It Applies"],
+          "rows": [
+            ["Class 2", "£3.45 per week", "Profits over £6,725"],
+            ["Class 4", "6%", "Profits between £12,570 and £50,270"],
+            ["Class 4", "2%", "Profits over £50,270"]
+          ]
+        }
+      },
+      "filing-process": {
+        "title": "Filing Your Return",
+        "content": "You can file your Self Assessment return online through your HMRC account. You'll need records of all income and expenses, P60s from any employment, dividend vouchers, and pension contribution statements. The online system calculates your tax automatically."
+      },
+      "deadlines": {
+        "title": "Key Deadlines",
+        "content": "For online returns, the deadline is 31 January after the tax year ends. Payment is also due by 31 January. For paper returns, the deadline is 31 October. Late filing incurs an automatic £100 penalty, with additional penalties for longer delays."
+      },
+      "payments-on-account": {
+        "title": "Payments on Account",
+        "content": "If your tax bill is over £1,000, HMRC requires advance payments towards next year's bill. These 'Payments on Account' are each half of your previous year's tax bill, due on 31 January and 31 July."
+      },
+      "poa-example": {
+        "title": "Payments on Account Example",
+        "content": "Emma's 2023/24 tax bill was £8,000. For 2024/25, she pays: First payment on account (31 Jan 2025): £4,000. Second payment on account (31 July 2025): £4,000. If her actual 2024/25 bill is £9,000, she pays the £1,000 balance on 31 Jan 2026, plus new payments on account of £4,500 each."
+      },
+      "penalties": {
+        "title": "Late Filing and Payment Penalties",
+        "content": "HMRC charges penalties for late filing and payment:",
+        "items": [
+          "1 day late filing: £100 penalty",
+          "3 months late: Additional £10 per day up to 90 days (max £900)",
+          "6 months late: Additional £300 or 5% of tax due (whichever is higher)",
+          "12 months late: Additional £300 or 5% (can be up to 100% in serious cases)",
+          "Late payment: Interest plus penalties of 5% at 30 days, 6 months, and 12 months"
+        ]
+      },
+      "common-mistakes": {
+        "title": "Common Mistakes",
+        "content": "Avoid these frequent errors:",
+        "items": [
+          "Missing the 31 January deadline",
+          "Forgetting to include all income sources",
+          "Not keeping receipts for expense claims",
+          "Mixing personal and business expenses",
+          "Not setting aside money for tax payments throughout the year",
+          "Forgetting about Payments on Account"
+        ]
+      },
+      "summary": {
+        "content": "Self Assessment is how self-employed people report income and pay tax. Register promptly, keep good records, and file by 31 January. Set aside 25-30% of profits for tax and National Insurance. Use all available allowances and claim legitimate business expenses to reduce your bill."
+      }
+    },
+    "links": {
+      "hmrcSa": "HMRC Self Assessment Guide",
+      "register": "Register for Self Assessment",
+      "taxRates": "Current Tax Rates and Bands"
+    }
+  },
+  "paye": {
+    "title": "PAYE and Employer Obligations",
+    "summary": "Everything employers need to know about Pay As You Earn, including payroll, tax codes, and reporting to HMRC.",
+    "sections": {
+      "intro": {
+        "content": "Pay As You Earn (PAYE) is HMRC's system for collecting Income Tax and National Insurance from employees. As an employer, you're responsible for operating PAYE correctly. This guide explains your obligations."
+      },
+      "what-is-paye": {
+        "title": "What is PAYE?",
+        "content": "PAYE is the method by which employers deduct Income Tax and National Insurance from employees' wages before paying them. The deducted amounts are then paid to HMRC. This ensures tax is collected at source rather than employees having to pay a lump sum later."
+      },
+      "employer-responsibilities": {
+        "title": "Employer Responsibilities",
+        "content": "As an employer, you must:",
+        "items": [
+          "Register as an employer with HMRC before your first payday",
+          "Calculate and deduct the correct Income Tax and NI from each employee",
+          "Pay employer's National Insurance contributions",
+          "Report payroll information to HMRC on or before each payday",
+          "Provide employees with payslips showing all deductions",
+          "Give employees P60s at the end of each tax year",
+          "Provide P45s when employees leave",
+          "Keep accurate payroll records for at least 3 years"
+        ]
+      },
+      "registering": {
+        "title": "Registering as an Employer",
+        "content": "Register with HMRC up to 4 weeks before your first payday. You can register online at gov.uk. You'll receive an employer PAYE reference number and login details for HMRC's online services. You must register if you pay any employee £123 or more per week."
+      },
+      "tax-codes": {
+        "title": "Understanding Tax Codes",
+        "content": "Each employee has a tax code that tells you how much tax-free pay they're entitled to. HMRC sends you tax codes for each employee. The numbers in a tax code show the amount of tax-free income—multiply by 10 to get the annual Personal Allowance."
+      },
+      "common-tax-codes": {
+        "title": "Common Tax Codes",
+        "content": "You'll encounter these tax codes frequently:",
+        "table": {
+          "headers": ["Tax Code", "Meaning", "Tax-Free Amount"],
+          "rows": [
+            ["1257L", "Standard Personal Allowance", "£12,570 per year"],
+            ["BR", "All income taxed at Basic Rate (20%)", "£0"],
+            ["D0", "All income taxed at Higher Rate (40%)", "£0"],
+            ["D1", "All income taxed at Additional Rate (45%)", "£0"],
+            ["NT", "No tax to be deducted", "Unlimited"],
+            ["0T", "No tax-free allowance", "£0"]
+          ]
+        }
+      },
+      "calculating-deductions": {
+        "title": "Calculating Tax and NI",
+        "content": "Use payroll software to calculate deductions automatically. For each pay period, work out the employee's tax-free pay using their tax code, calculate tax on the remaining pay, and calculate employee and employer National Insurance based on earnings."
+      },
+      "payslip-example": {
+        "title": "Payslip Breakdown Example",
+        "content": "Sarah earns £3,000 gross monthly (tax code 1257L). Monthly tax-free allowance: £1,047.50. Taxable pay: £1,952.50. Tax at 20%: £390.50. Employee NI (8% on earnings over £1,048): £156.16. Net pay: £2,453.34. Employer also pays NI of £266.78 (13.8% on earnings over £758)."
+      },
+      "national-insurance": {
+        "title": "National Insurance Contributions",
+        "content": "Both employees and employers pay National Insurance. Employees pay 8% on earnings between £242 and £967 per week, and 2% above that. Employers pay 13.8% on all earnings above £175 per week. These thresholds change annually."
+      },
+      "ni-categories": {
+        "title": "NI Category Letters",
+        "content": "Different categories apply based on the employee's circumstances:",
+        "table": {
+          "headers": ["Category", "Employee Type", "Notes"],
+          "rows": [
+            ["A", "Standard employees", "Most common category"],
+            ["B", "Married women/widows with certificate", "Reduced rate"],
+            ["C", "Employees over State Pension age", "No employee NI"],
+            ["H", "Apprentices under 25", "Reduced employer NI"],
+            ["M", "Employees under 21", "Reduced employer NI"]
+          ]
+        }
+      },
+      "rti": {
+        "title": "Real Time Information (RTI)",
+        "content": "HMRC requires payroll information to be reported in real time. Every time you pay employees, you submit a report to HMRC through your payroll software. This replaced the old system of annual returns."
+      },
+      "fps-eps": {
+        "title": "FPS and EPS Submissions",
+        "content": "Submit a Full Payment Submission (FPS) on or before each payday, showing what you've paid employees and what tax/NI has been deducted. An Employer Payment Summary (EPS) is used to report recoveries (like statutory pay) or if you made no payments in a tax month."
+      },
+      "payment-deadlines": {
+        "title": "Paying HMRC",
+        "content": "Monthly payment: Due by the 22nd of the following month (19th if paying by post). Quarterly payment: Available for small employers (average monthly payments under £1,500). Pay electronically for faster processing and to avoid penalties."
+      },
+      "year-end": {
+        "title": "End of Year Duties",
+        "content": "At tax year end (5 April), send your final FPS marked as the final submission. Give each employee a P60 showing their total pay and deductions for the year. Update employee records for the new tax year, applying any new tax codes received from HMRC."
+      },
+      "common-mistakes": {
+        "title": "Common PAYE Mistakes",
+        "content": "Avoid these frequent payroll errors:",
+        "items": [
+          "Submitting FPS reports late",
+          "Using incorrect tax codes",
+          "Missing the payment deadline",
+          "Not updating for mid-year tax code changes",
+          "Forgetting to issue P45s when employees leave",
+          "Not keeping records for the required period",
+          "Paying employees 'off the books' to avoid PAYE"
+        ]
+      },
+      "summary": {
+        "content": "PAYE is the employer's responsibility. Register before your first payday, deduct correct tax and NI using employee tax codes, and report to HMRC on or before each payday using RTI. Pay HMRC monthly or quarterly, and complete year-end duties promptly. Use reliable payroll software to stay compliant."
+      }
+    },
+    "links": {
+      "hmrcPaye": "HMRC PAYE for Employers",
+      "taxCodes": "Understanding Tax Codes",
+      "niRates": "National Insurance Rates"
+    }
+  },
+  "expenses": {
+    "title": "Allowable Business Expenses",
+    "summary": "A guide to business expenses you can claim to reduce your tax bill, including what counts as allowable and how to keep proper records.",
+    "sections": {
+      "intro": {
+        "content": "Claiming allowable expenses reduces your taxable profit and therefore your tax bill. However, there are strict rules about what you can claim. This guide explains which expenses are allowable and how to claim them correctly."
+      },
+      "what-are-allowable": {
+        "title": "What Are Allowable Expenses?",
+        "content": "Allowable expenses are costs that are 'wholly and exclusively' for business purposes. If an expense is partly personal and partly business, you can only claim the business portion. The expense must also be necessary for running your business."
+      },
+      "key-principle": {
+        "title": "The Key Principle",
+        "content": "HMRC's test is whether the expense was incurred 'wholly and exclusively' for the purposes of the trade or business. If you can't demonstrate a clear business purpose, don't claim it. When in doubt, keep the receipt anyway and discuss with your accountant."
+      },
+      "common-expenses": {
+        "title": "Common Allowable Expenses",
+        "content": "Here are the main categories of expenses you can typically claim:",
+        "table": {
+          "headers": ["Category", "Examples", "Notes"],
+          "rows": [
+            ["Office Costs", "Rent, utilities, insurance, business rates", "Only the business portion if mixed-use"],
+            ["Staff Costs", "Salaries, employer NI, pension contributions", "Including subcontractors"],
+            ["Travel", "Business journeys, fuel, parking, public transport", "Not commuting to regular workplace"],
+            ["Professional Fees", "Accountant, solicitor, consultants", "Must be for business purposes"],
+            ["Equipment", "Computers, tools, machinery", "May need capital allowances for expensive items"],
+            ["Marketing", "Advertising, website costs, business cards", "Must promote the business"]
+          ]
+        }
+      },
+      "office-costs": {
+        "title": "Office and Premises Costs",
+        "content": "If you rent business premises, the full rent and related costs (business rates, utilities, insurance) are allowable. For a home office, you can claim a proportion based on the rooms used and time spent working there. Alternatively, use the simplified expenses flat rate."
+      },
+      "travel": {
+        "title": "Travel and Subsistence",
+        "content": "Business travel is allowable, but your regular commute to a permanent workplace is not. You can claim for travel to temporary workplaces, client meetings, and business events. Subsistence (meals) is allowable when you're away from your normal base for work purposes."
+      },
+      "mileage-rates": {
+        "title": "Approved Mileage Rates",
+        "content": "If you use your own vehicle for business, claim these tax-free rates:",
+        "table": {
+          "headers": ["Vehicle Type", "First 10,000 Miles", "Additional Miles"],
+          "rows": [
+            ["Cars and vans", "45p per mile", "25p per mile"],
+            ["Motorcycles", "24p per mile", "24p per mile"],
+            ["Bicycles", "20p per mile", "20p per mile"]
+          ]
+        }
+      },
+      "staff-costs": {
+        "title": "Staff and Subcontractor Costs",
+        "content": "Employee salaries, bonuses, employer's National Insurance, and pension contributions are all allowable. Payments to subcontractors and freelancers are also deductible. Keep records of all payments and ensure you operate PAYE correctly for employees."
+      },
+      "working-from-home": {
+        "title": "Working from Home",
+        "content": "If you work from home, you can claim a proportion of household costs. This includes mortgage interest or rent (proportion), utilities, council tax (proportion), and home insurance. Calculate based on the number of rooms used and hours worked."
+      },
+      "wfh-example": {
+        "title": "Working from Home Example",
+        "content": "Tom uses one room of his 6-room house exclusively for business, working 40 hours per week. His annual household costs are £12,000. He can claim 1/6 of costs (one room) × relevant usage = approximately £2,000 per year. Alternatively, he could use HMRC's simplified expenses rate of £26 per month (£312 per year) for 25+ hours per month worked at home."
+      },
+      "capital-vs-revenue": {
+        "title": "Capital vs Revenue Expenses",
+        "content": "Revenue expenses (day-to-day running costs) are deducted from profits immediately. Capital expenses (assets like equipment, vehicles, machinery) must be claimed through Capital Allowances, spreading the tax relief over time. The Annual Investment Allowance lets you claim up to £1 million of capital spending immediately."
+      },
+      "not-allowable": {
+        "title": "Non-Allowable Expenses",
+        "content": "You cannot claim for:",
+        "items": [
+          "Personal expenses or the personal portion of mixed expenses",
+          "Entertainment for clients or suppliers",
+          "Travel between home and regular workplace (commuting)",
+          "Clothing, unless it's protective or a uniform with your logo",
+          "Fines for breaking the law (parking tickets, speeding fines)",
+          "The initial cost of buying a business"
+        ]
+      },
+      "record-keeping": {
+        "title": "Keeping Records",
+        "content": "Keep receipts and invoices for all business expenses. Record the date, amount, supplier, and business purpose. Use accounting software or a spreadsheet to track expenses by category. Digital photos of receipts are acceptable for HMRC purposes."
+      },
+      "hmrc-records": {
+        "title": "How Long to Keep Records",
+        "content": "Keep all business records for at least 5 years after the 31 January tax deadline for the relevant year. For Limited Companies, keep records for 6 years from the end of the accounting period. HMRC can enquire into returns for several years, so longer is safer."
+      },
+      "simplified-expenses": {
+        "title": "Simplified Expenses",
+        "content": "HMRC offers simplified expenses for sole traders and partnerships. Instead of calculating actual costs, use flat rates for vehicles, working from home, and business premises at home. This is easier but may give less relief than actual costs."
+      },
+      "common-mistakes": {
+        "title": "Common Expense Mistakes",
+        "content": "Avoid these errors:",
+        "items": [
+          "Claiming personal expenses as business costs",
+          "Not keeping receipts for expense claims",
+          "Forgetting to claim all legitimate expenses",
+          "Claiming entertainment costs",
+          "Not splitting mixed-use expenses correctly",
+          "Claiming home office expenses without proper calculation"
+        ]
+      },
+      "summary": {
+        "content": "Claim all expenses that are wholly and exclusively for business. Keep proper records with receipts for at least 5 years. Use simplified expenses if easier, but calculate to see which gives better relief. Common allowable expenses include office costs, travel, staff costs, and professional fees."
+      }
+    },
+    "links": {
+      "hmrcExpenses": "HMRC Expenses Guide",
+      "simplified": "Simplified Expenses",
+      "records": "Keeping Records"
+    }
+  },
+  "taxCalendar": {
+    "title": "UK Tax Calendar",
+    "summary": "Key dates and deadlines for VAT, Corporation Tax, Self Assessment, and PAYE throughout the tax year.",
+    "sections": {
+      "intro": {
+        "content": "Missing tax deadlines can result in penalties and interest charges. This calendar lists all the key dates you need to know to stay compliant with HMRC throughout the year."
+      },
+      "tax-year": {
+        "title": "The UK Tax Year",
+        "content": "The UK tax year runs from 6 April to 5 April the following year. This unusual timing dates back to 1752 when the calendar changed. Most business taxes align with this tax year, though companies can choose different accounting year ends."
+      },
+      "tax-year-highlight": {
+        "title": "Current Tax Year",
+        "content": "The 2024/25 tax year runs from 6 April 2024 to 5 April 2025. Returns and payments for this year are mostly due by January 2026."
+      },
+      "key-dates-overview": {
+        "title": "Key Dates at a Glance",
+        "content": "Here are the most important dates to remember. Mark these in your calendar and set reminders at least a week before each deadline."
+      },
+      "april": {
+        "title": "April",
+        "content": "6 April: New tax year begins. Update payroll for new tax codes and NI thresholds. 19 April: Deadline for final PAYE payment of previous tax year (22nd if paying electronically). End of April: Send P60s to all employees."
+      },
+      "may": {
+        "title": "May",
+        "content": "3 May: Deadline for postal P35 annual employer return. 31 May: Latest date for submitting final FPS for previous tax year. 31 May: Issue P60s to all employees who were employed on 5 April."
+      },
+      "july": {
+        "title": "July",
+        "content": "31 July: Second Payment on Account due for Self Assessment (for those required to make them). 6 July: Deadline for P11D and P11D(b) forms reporting employee benefits and expenses."
+      },
+      "october": {
+        "title": "October",
+        "content": "5 October: Deadline to register for Self Assessment if newly self-employed in previous tax year. 31 October: Deadline for paper Self Assessment returns (most people file online now)."
+      },
+      "january": {
+        "title": "January",
+        "content": "31 January: MAJOR DEADLINE. Online Self Assessment returns due. Self Assessment tax payment due. First Payment on Account for next year due. This is the busiest time for HMRC—don't leave it to the last minute!"
+      },
+      "vat-dates": {
+        "title": "VAT Return Deadlines",
+        "content": "VAT returns are due 1 month and 7 days after the end of your VAT quarter. Most businesses are on standard quarterly periods, but you can apply for different arrangements."
+      },
+      "vat-quarters": {
+        "title": "Standard VAT Quarters",
+        "content": "Standard VAT periods and their deadlines:",
+        "table": {
+          "headers": ["VAT Quarter Ending", "Return & Payment Due"],
+          "rows": [
+            ["31 March", "7 May"],
+            ["30 June", "7 August"],
+            ["30 September", "7 November"],
+            ["31 December", "7 February"]
+          ]
+        }
+      },
+      "corporation-tax-dates": {
+        "title": "Corporation Tax Deadlines",
+        "content": "Corporation Tax deadlines depend on your company's accounting period end date. Payment is due 9 months and 1 day after the period ends. The CT600 return is due 12 months after. For example, a year ending 31 December 2024: pay by 1 October 2025, file CT600 by 31 December 2025."
+      },
+      "paye-dates": {
+        "title": "PAYE Deadlines",
+        "content": "PAYE is due monthly or quarterly depending on your average monthly payments. Submit FPS on or before each payday. Pay HMRC by the 22nd of the following month (19th if by post)."
+      },
+      "monthly-deadlines": {
+        "title": "Monthly PAYE Deadlines",
+        "content": "Regular PAYE deadlines throughout the year:",
+        "table": {
+          "headers": ["Task", "Deadline"],
+          "rows": [
+            ["Submit FPS", "On or before payday"],
+            ["Submit EPS (if applicable)", "By 19th of following month"],
+            ["Pay HMRC (electronic)", "By 22nd of following month"],
+            ["Pay HMRC (post)", "By 19th of following month"]
+          ]
+        }
+      },
+      "penalties": {
+        "title": "Late Filing Penalties",
+        "content": "HMRC charges penalties for missed deadlines:",
+        "items": [
+          "Self Assessment: £100 immediately, increasing over time",
+          "VAT: Default surcharge starting at 2% of VAT due, up to 15%",
+          "Corporation Tax: Automatic penalties from £100 upwards",
+          "PAYE RTI: Penalties for each late FPS submission",
+          "Interest charged on all late payments at current HMRC rates"
+        ]
+      },
+      "planning-tips": {
+        "title": "Planning Tips",
+        "content": "Stay ahead of deadlines with these tips:",
+        "items": [
+          "Set calendar reminders 2 weeks before each deadline",
+          "Use accounting software with deadline reminders",
+          "File returns early to avoid last-minute issues",
+          "Set aside tax money in a separate bank account",
+          "Consider monthly payments to HMRC to spread the cost",
+          "Review your tax position quarterly, not just at year-end"
+        ]
+      },
+      "summary": {
+        "content": "The key date for most people is 31 January—Self Assessment returns and payments are due. VAT returns are quarterly, Corporation Tax is 9 months after year-end, and PAYE is monthly. Set reminders well in advance and file early to avoid penalties and stress."
+      }
+    },
+    "links": {
+      "hmrcDeadlines": "Self Assessment Deadlines",
+      "vatDeadlines": "VAT Return Deadlines",
+      "payeDeadlines": "PAYE Reporting"
+    }
+  }
+}

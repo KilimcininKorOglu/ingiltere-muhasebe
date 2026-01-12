@@ -1,0 +1,95 @@
+{
+  "id": "expenses",
+  "slug": "expenses",
+  "category": "accounting",
+  "icon": "🧾",
+  "readTime": 8,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "what-are-allowable",
+      "type": "content"
+    },
+    {
+      "id": "key-principle",
+      "type": "highlight"
+    },
+    {
+      "id": "common-expenses",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "office-costs",
+      "type": "content"
+    },
+    {
+      "id": "travel",
+      "type": "content"
+    },
+    {
+      "id": "mileage-rates",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "staff-costs",
+      "type": "content"
+    },
+    {
+      "id": "working-from-home",
+      "type": "content"
+    },
+    {
+      "id": "wfh-example",
+      "type": "example"
+    },
+    {
+      "id": "capital-vs-revenue",
+      "type": "content"
+    },
+    {
+      "id": "not-allowable",
+      "type": "list"
+    },
+    {
+      "id": "record-keeping",
+      "type": "content"
+    },
+    {
+      "id": "hmrc-records",
+      "type": "highlight"
+    },
+    {
+      "id": "simplified-expenses",
+      "type": "content"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["vat-explained", "self-assessment", "corporation-tax"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:expenses.links.hmrcExpenses",
+      "url": "https://www.gov.uk/expenses-if-youre-self-employed"
+    },
+    {
+      "titleKey": "articles:expenses.links.simplified",
+      "url": "https://www.gov.uk/simpler-income-tax-simplified-expenses"
+    },
+    {
+      "titleKey": "articles:expenses.links.records",
+      "url": "https://www.gov.uk/self-employed-records"
+    }
+  ]
+}

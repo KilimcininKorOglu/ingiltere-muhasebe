@@ -77,6 +77,17 @@
         "title": "Güvenlik Ayarları",
         "content": "Şifre değişiklikleri, iki faktörlü kimlik doğrulama ve oturum yönetimi dahil olmak üzere hesap güvenliği ayarlarınızı yönetin."
       }
+    },
+    "learn": {
+      "title": "Öğrenme Yardımı",
+      "overview": {
+        "title": "Eğitim Makaleleri",
+        "content": "İngiltere vergileri hakkında kapsamlı rehberlere erişin. KDV, Kurumlar Vergisi, Self Assessment, PAYE, izin verilen giderler ve önemli vergi son tarihleri hakkında bilgi edinin."
+      },
+      "articles": {
+        "title": "Makale Okuma",
+        "content": "Makaleleri kategoriye göre tarayın veya tam içeriği okuyun. Her makale, vergi kavramlarını anlamanıza yardımcı olmak için gerçekçi İngiltere rakamlarıyla pratik örnekler içerir."
+      }
     }
   },
   "quickTips": {

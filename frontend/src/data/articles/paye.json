@@ -1,0 +1,91 @@
+{
+  "id": "paye",
+  "slug": "paye",
+  "category": "tax",
+  "icon": "👥",
+  "readTime": 10,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "what-is-paye",
+      "type": "content"
+    },
+    {
+      "id": "employer-responsibilities",
+      "type": "list"
+    },
+    {
+      "id": "registering",
+      "type": "content"
+    },
+    {
+      "id": "tax-codes",
+      "type": "content"
+    },
+    {
+      "id": "common-tax-codes",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "calculating-deductions",
+      "type": "content"
+    },
+    {
+      "id": "payslip-example",
+      "type": "example"
+    },
+    {
+      "id": "national-insurance",
+      "type": "content"
+    },
+    {
+      "id": "ni-categories",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "rti",
+      "type": "content"
+    },
+    {
+      "id": "fps-eps",
+      "type": "highlight"
+    },
+    {
+      "id": "payment-deadlines",
+      "type": "content"
+    },
+    {
+      "id": "year-end",
+      "type": "content"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["self-assessment", "expenses", "tax-calendar"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:paye.links.hmrcPaye",
+      "url": "https://www.gov.uk/paye-for-employers"
+    },
+    {
+      "titleKey": "articles:paye.links.taxCodes",
+      "url": "https://www.gov.uk/tax-codes"
+    },
+    {
+      "titleKey": "articles:paye.links.niRates",
+      "url": "https://www.gov.uk/national-insurance-rates-letters"
+    }
+  ]
+}

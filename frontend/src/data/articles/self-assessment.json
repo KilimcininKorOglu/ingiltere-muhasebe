@@ -1,0 +1,99 @@
+{
+  "id": "self-assessment",
+  "slug": "self-assessment",
+  "category": "tax",
+  "icon": "📝",
+  "readTime": 12,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "what-is-sa",
+      "type": "content"
+    },
+    {
+      "id": "who-needs",
+      "type": "list"
+    },
+    {
+      "id": "registering",
+      "type": "content"
+    },
+    {
+      "id": "tax-year",
+      "type": "highlight"
+    },
+    {
+      "id": "income-types",
+      "type": "content"
+    },
+    {
+      "id": "tax-bands",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "calculation-example",
+      "type": "example"
+    },
+    {
+      "id": "allowances",
+      "type": "content"
+    },
+    {
+      "id": "national-insurance",
+      "type": "content"
+    },
+    {
+      "id": "ni-rates",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "filing-process",
+      "type": "content"
+    },
+    {
+      "id": "deadlines",
+      "type": "highlight"
+    },
+    {
+      "id": "payments-on-account",
+      "type": "content"
+    },
+    {
+      "id": "poa-example",
+      "type": "example"
+    },
+    {
+      "id": "penalties",
+      "type": "list"
+    },
+    {
+      "id": "common-mistakes",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["paye", "expenses", "tax-calendar"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:selfAssessment.links.hmrcSa",
+      "url": "https://www.gov.uk/self-assessment-tax-returns"
+    },
+    {
+      "titleKey": "articles:selfAssessment.links.register",
+      "url": "https://www.gov.uk/register-for-self-assessment"
+    },
+    {
+      "titleKey": "articles:selfAssessment.links.taxRates",
+      "url": "https://www.gov.uk/income-tax-rates"
+    }
+  ]
+}
