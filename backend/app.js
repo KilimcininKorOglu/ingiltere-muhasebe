@@ -11,6 +11,7 @@ const express = require('express');
 // Import security middleware
 const { securityHeaders, corsMiddleware, sanitizeInput } = require('./middleware/security');
 const { standardLimiter, strictLimiter } = require('./middleware/rateLimiter');
+const { localization } = require('./middleware/localization');
 
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
@@ -42,6 +43,9 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(sanitizeInput({
   skipFields: ['password', 'confirmPassword', 'currentPassword', 'newPassword']
 }));
+
+// Localization middleware - detect and set request locale
+app.use(localization());
 
 // Request logging middleware (skip in test mode for cleaner output)
 if (process.env.NODE_ENV !== 'test') {
