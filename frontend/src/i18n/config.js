@@ -61,6 +61,7 @@ export const NAMESPACES = {
   tax: 'tax',
   help: 'help',
   guides: 'guides',
+  tooltips: 'tooltips',
 };
 
 /**

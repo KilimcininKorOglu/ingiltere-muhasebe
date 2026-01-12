@@ -27,6 +27,8 @@ import enArticles from '../locales/en/articles.json';
 import trArticles from '../locales/tr/articles.json';
 import enGuides from '../locales/en/guides.json';
 import trGuides from '../locales/tr/guides.json';
+import enTooltips from '../locales/en/tooltips.json';
+import trTooltips from '../locales/tr/tooltips.json';
 
 /**
  * Translation resources organized by language and namespace
@@ -38,6 +40,7 @@ const resources = {
     help: enHelp,
     articles: enArticles,
     guides: enGuides,
+    tooltips: enTooltips,
   },
   tr: {
     translation: trTranslation,
@@ -45,6 +48,7 @@ const resources = {
     help: trHelp,
     articles: trArticles,
     guides: trGuides,
+    tooltips: trTooltips,
   },
 };
 
@@ -71,7 +75,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE, 'warnings', 'help', 'articles', 'guides'],
+    ns: [DEFAULT_NAMESPACE, 'warnings', 'help', 'articles', 'guides', 'tooltips'],
 
     // Language detection configuration
     detection: {
