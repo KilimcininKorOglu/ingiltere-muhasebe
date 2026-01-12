@@ -8,6 +8,7 @@
 const BankAccount = require('../database/models/BankAccount');
 const { query, queryOne } = require('../database/index');
 const { HTTP_STATUS, ERROR_CODES, createErrorResponse } = require('../utils/errorCodes');
+const ReconciliationStatusService = require('../services/reconciliationStatusService');
 
 /**
  * Creates a new bank account.
@@ -897,6 +898,503 @@ async function searchBankAccounts(req, res) {
   }
 }
 
+/**
+ * Gets the full reconciliation status for a bank account.
+ * GET /api/bank-accounts/:id/reconciliation-status
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.startDate] - Start date filter (YYYY-MM-DD)
+ * @param {string} [req.query.endDate] - End date filter (YYYY-MM-DD)
+ * @param {Object} res - Express response object
+ */
+async function getReconciliationStatus(req, res) {
+  try {
+    const { lang = 'en', startDate, endDate } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get full reconciliation status
+    const result = ReconciliationStatusService.getFullReconciliationStatus(bankAccountId, {
+      startDate,
+      endDate
+    });
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'RECONCILIATION_STATUS_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get reconciliation status error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets the reconciliation balance calculations for a bank account.
+ * GET /api/bank-accounts/:id/reconciliation-balance
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.startDate] - Start date filter (YYYY-MM-DD)
+ * @param {string} [req.query.endDate] - End date filter (YYYY-MM-DD)
+ * @param {Object} res - Express response object
+ */
+async function getReconciliationBalance(req, res) {
+  try {
+    const { lang = 'en', startDate, endDate } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get balance calculations
+    const result = ReconciliationStatusService.calculateBalances(bankAccountId, {
+      startDate,
+      endDate
+    });
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'BALANCE_CALCULATION_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        bankAccount: BankAccount.sanitizeBankAccount(bankAccount),
+        balances: result.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        dateRange: startDate && endDate ? { startDate, endDate } : null
+      }
+    });
+
+  } catch (error) {
+    console.error('Get reconciliation balance error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets unreconciled totals for a bank account to identify discrepancies.
+ * GET /api/bank-accounts/:id/unreconciled-totals
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} req.query - Query parameters
+ * @param {string} [req.query.startDate] - Start date filter (YYYY-MM-DD)
+ * @param {string} [req.query.endDate] - End date filter (YYYY-MM-DD)
+ * @param {Object} res - Express response object
+ */
+async function getUnreconciledTotals(req, res) {
+  try {
+    const { lang = 'en', startDate, endDate } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get unreconciled totals
+    const result = ReconciliationStatusService.getUnreconciledTotals(bankAccountId, {
+      startDate,
+      endDate
+    });
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'UNRECONCILED_TOTALS_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        bankAccount: BankAccount.sanitizeBankAccount(bankAccount),
+        unreconciledTotals: result.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString(),
+        dateRange: startDate && endDate ? { startDate, endDate } : null
+      }
+    });
+
+  } catch (error) {
+    console.error('Get unreconciled totals error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets the last reconciliation date and related information.
+ * GET /api/bank-accounts/:id/last-reconciliation
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Bank account ID
+ * @param {Object} res - Express response object
+ */
+async function getLastReconciliationDate(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user?.id;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    const bankAccountId = parseInt(id, 10);
+    if (isNaN(bankAccountId)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: {
+            en: 'Invalid bank account ID',
+            tr: 'Geçersiz banka hesabı ID'
+          }
+        }
+      });
+    }
+
+    // Verify ownership
+    const bankAccount = BankAccount.findById(bankAccountId);
+    if (!bankAccount) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        error: {
+          code: 'RES_BANK_ACCOUNT_NOT_FOUND',
+          message: {
+            en: 'Bank account not found',
+            tr: 'Banka hesabı bulunamadı'
+          }
+        }
+      });
+    }
+
+    if (bankAccount.userId !== userId) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.code,
+          message: ERROR_CODES.AUTHZ_RESOURCE_OWNER_ONLY.message
+        }
+      });
+    }
+
+    // Get last reconciliation date
+    const result = ReconciliationStatusService.getLastReconciliationDate(bankAccountId);
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'LAST_RECONCILIATION_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        bankAccount: BankAccount.sanitizeBankAccount(bankAccount),
+        lastReconciliation: result.data
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get last reconciliation date error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets reconciliation status overview for all bank accounts of the user.
+ * GET /api/bank-accounts/reconciliation-overview
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function getReconciliationOverview(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    // Get reconciliation status for all accounts
+    const result = ReconciliationStatusService.getReconciliationStatusByUser(userId);
+
+    if (!result.success) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: 'RECONCILIATION_OVERVIEW_ERROR',
+          message: {
+            en: result.error,
+            tr: result.error
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get reconciliation overview error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   createBankAccount,
   getBankAccounts,
@@ -906,5 +1404,10 @@ module.exports = {
   setDefaultBankAccount,
   reactivateBankAccount,
   searchBankAccounts,
-  checkUnreconciledTransactions
+  checkUnreconciledTransactions,
+  getReconciliationStatus,
+  getReconciliationBalance,
+  getUnreconciledTotals,
+  getLastReconciliationDate,
+  getReconciliationOverview
 };

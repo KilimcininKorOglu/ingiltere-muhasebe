@@ -17,7 +17,12 @@ const {
   deleteBankAccount,
   setDefaultBankAccount,
   reactivateBankAccount,
-  searchBankAccounts
+  searchBankAccounts,
+  getReconciliationStatus,
+  getReconciliationBalance,
+  getUnreconciledTotals,
+  getLastReconciliationDate,
+  getReconciliationOverview
 } = require('../controllers/bankAccountController');
 
 const {
@@ -48,6 +53,16 @@ const {
  * @returns { success: true, data: { bankAccounts: BankAccountData[], count: number } }
  */
 router.get('/search', authenticateToken, searchBankAccounts);
+
+/**
+ * @route   GET /api/bank-accounts/reconciliation-overview
+ * @desc    Get reconciliation status overview for all bank accounts
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { accounts: [...], summary: {...} } }
+ */
+router.get('/reconciliation-overview', authenticateToken, getReconciliationOverview);
 
 /**
  * @route   GET /api/bank-accounts
@@ -144,6 +159,60 @@ router.post('/:id/default', authenticateToken, setDefaultBankAccount);
  * @returns { success: true, data: { bankAccount: BankAccountData } }
  */
 router.post('/:id/reactivate', authenticateToken, reactivateBankAccount);
+
+// ==========================================
+// Reconciliation Status Routes (nested under bank accounts)
+// ==========================================
+
+/**
+ * @route   GET /api/bank-accounts/:id/reconciliation-status
+ * @desc    Get full reconciliation status for a bank account
+ * @param   id - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { bankAccount, statusSummary, balances, unreconciledTotals, lastReconciliation } }
+ */
+router.get('/:id/reconciliation-status', authenticateToken, getReconciliationStatus);
+
+/**
+ * @route   GET /api/bank-accounts/:id/reconciliation-balance
+ * @desc    Get reconciliation balance calculations for a bank account
+ * @param   id - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { bankAccount, balances: {...} } }
+ */
+router.get('/:id/reconciliation-balance', authenticateToken, getReconciliationBalance);
+
+/**
+ * @route   GET /api/bank-accounts/:id/unreconciled-totals
+ * @desc    Get unreconciled totals that identify discrepancies
+ * @param   id - Bank account ID
+ * @query   startDate - Filter by start date (YYYY-MM-DD)
+ * @query   endDate - Filter by end date (YYYY-MM-DD)
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { bankAccount, unreconciledTotals: { summary, credits, debits, byMonth } } }
+ */
+router.get('/:id/unreconciled-totals', authenticateToken, getUnreconciledTotals);
+
+/**
+ * @route   GET /api/bank-accounts/:id/last-reconciliation
+ * @desc    Get last reconciliation date and related information
+ * @param   id - Bank account ID
+ * @query   lang - Language preference (en/tr)
+ * @header  Authorization: Bearer <token>
+ * @access  Private
+ * @returns { success: true, data: { bankAccount, lastReconciliation: {...} } }
+ */
+router.get('/:id/last-reconciliation', authenticateToken, getLastReconciliationDate);
 
 // ==========================================
 // Bank Transaction Routes (nested under bank accounts)
