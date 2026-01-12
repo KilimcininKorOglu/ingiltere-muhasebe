@@ -10,6 +10,7 @@ const cors = require('cors');
 
 // Import routes
 const taxRatesRoutes = require('./routes/taxRates');
+const authRoutes = require('./routes/auth');
 
 // Initialize Express app
 const app = express();
@@ -45,10 +46,16 @@ app.get('/api', (req, res) => {
       tr: 'İngiltere vergi oranları, hesaplamalar ve muhasebe hizmetleri için API'
     },
     endpoints: {
+      auth: '/api/auth',
       taxRates: '/api/tax-rates',
       health: '/health'
     },
     documentation: {
+      auth: {
+        register: 'POST /api/auth/register',
+        login: 'POST /api/auth/login',
+        me: 'GET /api/auth/me'
+      },
       taxRates: {
         all: 'GET /api/tax-rates',
         current: 'GET /api/tax-rates/current',
@@ -65,6 +72,7 @@ app.get('/api', (req, res) => {
 });
 
 // Mount routes
+app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 
 // 404 handler for unmatched routes
