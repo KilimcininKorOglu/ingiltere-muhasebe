@@ -929,6 +929,12 @@ module.exports = {
   validateCustomerCreate,
   validateCustomerUpdate,
   sanitizeCustomer,
+  // Bank account validation
+  validateCreateBankAccount,
+  validateUpdateBankAccount,
+  sanitizeBankAccountData,
+  // Authentication
+  authenticateToken,
   // Constants
   UK_VAT_REGEX,
   UK_COMPANY_REGEX,

@@ -94,5 +94,7 @@ function optionalAuth(req, res, next) {
 
 module.exports = {
   requireAuth,
-  optionalAuth
+  optionalAuth,
+  // Alias for backwards compatibility
+  authenticate: requireAuth
 };
