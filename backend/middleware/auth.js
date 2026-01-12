@@ -1,52 +1,29 @@
 /**
- * Authentication Middleware
- * Provides JWT token verification and user authentication middleware.
- * Checks token validity and blacklist status before allowing access.
+ * Auth Middleware
+ * Provides authentication middleware for protected routes.
+ * Verifies JWT tokens and attaches user data to the request.
  * 
  * @module middleware/auth
  */
 
 const { verifyToken } = require('../utils/jwt');
-const { isBlacklisted } = require('../utils/tokenBlacklist');
 const { findById } = require('../database/models/User');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
- * Extracts the token from the Authorization header.
- * 
- * @param {Object} req - Express request object
- * @returns {string|null} The token or null if not found
- */
-function extractToken(req) {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    return null;
-  }
-
-  // Support both "Bearer <token>" and "<token>" formats
-  if (authHeader.startsWith('Bearer ')) {
-    return authHeader.slice(7);
-  }
-
-  return authHeader;
-}
-
-/**
  * Authentication middleware.
- * Verifies the JWT token from the Authorization header,
- * checks if it's blacklisted, and attaches the user to the request.
+ * Verifies the JWT token in the Authorization header and attaches
+ * the authenticated user to the request object.
  * 
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-async function authenticate(req, res, next) {
+function authenticate(req, res, next) {
   try {
-    const token = extractToken(req);
+    const authHeader = req.headers.authorization;
 
-    // Check if token is provided
-    if (!token) {
+    if (!authHeader) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         error: {
@@ -56,29 +33,13 @@ async function authenticate(req, res, next) {
       });
     }
 
-    // Check if token is blacklisted (logged out)
-    if (isBlacklisted(token)) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        error: {
-          code: ERROR_CODES.AUTH_TOKEN_INVALID.code,
-          message: {
-            en: 'Token has been invalidated. Please log in again.',
-            tr: 'Jeton geçersiz kılındı. Lütfen tekrar giriş yapın.'
-          }
-        }
-      });
-    }
-
     // Verify the token
-    const result = verifyToken(token);
+    const result = verifyToken(authHeader);
 
     if (!result.valid) {
-      // Determine specific error type
-      let errorCode = ERROR_CODES.AUTH_TOKEN_INVALID;
-      if (result.error && result.error.includes('expired')) {
-        errorCode = ERROR_CODES.AUTH_TOKEN_EXPIRED;
-      }
+      const errorCode = result.error === 'Token has expired' 
+        ? ERROR_CODES.AUTH_TOKEN_EXPIRED 
+        : ERROR_CODES.AUTH_TOKEN_INVALID;
 
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
@@ -89,37 +50,28 @@ async function authenticate(req, res, next) {
       });
     }
 
-    // Fetch the user from database to ensure they still exist
+    // Find the user from the token payload
     const user = findById(result.payload.userId);
-    
+
     if (!user) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         error: {
           code: ERROR_CODES.AUTH_TOKEN_INVALID.code,
-          message: {
-            en: 'User associated with this token no longer exists',
-            tr: 'Bu jetonla ilişkili kullanıcı artık mevcut değil'
-          }
+          message: ERROR_CODES.AUTH_TOKEN_INVALID.message
         }
       });
     }
 
-    // Attach user and token to request (sanitize user data)
+    // Attach sanitized user data to request (exclude passwordHash)
     const { passwordHash, ...sanitizedUser } = user;
-    // Convert SQLite integer to boolean for isVatRegistered
-    if (sanitizedUser.isVatRegistered !== undefined) {
-      sanitizedUser.isVatRegistered = Boolean(sanitizedUser.isVatRegistered);
-    }
-
     req.user = sanitizedUser;
-    req.token = token;
 
     next();
   } catch (error) {
     console.error('Authentication error:', error);
 
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: {
         code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
@@ -131,69 +83,53 @@ async function authenticate(req, res, next) {
 
 /**
  * Optional authentication middleware.
- * Same as authenticate but doesn't fail if no token is provided.
+ * Similar to authenticate but doesn't fail if no token is present.
  * Useful for routes that have different behavior for authenticated vs anonymous users.
  * 
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-async function optionalAuthenticate(req, res, next) {
+function optionalAuth(req, res, next) {
   try {
-    const token = extractToken(req);
+    const authHeader = req.headers.authorization;
 
-    // If no token, continue without user
-    if (!token) {
+    if (!authHeader) {
+      // No token, continue without user
       req.user = null;
-      req.token = null;
-      return next();
-    }
-
-    // Check if token is blacklisted
-    if (isBlacklisted(token)) {
-      req.user = null;
-      req.token = null;
       return next();
     }
 
     // Verify the token
-    const result = verifyToken(token);
+    const result = verifyToken(authHeader);
 
     if (!result.valid) {
+      // Invalid token, continue without user
       req.user = null;
-      req.token = null;
       return next();
     }
 
-    // Fetch the user from database
+    // Find the user from the token payload
     const user = findById(result.payload.userId);
-    
-    if (!user) {
+
+    if (user) {
+      // Attach sanitized user data to request
+      const { passwordHash, ...sanitizedUser } = user;
+      req.user = sanitizedUser;
+    } else {
       req.user = null;
-      req.token = null;
-      return next();
     }
-
-    // Attach user and token to request
-    const { passwordHash, ...sanitizedUser } = user;
-    if (sanitizedUser.isVatRegistered !== undefined) {
-      sanitizedUser.isVatRegistered = Boolean(sanitizedUser.isVatRegistered);
-    }
-
-    req.user = sanitizedUser;
-    req.token = token;
 
     next();
   } catch (error) {
     console.error('Optional authentication error:', error);
+    // Continue without user on error
     req.user = null;
-    req.token = null;
     next();
   }
 }
 
 module.exports = {
   authenticate,
-  optionalAuthenticate,
-  extractToken
+  optionalAuth
 };
