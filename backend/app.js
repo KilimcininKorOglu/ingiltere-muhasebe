@@ -13,6 +13,7 @@ const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
 const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
+const payrollRoutes = require('./routes/payroll');
 
 // Initialize Express app
 const app = express();
@@ -52,6 +53,7 @@ app.get('/api', (req, res) => {
       taxRates: '/api/tax-rates',
       employees: '/api/employees',
       suppliers: '/api/suppliers',
+      payroll: '/api/payroll',
       health: '/health'
     },
     documentation: {
@@ -95,6 +97,18 @@ app.get('/api', (req, res) => {
         update: 'PUT /api/suppliers/:id',
         updateStatus: 'PATCH /api/suppliers/:id/status',
         delete: 'DELETE /api/suppliers/:id'
+      },
+      payroll: {
+        calculate: 'POST /api/payroll/calculate',
+        list: 'GET /api/payroll',
+        summary: 'GET /api/payroll/summary',
+        counts: 'GET /api/payroll/counts',
+        getById: 'GET /api/payroll/:id',
+        getByEmployee: 'GET /api/payroll/employee/:employeeId',
+        create: 'POST /api/payroll',
+        update: 'PUT /api/payroll/:id',
+        updateStatus: 'PATCH /api/payroll/:id/status',
+        delete: 'DELETE /api/payroll/:id'
       }
     }
   });
@@ -105,6 +119,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
