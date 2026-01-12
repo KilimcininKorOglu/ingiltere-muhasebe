@@ -53,9 +53,14 @@ export const DETECTION_CACHES = ['localStorage'];
 export const NAMESPACES = {
   translation: 'translation',
   common: 'common',
+  navigation: 'navigation',
+  forms: 'forms',
+  warnings: 'warnings',
   errors: 'errors',
   financial: 'financial',
   tax: 'tax',
+  help: 'help',
+  guides: 'guides',
 };
 
 /**
