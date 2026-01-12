@@ -1,16 +1,17 @@
 /**
- * UK Accounting Application - Backend Server
+ * UK Accounting Application - Main Application Entry
  * 
- * Main Express application entry point.
+ * Express application for UK tax and accounting services.
+ * Provides bilingual API (English/Turkish) for UK tax rates and calculations.
  */
 
 const express = require('express');
 const cors = require('cors');
 
 // Import routes
-const vatRatesRoutes = require('./routes/vatRates');
+const taxRatesRoutes = require('./routes/taxRates');
 
-// Create Express app
+// Initialize Express app
 const app = express();
 
 // Middleware
@@ -18,59 +19,101 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API Routes
-app.use('/api/vat-rates', vatRatesRoutes);
+// Request logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+});
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '1.0.0'
   });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
+// API Information endpoint
+app.get('/api', (req, res) => {
+  res.status(200).json({
     name: 'UK Accounting API',
     version: '1.0.0',
-    description: 'Backend API for UK accounting application',
+    description: {
+      en: 'API for UK tax rates, calculations, and accounting services',
+      tr: 'İngiltere vergi oranları, hesaplamalar ve muhasebe hizmetleri için API'
+    },
     endpoints: {
-      health: '/api/health',
-      vatRates: '/api/vat-rates'
+      taxRates: '/api/tax-rates',
+      health: '/health'
+    },
+    documentation: {
+      taxRates: {
+        all: 'GET /api/tax-rates',
+        current: 'GET /api/tax-rates/current',
+        byYear: 'GET /api/tax-rates/year/:taxYear',
+        byType: 'GET /api/tax-rates/type/:taxType',
+        incomeTaxBands: 'GET /api/tax-rates/income-tax/bands',
+        calculateIncomeTax: 'POST /api/tax-rates/calculate/income-tax',
+        vat: 'GET /api/tax-rates/vat',
+        corporationTax: 'GET /api/tax-rates/corporation-tax',
+        nationalInsurance: 'GET /api/tax-rates/national-insurance'
+      }
     }
   });
 });
 
-// 404 handler
+// Mount routes
+app.use('/api/tax-rates', taxRatesRoutes);
+
+// 404 handler for unmatched routes
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Not Found',
-    message: `Route ${req.method} ${req.path} not found`
+    error: {
+      code: 'NOT_FOUND',
+      message: {
+        en: `Route ${req.method} ${req.url} not found`,
+        tr: `${req.method} ${req.url} rotası bulunamadı`
+      }
+    }
   });
 });
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
+  console.error('Error:', err);
+  
   res.status(err.status || 500).json({
     success: false,
-    error: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    error: {
+      code: err.code || 'INTERNAL_ERROR',
+      message: {
+        en: err.message || 'An unexpected error occurred',
+        tr: err.messageTr || 'Beklenmeyen bir hata oluştu'
+      }
+    }
   });
 });
 
-// Export app for testing
-module.exports = app;
+// Server configuration
+const PORT = process.env.PORT || 3000;
 
-// Start server if run directly
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
+// Start server only if not in test mode
+if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/api/health`);
-    console.log(`VAT Rates: http://localhost:${PORT}/api/vat-rates`);
+    console.log(`
+╔═══════════════════════════════════════════════════════╗
+║         UK Accounting API Server Started              ║
+╠═══════════════════════════════════════════════════════╣
+║  Port: ${PORT}                                          ║
+║  Environment: ${process.env.NODE_ENV || 'development'}                         ║
+║  API Base: http://localhost:${PORT}/api                  ║
+║  Tax Rates: http://localhost:${PORT}/api/tax-rates       ║
+╚═══════════════════════════════════════════════════════╝
+    `);
   });
 }
+
+module.exports = app;
