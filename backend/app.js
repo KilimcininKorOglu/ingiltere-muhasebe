@@ -18,6 +18,7 @@ const authRoutes = require('./routes/auth');
 const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
+const categoriesRoutes = require('./routes/categories');
 
 // Initialize Express app
 const app = express();
@@ -70,6 +71,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       taxRates: '/api/tax-rates',
+      categories: '/api/categories',
       employees: '/api/employees',
       suppliers: '/api/suppliers',
       invoices: '/api/invoices',
@@ -125,6 +127,17 @@ app.get('/api', (req, res) => {
         create: 'POST /api/invoices',
         updateStatus: 'PATCH /api/invoices/:id/status',
         delete: 'DELETE /api/invoices/:id'
+      },
+      categories: {
+        list: 'GET /api/categories',
+        types: 'GET /api/categories/types',
+        stats: 'GET /api/categories/stats',
+        tree: 'GET /api/categories/tree',
+        topLevel: 'GET /api/categories/top-level',
+        search: 'GET /api/categories/search?q=:query',
+        byType: 'GET /api/categories/type/:type',
+        byCode: 'GET /api/categories/code/:code',
+        getById: 'GET /api/categories/:id'
       }
     }
   });
@@ -137,6 +150,7 @@ app.use('/api', standardLimiter);
 // Auth routes have additional strict rate limiting applied in the route file
 app.use('/api/auth', authRoutes);
 app.use('/api/tax-rates', taxRatesRoutes);
+app.use('/api/categories', categoriesRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/invoices', invoicesRoutes);
