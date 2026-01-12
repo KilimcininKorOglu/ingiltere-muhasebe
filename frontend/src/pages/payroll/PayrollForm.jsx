@@ -62,11 +62,8 @@ const PayrollForm = () => {
     if (name === 'employeeId') {
       const emp = employees.find((e) => e.id.toString() === value);
       if (emp) {
-        const monthlySalary = emp.payFrequency === 'monthly' 
-          ? emp.salary 
-          : emp.payFrequency === 'weekly' 
-            ? (emp.salary * 52) / 12 
-            : (emp.salary * 26) / 12;
+        const annualSalary = (emp.annualSalary || emp.salary || 0) / 100;
+        const monthlySalary = annualSalary / 12;
         setFormData((prev) => ({ ...prev, grossPay: monthlySalary.toFixed(2) }));
       }
     }
@@ -110,13 +107,14 @@ const PayrollForm = () => {
         employeeId: parseInt(formData.employeeId),
         payPeriodStart: formData.payPeriodStart,
         payPeriodEnd: formData.payPeriodEnd,
-        grossPay: parseFloat(formData.grossPay) + parseFloat(formData.bonus || 0),
-        bonus: parseFloat(formData.bonus || 0),
-        deductions: parseFloat(formData.deductions || 0),
-        incomeTax: calculation.incomeTax,
-        nationalInsurance: calculation.employeeNI,
-        employerNI: calculation.employerNI,
-        netPay: calculation.netPay - parseFloat(formData.deductions || 0),
+        payDate: formData.payPeriodEnd,
+        grossPay: Math.round((parseFloat(formData.grossPay) + parseFloat(formData.bonus || 0)) * 100),
+        bonus: Math.round(parseFloat(formData.bonus || 0) * 100),
+        deductions: Math.round(parseFloat(formData.deductions || 0) * 100),
+        incomeTax: calculation.incomeTax || 0,
+        nationalInsurance: calculation.employeeNI || 0,
+        employerNI: calculation.employerNI || 0,
+        netPay: Math.round((calculation.netPay - parseFloat(formData.deductions || 0)) * 100),
         status: 'draft',
       };
 

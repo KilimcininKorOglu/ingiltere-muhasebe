@@ -59,7 +59,7 @@ const TransactionForm = () => {
         setFormData({
           type: tx.type,
           categoryId: tx.categoryId?.toString() || '',
-          date: tx.date?.split('T')[0] || '',
+          date: (tx.transactionDate || tx.date)?.split('T')[0] || '',
           amount: tx.amount?.toString() || '',
           vatRate: tx.vatRate?.toString() || '20',
           description: tx.description || '',

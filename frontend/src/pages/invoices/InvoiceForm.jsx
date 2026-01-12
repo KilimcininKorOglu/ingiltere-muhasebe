@@ -98,13 +98,13 @@ const InvoiceForm = () => {
     try {
       const payload = {
         customerId: parseInt(formData.customerId),
-        issueDate: formData.issueDate,
+        invoiceDate: formData.issueDate,
         dueDate: formData.dueDate,
-        notes: formData.notes,
+        notes: formData.notes || null,
         items: formData.items.map((item) => ({
           description: item.description,
           quantity: parseFloat(item.quantity),
-          unitPrice: parseFloat(item.unitPrice),
+          unitPrice: Math.round(parseFloat(item.unitPrice) * 100),
           vatRate: parseFloat(item.vatRate),
         })),
       };
