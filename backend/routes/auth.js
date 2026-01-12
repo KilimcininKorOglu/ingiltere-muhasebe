@@ -9,7 +9,8 @@
 const express = require('express');
 const router = express.Router();
 
-const { register, login, getProfile } = require('../controllers/authController');
+const { register, login, logout, getProfile } = require('../controllers/authController');
+const { authenticate } = require('../middleware/auth');
 const {
   validateRegistration,
   validateLogin,
@@ -56,6 +57,16 @@ router.post('/login', sanitizeLogin, validateLogin, login);
  * @access  Private
  * @returns { success: true, data: { user: UserData } }
  */
-router.get('/me', getProfile);
+router.get('/me', authenticate, getProfile);
+
+/**
+ * @route   POST /api/auth/logout
+ * @desc    Logout user and invalidate token
+ * @header  Authorization: Bearer <token>
+ * @query   lang - Language preference (en/tr)
+ * @access  Private
+ * @returns { success: true, data: { message: { en: string, tr: string } } }
+ */
+router.post('/logout', authenticate, logout);
 
 module.exports = router;
