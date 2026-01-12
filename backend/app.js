@@ -191,7 +191,11 @@ app.get('/api', (req, res) => {
         payeSummary: 'GET /api/reports/paye-summary?startDate=:date&endDate=:date',
         payeSummaryByTaxYear: 'GET /api/reports/paye-summary/tax-year/:taxYear',
         payeSummaryByMonth: 'GET /api/reports/paye-summary/monthly/:year/:month',
-        paymentDeadline: 'GET /api/reports/paye-summary/deadline/:year/:month'
+        paymentDeadline: 'GET /api/reports/paye-summary/deadline/:year/:month',
+        profitLoss: 'GET /api/reports/profit-loss?startDate=:date&endDate=:date',
+        profitLossByTaxYear: 'GET /api/reports/profit-loss/tax-year/:taxYear',
+        profitLossByMonth: 'GET /api/reports/profit-loss/monthly/:year/:month',
+        profitLossByQuarter: 'GET /api/reports/profit-loss/quarterly/:year/:quarter'
       }
     }
   });
