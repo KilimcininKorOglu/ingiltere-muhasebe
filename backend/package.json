@@ -1,46 +1,36 @@
 {
-  "name": "ingiltere-muhasebe-backend",
+  "name": "uk-preaccounting-backend",
   "version": "1.0.0",
-  "description": "UK Accounting Backend - Tax rates and calculations API with bilingual support (English/Turkish)",
-  "main": "app.js",
+  "description": "Backend for UK Pre-Accounting Application for Turkish Entrepreneurs",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "node app.js",
-    "test": "jest --coverage --forceExit",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "lint": "eslint ."
+    "migrate": "node database/migrate.js",
+    "migrate:rollback": "node database/migrate.js --rollback"
   },
   "keywords": [
-    "uk",
-    "tax",
     "accounting",
+    "uk-tax",
     "vat",
-    "income-tax",
-    "corporation-tax",
-    "national-insurance",
-    "bilingual"
+    "hmrc"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "validator": "^13.12.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "nodemon": "^3.1.9"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "**/*.js",
-      "!**/node_modules/**",
-      "!**/tests/**",
-      "!**/coverage/**"
-    ],
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ]
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
