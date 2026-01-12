@@ -28,11 +28,18 @@ const {
   calculateLineAmounts
 } = require('../database/models/InvoiceItem');
 
+const { createTransaction } = require('../database/models/Transaction');
 const { findById: findCustomerById } = require('../database/models/Customer');
 const { generateNextInvoiceNumber } = require('../utils/invoiceNumberGenerator');
 const { calculateInvoiceTotals } = require('../utils/invoiceCalculator');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 const { openDatabase } = require('../database/index');
+const {
+  prepareStatusChange,
+  getValidTransitions,
+  validatePaymentDetails,
+  PAYMENT_METHODS
+} = require('../utils/invoiceStatusMachine');
 
 /**
  * Creates a new invoice with line items.
@@ -464,6 +471,9 @@ async function remove(req, res) {
  * @param {Object} req - Express request object
  * @param {Object} req.params.id - Invoice ID
  * @param {Object} req.body.status - New status
+ * @param {Object} req.body.paymentDetails - Payment details (when marking as paid)
+ * @param {Object} req.body.createIncomeTransaction - Whether to create an income transaction
+ * @param {Object} req.body.incomeCategoryId - Category ID for income transaction
  * @param {Object} req.user - Authenticated user from middleware
  * @param {Object} res - Express response object
  */
@@ -471,7 +481,7 @@ async function changeStatus(req, res) {
   try {
     const { lang = 'en' } = req.query;
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, paymentDetails, createIncomeTransaction, incomeCategoryId } = req.body;
     const userId = req.user.id;
 
     // Validate status
@@ -514,39 +524,154 @@ async function changeStatus(req, res) {
       });
     }
 
-    // Validate status transition
-    const validTransitions = getValidStatusTransitions(invoice.status);
-    if (!validTransitions.includes(status)) {
-      return res.status(HTTP_STATUS.CONFLICT).json({
+    // Use status machine to validate and prepare the status change
+    const statusChangeResult = prepareStatusChange(invoice.status, status, paymentDetails);
+    
+    if (!statusChangeResult.success) {
+      // Check if it's a validation error (has validationErrors)
+      if (statusChangeResult.validationErrors) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: {
+              en: statusChangeResult.error,
+              tr: 'Geçersiz ödeme detayları'
+            },
+            details: Object.entries(statusChangeResult.validationErrors).map(([field, message]) => ({
+              field,
+              message
+            }))
+          }
+        });
+      }
+      
+      // It's an invalid transition error
+      const validTransitions = getValidTransitions(invoice.status);
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         error: {
           code: 'BUS_INVALID_STATUS_TRANSITION',
           message: {
-            en: `Cannot change status from '${invoice.status}' to '${status}'. Valid transitions: ${validTransitions.join(', ')}`,
-            tr: `Durum '${invoice.status}' durumundan '${status}' durumuna değiştirilemez. Geçerli geçişler: ${validTransitions.join(', ')}`
-          }
+            en: statusChangeResult.error,
+            tr: `Durum '${invoice.status}' durumundan '${status}' durumuna değiştirilemez. Geçerli geçişler: ${validTransitions.join(', ') || 'yok'}`
+          },
+          validTransitions
         }
       });
     }
 
-    const result = updateStatus(parseInt(id, 10), status);
-
-    if (!result.success) {
+    // Use a transaction to ensure atomicity
+    const db = openDatabase();
+    let updatedInvoice;
+    let createdTransaction = null;
+    
+    try {
+      db.transaction(() => {
+        // Update the invoice status with all prepared data
+        const updateData = {
+          status: statusChangeResult.newStatus
+        };
+        
+        // Add payment timestamp if marking as paid
+        if (statusChangeResult.data.paidAt) {
+          updateData.paidAt = statusChangeResult.data.paidAt;
+        }
+        
+        // Update notes if payment notes provided
+        if (statusChangeResult.data.paymentNotes && paymentDetails?.notes) {
+          const currentNotes = invoice.notes || '';
+          const paymentNote = `\n[Payment received: ${statusChangeResult.data.paidAt}] ${paymentDetails.notes}`;
+          updateData.notes = currentNotes + paymentNote;
+        }
+        
+        const result = updateInvoice(parseInt(id, 10), updateData);
+        
+        if (!result.success) {
+          throw new Error(JSON.stringify(result.errors));
+        }
+        
+        updatedInvoice = result.data;
+        
+        // Create income transaction if requested and marking as paid
+        if (status === 'paid' && createIncomeTransaction) {
+          const transactionData = {
+            userId,
+            categoryId: incomeCategoryId || null,
+            type: 'income',
+            status: 'cleared',
+            transactionDate: statusChangeResult.data.paidAt?.split('T')[0] || new Date().toISOString().split('T')[0],
+            description: `Invoice payment: ${invoice.invoiceNumber}`,
+            reference: paymentDetails?.paymentReference || invoice.invoiceNumber,
+            amount: invoice.subtotal,
+            vatAmount: invoice.vatAmount,
+            totalAmount: statusChangeResult.data.paymentAmount || invoice.totalAmount,
+            vatRate: invoice.vatAmount > 0 && invoice.subtotal > 0 
+              ? Math.round((invoice.vatAmount / invoice.subtotal) * 10000) 
+              : 0,
+            currency: invoice.currency,
+            paymentMethod: paymentDetails?.paymentMethod || null,
+            payee: invoice.customerName,
+            notes: `Auto-generated from invoice ${invoice.invoiceNumber}`,
+            linkedTransactionId: null
+          };
+          
+          const txnResult = createTransaction(transactionData);
+          
+          if (!txnResult.success) {
+            throw new Error(`Failed to create income transaction: ${JSON.stringify(txnResult.errors)}`);
+          }
+          
+          createdTransaction = txnResult.data;
+        }
+      })();
+    } catch (transactionError) {
+      console.error('Invoice status update transaction error:', transactionError);
+      
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: {
           code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
           message: {
-            en: result.error || 'Failed to update invoice status',
-            tr: result.error || 'Fatura durumu güncellenemedi'
+            en: 'Failed to update invoice status',
+            tr: 'Fatura durumu güncellenemedi'
           }
         }
       });
     }
 
+    // Build response
+    const response = {
+      ...updatedInvoice,
+      statusChange: {
+        previousStatus: statusChangeResult.data.previousStatus,
+        newStatus: statusChangeResult.newStatus,
+        changedAt: statusChangeResult.data.updatedAt
+      }
+    };
+    
+    // Add payment info if marking as paid
+    if (status === 'paid' && paymentDetails) {
+      response.payment = {
+        paidAt: statusChangeResult.data.paidAt,
+        method: paymentDetails.paymentMethod || null,
+        reference: paymentDetails.paymentReference || null,
+        amount: paymentDetails.paymentAmount || invoice.totalAmount
+      };
+    }
+    
+    // Add created transaction info
+    if (createdTransaction) {
+      response.incomeTransaction = {
+        id: createdTransaction.id,
+        reference: createdTransaction.reference,
+        amount: createdTransaction.totalAmount
+      };
+    }
+
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: result.data,
+      data: response,
       meta: {
         language: lang,
         timestamp: new Date().toISOString()
@@ -568,21 +693,13 @@ async function changeStatus(req, res) {
 
 /**
  * Gets valid status transitions for an invoice status.
+ * Uses the status machine utility.
  * 
  * @param {string} currentStatus - Current invoice status
  * @returns {string[]} Valid next statuses
  */
 function getValidStatusTransitions(currentStatus) {
-  const transitions = {
-    'draft': ['pending', 'cancelled'],
-    'pending': ['paid', 'overdue', 'cancelled'],
-    'paid': ['refunded'],
-    'overdue': ['paid', 'cancelled'],
-    'cancelled': [],
-    'refunded': []
-  };
-  
-  return transitions[currentStatus] || [];
+  return getValidTransitions(currentStatus);
 }
 
 /**

@@ -108,20 +108,49 @@ router.post('/', authenticate, sanitizeInvoice, validateInvoiceCreate, create);
 
 /**
  * @route   PATCH /api/invoices/:id/status
- * @desc    Update invoice status
+ * @desc    Update invoice status with optional payment recording
  * @header  Authorization: Bearer <token>
  * @param   id - Invoice ID
- * @body    { status: 'draft' | 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded' }
+ * @body    {
+ *            status: 'draft' | 'pending' | 'paid' | 'overdue' | 'cancelled' | 'refunded' (required),
+ *            paymentDetails?: {
+ *              paymentDate?: string - Payment date (ISO 8601, defaults to now),
+ *              paymentMethod?: 'cash' | 'bank_transfer' | 'card' | 'cheque' | 'other',
+ *              paymentReference?: string - External payment reference (max 100 chars),
+ *              paymentAmount?: number - Amount paid in pence (defaults to invoice total),
+ *              notes?: string - Additional payment notes (max 1000 chars)
+ *            },
+ *            createIncomeTransaction?: boolean - Create income transaction when marking as paid,
+ *            incomeCategoryId?: number - Category ID for income transaction (e.g., 4100 for Sales)
+ *          }
  * @access  Private
- * @returns { success: true, data: InvoiceData }
+ * @returns { success: true, data: InvoiceData with statusChange, payment?, incomeTransaction? }
  * 
  * @notes   Status transitions are validated:
- *          - draft → pending, cancelled
+ *          - draft → pending (mark as sent), cancelled
  *          - pending → paid, overdue, cancelled
  *          - paid → refunded
  *          - overdue → paid, cancelled
  *          - cancelled → (no transitions)
  *          - refunded → (no transitions)
+ * 
+ *          When marking as paid:
+ *          - paidAt timestamp is automatically set
+ *          - Payment details can be recorded for tracking
+ *          - An income transaction can be created if createIncomeTransaction is true
+ * 
+ * @example
+ * PATCH /api/invoices/1/status
+ * {
+ *   "status": "paid",
+ *   "paymentDetails": {
+ *     "paymentMethod": "bank_transfer",
+ *     "paymentReference": "BACS-20260112-001",
+ *     "notes": "Payment received via BACS"
+ *   },
+ *   "createIncomeTransaction": true,
+ *   "incomeCategoryId": 4100
+ * }
  */
 router.patch('/:id/status', authenticate, changeStatus);
 
