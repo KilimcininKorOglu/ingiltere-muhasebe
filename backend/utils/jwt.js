@@ -134,6 +134,7 @@ function decodeToken(token) {
 
 /**
  * Generates a refresh token with longer expiration.
+ * Each refresh token is unique due to the jti (JWT ID) claim.
  * 
  * @param {Object} user - User data
  * @param {number} user.id - User ID
@@ -148,7 +149,9 @@ function generateRefreshToken(user) {
   const payload = {
     userId: user.id,
     email: user.email,
-    type: 'refresh'
+    type: 'refresh',
+    // Add unique token ID to ensure each refresh token is unique
+    jti: `${user.id}-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
   };
 
   return jwt.sign(payload, JWT_CONFIG.secret, {

@@ -9,7 +9,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { register, login, logout, getProfile } = require('../controllers/authController');
+const { register, login, logout, getProfile, refreshToken } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const {
   validateRegistration,
@@ -68,5 +68,15 @@ router.get('/me', authenticate, getProfile);
  * @returns { success: true, data: { message: { en: string, tr: string } } }
  */
 router.post('/logout', authenticate, logout);
+
+/**
+ * @route   POST /api/auth/refresh
+ * @desc    Refresh access token using refresh token
+ * @body    { refreshToken: string }
+ * @query   lang - Language preference (en/tr)
+ * @access  Public
+ * @returns { success: true, data: { token: string, refreshToken: string } }
+ */
+router.post('/refresh', refreshToken);
 
 module.exports = router;

@@ -6,7 +6,8 @@
  */
 
 const { verifyToken } = require('../utils/jwt');
-const { findById } = require('../database/models/User');
+const { findById, sanitizeUser } = require('../database/models/User');
+const { isBlacklisted } = require('../utils/tokenBlacklist');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
 
 /**
@@ -26,6 +27,20 @@ function requireAuth(req, res, next) {
       error: {
         code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
         message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+      }
+    });
+  }
+
+  // Extract clean token (remove Bearer prefix if present)
+  const cleanToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+
+  // Check if token is blacklisted (logged out)
+  if (isBlacklisted(cleanToken)) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.AUTH_TOKEN_INVALID.code,
+        message: ERROR_CODES.AUTH_TOKEN_INVALID.message
       }
     });
   }
@@ -60,8 +75,9 @@ function requireAuth(req, res, next) {
     });
   }
 
-  // Attach user to request
-  req.user = user;
+  // Attach user and token to request
+  req.user = sanitizeUser(user);
+  req.token = cleanToken;
   next();
 }
 

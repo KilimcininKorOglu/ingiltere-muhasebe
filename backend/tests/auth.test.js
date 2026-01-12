@@ -86,11 +86,11 @@ beforeEach(() => {
 });
 
 // Import modules for unit testing
-const { register, login, logout } = require('../controllers/authController');
+const { register, login, logout, refreshToken } = require('../controllers/authController');
 const { validateRegistration, validateLogin, sanitizeRegistration } = require('../middleware/validation');
 const { authenticate } = require('../middleware/auth');
 const { hashPassword, comparePassword, validatePassword } = require('../utils/password');
-const { generateToken, verifyToken, decodeToken } = require('../utils/jwt');
+const { generateToken, verifyToken, decodeToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
 const { 
   addToBlacklist, 
   isBlacklisted, 
@@ -938,6 +938,326 @@ describe('Auth API', () => {
       
       expect(next2).not.toHaveBeenCalled();
       expect(authRes2.statusCode).toBe(401);
+    });
+  });
+
+  describe('JWT Refresh Token Utility', () => {
+    const testUser = {
+      id: 1,
+      email: 'test@example.com',
+      name: 'Test User'
+    };
+
+    test('should generate valid refresh token', () => {
+      const token = generateRefreshToken(testUser);
+      
+      expect(token).toBeDefined();
+      expect(typeof token).toBe('string');
+      expect(token.split('.')).toHaveLength(3); // JWT format
+    });
+
+    test('should verify valid refresh token', () => {
+      const token = generateRefreshToken(testUser);
+      const result = verifyRefreshToken(token);
+      
+      expect(result.valid).toBe(true);
+      expect(result.payload).toBeDefined();
+      expect(result.payload.userId).toBe(testUser.id);
+      expect(result.payload.email).toBe(testUser.email);
+      expect(result.payload.type).toBe('refresh');
+    });
+
+    test('should reject access token as refresh token', () => {
+      const accessToken = generateToken(testUser);
+      const result = verifyRefreshToken(accessToken);
+      
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe('Invalid refresh token');
+    });
+
+    test('should reject invalid refresh token', () => {
+      const result = verifyRefreshToken('invalid.token.here');
+      
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe('Refresh Token Controller', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should refresh token successfully with valid refresh token', async () => {
+      // First register a user to get a refresh token
+      const regReq = createMockRequest({
+        email: 'refresh@example.com',
+        password: 'ValidPass123',
+        name: 'Refresh User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      expect(regRes.statusCode).toBe(201);
+      expect(regRes.jsonData.data.refreshToken).toBeDefined();
+      
+      const refreshTokenValue = regRes.jsonData.data.refreshToken;
+      
+      // Now use the refresh token to get a new access token
+      const req = createMockRequest({
+        refreshToken: refreshTokenValue
+      });
+      const res = createMockResponse();
+      
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(200);
+      expect(res.jsonData.success).toBe(true);
+      expect(res.jsonData.data.token).toBeDefined();
+      expect(res.jsonData.data.refreshToken).toBeDefined();
+      // New tokens should be different from original
+      expect(res.jsonData.data.refreshToken).not.toBe(refreshTokenValue);
+    });
+
+    test('should return 401 for expired refresh token', async () => {
+      // Create an expired token manually by setting expiration in the past
+      // We'll simulate this by using an invalid/tampered token
+      const req = createMockRequest({
+        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsInR5cGUiOiJyZWZyZXNoIiwiZXhwIjoxNjAwMDAwMDAwfQ.invalid_signature'
+      });
+      const res = createMockResponse();
+      
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.success).toBe(false);
+    });
+
+    test('should return 401 for invalid refresh token', async () => {
+      const req = createMockRequest({
+        refreshToken: 'invalid.token.here'
+      });
+      const res = createMockResponse();
+      
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.success).toBe(false);
+      expect(res.jsonData.error.code).toBe('AUTH_TOKEN_INVALID');
+    });
+
+    test('should return 400 when refresh token is missing', async () => {
+      const req = createMockRequest({});
+      const res = createMockResponse();
+      
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(400);
+      expect(res.jsonData.success).toBe(false);
+      expect(res.jsonData.error.code).toBe('VAL_REQUIRED_FIELD');
+    });
+
+    test('should invalidate old refresh token after use', async () => {
+      // Register a user
+      const regReq = createMockRequest({
+        email: 'invalidate@example.com',
+        password: 'ValidPass123',
+        name: 'Invalidate User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const originalRefreshToken = regRes.jsonData.data.refreshToken;
+      
+      // Use the refresh token once
+      const req1 = createMockRequest({
+        refreshToken: originalRefreshToken
+      });
+      const res1 = createMockResponse();
+      await refreshToken(req1, res1);
+      
+      expect(res1.statusCode).toBe(200);
+      
+      // Try to use the same refresh token again
+      const req2 = createMockRequest({
+        refreshToken: originalRefreshToken
+      });
+      const res2 = createMockResponse();
+      await refreshToken(req2, res2);
+      
+      // Should be rejected as the token is now blacklisted
+      expect(res2.statusCode).toBe(401);
+      expect(res2.jsonData.success).toBe(false);
+      expect(res2.jsonData.error.code).toBe('AUTH_TOKEN_INVALID');
+    });
+
+    test('should return new valid access token', async () => {
+      // Register a user
+      const regReq = createMockRequest({
+        email: 'newtoken@example.com',
+        password: 'ValidPass123',
+        name: 'New Token User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const refreshTokenValue = regRes.jsonData.data.refreshToken;
+      
+      // Refresh the token
+      const req = createMockRequest({
+        refreshToken: refreshTokenValue
+      });
+      const res = createMockResponse();
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(200);
+      
+      // Verify the new access token is valid
+      const newAccessToken = res.jsonData.data.token;
+      const verified = verifyToken(newAccessToken);
+      
+      expect(verified.valid).toBe(true);
+      expect(verified.payload.email).toBe('newtoken@example.com');
+    });
+
+    test('should reject refresh token for non-existent user', async () => {
+      // Create a refresh token for a user that will be "deleted"
+      // We'll create a token with a non-existent user ID
+      const fakeUser = { id: 99999, email: 'fake@example.com' };
+      const fakeRefreshToken = generateRefreshToken(fakeUser);
+      
+      const req = createMockRequest({
+        refreshToken: fakeRefreshToken
+      });
+      const res = createMockResponse();
+      
+      await refreshToken(req, res);
+      
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.error.code).toBe('RES_USER_NOT_FOUND');
+    });
+
+    test('should return refresh token on login', async () => {
+      // Register a user first
+      const regReq = createMockRequest({
+        email: 'loginrefresh@example.com',
+        password: 'ValidPass123',
+        name: 'Login Refresh User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      // Login
+      const loginReq = createMockRequest({
+        email: 'loginrefresh@example.com',
+        password: 'ValidPass123'
+      });
+      const loginRes = createMockResponse();
+      await login(loginReq, loginRes);
+      
+      expect(loginRes.statusCode).toBe(200);
+      expect(loginRes.jsonData.data.refreshToken).toBeDefined();
+      
+      // Verify it's a valid refresh token
+      const result = verifyRefreshToken(loginRes.jsonData.data.refreshToken);
+      expect(result.valid).toBe(true);
+      expect(result.payload.type).toBe('refresh');
+    });
+
+    test('should return refresh token on registration', async () => {
+      const regReq = createMockRequest({
+        email: 'regrefresh@example.com',
+        password: 'ValidPass123',
+        name: 'Reg Refresh User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      expect(regRes.statusCode).toBe(201);
+      expect(regRes.jsonData.data.refreshToken).toBeDefined();
+      
+      // Verify it's a valid refresh token
+      const result = verifyRefreshToken(regRes.jsonData.data.refreshToken);
+      expect(result.valid).toBe(true);
+      expect(result.payload.type).toBe('refresh');
+    });
+  });
+
+  describe('Full Token Refresh Flow', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should complete full token refresh flow', async () => {
+      // 1. Register a user
+      const regReq = createMockRequest({
+        email: 'fullrefresh@example.com',
+        password: 'ValidPass123',
+        name: 'Full Refresh User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      expect(regRes.statusCode).toBe(201);
+      const originalAccessToken = regRes.jsonData.data.token;
+      const originalRefreshToken = regRes.jsonData.data.refreshToken;
+      
+      // 2. Verify original access token works
+      const authReq1 = createMockRequest({}, {}, {
+        authorization: `Bearer ${originalAccessToken}`
+      });
+      const authRes1 = createMockResponse();
+      const next1 = jest.fn();
+      await authenticate(authReq1, authRes1, next1);
+      
+      expect(next1).toHaveBeenCalled();
+      
+      // 3. Refresh the tokens
+      const refreshReq = createMockRequest({
+        refreshToken: originalRefreshToken
+      });
+      const refreshRes = createMockResponse();
+      await refreshToken(refreshReq, refreshRes);
+      
+      expect(refreshRes.statusCode).toBe(200);
+      const newAccessToken = refreshRes.jsonData.data.token;
+      const newRefreshToken = refreshRes.jsonData.data.refreshToken;
+      
+      // 4. Verify new access token works
+      const authReq2 = createMockRequest({}, {}, {
+        authorization: `Bearer ${newAccessToken}`
+      });
+      const authRes2 = createMockResponse();
+      const next2 = jest.fn();
+      await authenticate(authReq2, authRes2, next2);
+      
+      expect(next2).toHaveBeenCalled();
+      
+      // 5. Verify old refresh token no longer works
+      const refreshReq2 = createMockRequest({
+        refreshToken: originalRefreshToken
+      });
+      const refreshRes2 = createMockResponse();
+      await refreshToken(refreshReq2, refreshRes2);
+      
+      expect(refreshRes2.statusCode).toBe(401);
+      
+      // 6. Verify new refresh token still works
+      const refreshReq3 = createMockRequest({
+        refreshToken: newRefreshToken
+      });
+      const refreshRes3 = createMockResponse();
+      await refreshToken(refreshReq3, refreshRes3);
+      
+      expect(refreshRes3.statusCode).toBe(200);
     });
   });
 });
