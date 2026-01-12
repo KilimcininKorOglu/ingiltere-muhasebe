@@ -24,6 +24,11 @@ const {
 } = require('../database/models/Supplier');
 const { query: dbQuery } = require('../database/index');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
+const {
+  getSupplierTransactionHistory,
+  getSupplierSummary,
+  validateDateRange
+} = require('../services/supplierSummaryService');
 
 /**
  * Creates a new supplier.
@@ -704,6 +709,138 @@ async function search(req, res) {
   }
 }
 
+/**
+ * Gets transaction history for a specific supplier.
+ * GET /api/suppliers/:id/transactions
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Supplier ID
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function getTransactionHistory(req, res) {
+  try {
+    const { lang = 'en', page = 1, limit = 20, categoryId, startDate, endDate, sortBy, sortOrder } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Validate date range if provided
+    if (startDate || endDate) {
+      const dateValidation = validateDateRange(startDate, endDate);
+      if (!dateValidation.isValid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: {
+              en: dateValidation.error,
+              tr: dateValidation.error
+            }
+          }
+        });
+      }
+    }
+
+    const result = getSupplierTransactionHistory(userId, parseInt(id, 10), {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      categoryId,
+      startDate,
+      endDate,
+      sortBy,
+      sortOrder
+    });
+
+    if (!result.success) {
+      const statusCode = result.error === 'Supplier not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.FORBIDDEN;
+      return res.status(statusCode).json({
+        success: false,
+        error: {
+          code: result.error === 'Supplier not found' ? 'RES_NOT_FOUND' : 'AUTHZ_RESOURCE_OWNER_ONLY',
+          message: {
+            en: result.error,
+            tr: result.error === 'Supplier not found' ? 'Tedarikçi bulunamadı' : 'Erişim reddedildi'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get supplier transaction history error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets summary information for a specific supplier.
+ * Includes expense totals, VAT reclaimed, and category breakdown.
+ * GET /api/suppliers/:id/summary
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Supplier ID
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function getSummary(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = getSupplierSummary(userId, parseInt(id, 10));
+
+    if (!result.success) {
+      const statusCode = result.error === 'Supplier not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.FORBIDDEN;
+      return res.status(statusCode).json({
+        success: false,
+        error: {
+          code: result.error === 'Supplier not found' ? 'RES_NOT_FOUND' : 'AUTHZ_RESOURCE_OWNER_ONLY',
+          message: {
+            en: result.error,
+            tr: result.error === 'Supplier not found' ? 'Tedarikçi bulunamadı' : 'Erişim reddedildi'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get supplier summary error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   create,
   getById,
@@ -715,6 +852,8 @@ module.exports = {
   getActive,
   getVatRegistered,
   search,
+  getTransactionHistory,
+  getSummary,
   // Export for testing
   hasUnpaidInvoices
 };

@@ -19,7 +19,9 @@ const {
   getStats,
   getActive,
   getVatRegistered,
-  search
+  search,
+  getTransactionHistory,
+  getSummary
 } = require('../controllers/supplierController');
 
 const { authenticateToken } = require('../middleware/validation');
@@ -75,6 +77,33 @@ router.get('/search', authenticateToken, search);
  * @returns { success: true, data: { suppliers: SupplierData[], total: number, page: number, limit: number } }
  */
 router.get('/', authenticateToken, list);
+
+/**
+ * @route   GET /api/suppliers/:id/transactions
+ * @desc    Get transaction history for a specific supplier
+ * @header  Authorization: Bearer <token>
+ * @param   id - Supplier ID
+ * @query   page - Page number (default: 1)
+ * @query   limit - Items per page (default: 20)
+ * @query   categoryId - Filter by category ID
+ * @query   startDate - Start date filter (YYYY-MM-DD)
+ * @query   endDate - End date filter (YYYY-MM-DD)
+ * @query   sortBy - Sort field (transactionDate, amount, totalAmount, type, status, createdAt)
+ * @query   sortOrder - Sort order (ASC, DESC)
+ * @access  Private
+ * @returns { success: true, data: { transactions: TransactionData[], total: number, page: number, limit: number } }
+ */
+router.get('/:id/transactions', authenticateToken, getTransactionHistory);
+
+/**
+ * @route   GET /api/suppliers/:id/summary
+ * @desc    Get summary information for a specific supplier including expense totals, VAT reclaimed, and category breakdown
+ * @header  Authorization: Bearer <token>
+ * @param   id - Supplier ID
+ * @access  Private
+ * @returns { success: true, data: SupplierSummaryData }
+ */
+router.get('/:id/summary', authenticateToken, getSummary);
 
 /**
  * @route   GET /api/suppliers/:id
