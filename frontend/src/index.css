@@ -1,0 +1,186 @@
+/* Base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+/* App layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-footer {
+  background: #333;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Sections */
+section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+section h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+section li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+section li:last-child {
+  border-bottom: none;
+}
+
+/* Buttons */
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  background: #667eea;
+  color: white;
+}
+
+.button-group button:hover {
+  background: #5a6fd6;
+}
+
+/* Language Switcher */
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.language-switcher__label {
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.language-switcher__select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.language-switcher--buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.language-switcher__button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.language-switcher__button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.language-switcher__button--active {
+  background: white;
+  color: #667eea;
+  border-color: white;
+}
+
+/* Loading */
+.loading-fallback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.25rem;
+  color: #666;
+}
+
+/* Footer adjustments */
+.app-footer .language-switcher__label {
+  color: #ccc;
+}
+
+.app-footer .language-switcher__select {
+  background: #444;
+  color: white;
+  border-color: #555;
+}
