@@ -1,13 +1,25 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 import i18n from '../i18n';
 
+// Mock localStorage for auth token
+const mockLocalStorage = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+
 describe('App Component', () => {
   beforeEach(async () => {
-    // Reset to English before each test
     await i18n.changeLanguage('en');
-    localStorage.clear();
+    vi.clearAllMocks();
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+    });
+    mockLocalStorage.getItem.mockReturnValue(null);
   });
 
   describe('rendering', () => {
@@ -15,31 +27,32 @@ describe('App Component', () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
+        expect(screen.getByText('UK Accounting')).toBeInTheDocument();
       });
     });
 
-    it('should render the header with title', async () => {
+    it('should render the login page when not authenticated', async () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Dashboard');
+        expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
       });
     });
 
-    it('should render language switcher in header', async () => {
+    it('should render login form fields', async () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByRole('group', { name: 'Select Language' })).toBeInTheDocument();
+        expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
       });
     });
 
-    it('should render language switcher in footer', async () => {
+    it('should render register link on login page', async () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByRole('combobox')).toBeInTheDocument();
+        expect(screen.getByText(/register/i)).toBeInTheDocument();
       });
     });
   });
@@ -49,78 +62,43 @@ describe('App Component', () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-        expect(screen.getByText(/Welcome/)).toBeInTheDocument();
-        expect(screen.getByText('Save')).toBeInTheDocument();
+        expect(screen.getByText('UK Accounting')).toBeInTheDocument();
+        expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
       });
     });
 
-    it('should switch to Turkish when Turkish button is clicked', async () => {
+    it('should have login button in English', async () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-      });
-
-      const turkishButton = screen.getByRole('button', { name: /türkçe/i });
-      fireEvent.click(turkishButton);
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Kontrol Paneli');
-        expect(screen.getByText(/Hoş geldiniz/)).toBeInTheDocument();
-        expect(screen.getByText('Kaydet')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
       });
     });
+  });
 
-    it('should switch to Turkish when dropdown is changed', async () => {
+  describe('navigation', () => {
+    it('should navigate to register page when register link is clicked', async () => {
       render(<App />);
       
       await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
+        expect(screen.getByText(/register/i)).toBeInTheDocument();
       });
 
-      const select = screen.getByRole('combobox');
-      fireEvent.change(select, { target: { value: 'tr' } });
+      const registerLink = screen.getByRole('link', { name: /register/i });
+      fireEvent.click(registerLink);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Kontrol Paneli');
-      });
-    });
-
-    it('should display interpolated values correctly', async () => {
-      render(<App />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Welcome, User!')).toBeInTheDocument();
-      });
-    });
-
-    it('should persist language selection', async () => {
-      render(<App />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-      });
-
-      const turkishButton = screen.getByRole('button', { name: /türkçe/i });
-      fireEvent.click(turkishButton);
-
-      await waitFor(() => {
-        expect(localStorage.getItem('i18nextLng')).toBe('tr');
+        expect(screen.getByText('Create a new account')).toBeInTheDocument();
       });
     });
   });
 
   describe('loading state', () => {
     it('should show loading fallback initially', () => {
-      // Create a fresh i18n instance that hasn't loaded yet
-      // This is tricky to test with our current setup, 
-      // so we verify the Suspense fallback is in the component
       const { container } = render(<App />);
       
-      // The app should eventually render (Suspense resolved)
       waitFor(() => {
-        expect(container.querySelector('.app')).toBeInTheDocument();
+        expect(container.querySelector('.auth-container')).toBeInTheDocument();
       });
     });
   });

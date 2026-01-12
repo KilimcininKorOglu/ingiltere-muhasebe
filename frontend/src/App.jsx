@@ -1,15 +1,31 @@
 import { Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import HelpPanel from './components/help/HelpPanel';
-import useHelp from './hooks/useHelp';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import MainLayout from './components/layout/MainLayout';
 
-// Import i18n configuration (must be imported before using translations)
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import Dashboard from './pages/dashboard/Dashboard';
+import TransactionList from './pages/transactions/TransactionList';
+import TransactionForm from './pages/transactions/TransactionForm';
+import InvoiceList from './pages/invoices/InvoiceList';
+import InvoiceForm from './pages/invoices/InvoiceForm';
+import CustomerList from './pages/customers/CustomerList';
+import CustomerForm from './pages/customers/CustomerForm';
+import SupplierList from './pages/suppliers/SupplierList';
+import SupplierForm from './pages/suppliers/SupplierForm';
+import EmployeeList from './pages/employees/EmployeeList';
+import EmployeeForm from './pages/employees/EmployeeForm';
+import PayrollList from './pages/payroll/PayrollList';
+import PayrollForm from './pages/payroll/PayrollForm';
+import VatDashboard from './pages/vat/VatDashboard';
+import ReportsDashboard from './pages/reports/ReportsDashboard';
+import BankDashboard from './pages/bank/BankDashboard';
+import Settings from './pages/settings/Settings';
+
 import './i18n';
 
-/**
- * Loading fallback component for Suspense
- */
 const LoadingFallback = () => (
   <div className="loading-fallback">
     <div className="loading-spinner" aria-label="Loading...">
@@ -18,95 +34,65 @@ const LoadingFallback = () => (
   </div>
 );
 
-/**
- * Main App Content component
- * This is separated to ensure translations are loaded before rendering
- */
-const AppContent = () => {
-  const { t } = useTranslation();
-  const help = useHelp({ currentPage: 'dashboard' });
-
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>{t('dashboard.title')}</h1>
-        <nav className="app-nav">
-          <LanguageSwitcher variant="buttons" />
-          <button
-            type="button"
-            className="help-button"
-            onClick={help.openHelp}
-            aria-label={t('help:panel.title')}
-            title={t('help:panel.openShortcut')}
-          >
-            <svg 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <path d="M12 17h.01" />
-            </svg>
-          </button>
-        </nav>
-      </header>
-
-      <main className="app-main">
-        <section className="welcome-section">
-          <h2>{t('dashboard.welcome', { name: 'User' })}</h2>
-          <p>{t('settings.languageDescription')}</p>
-        </section>
-
-        <section className="demo-section">
-          <h3>{t('dashboard.recentTransactions')}</h3>
-          <ul>
-            <li>{t('dashboard.totalRevenue')}</li>
-            <li>{t('dashboard.totalExpenses')}</li>
-            <li>{t('dashboard.netProfit')}</li>
-          </ul>
-        </section>
-
-        <section className="actions-section">
-          <h3>{t('common.loading')}</h3>
-          <div className="button-group">
-            <button type="button">{t('common.save')}</button>
-            <button type="button">{t('common.cancel')}</button>
-            <button type="button">{t('common.delete')}</button>
-          </div>
-        </section>
-      </main>
-
-      <footer className="app-footer">
-        <LanguageSwitcher variant="dropdown" />
-      </footer>
-
-      <HelpPanel
-        isOpen={help.isOpen}
-        onClose={help.closeHelp}
-        activeTab={help.activeTab}
-        onTabChange={help.setActiveTab}
-        searchQuery={help.searchQuery}
-        searchResults={help.searchResults}
-        onSearch={help.search}
-        onClearSearch={help.clearSearch}
-        pageHelpContent={help.pageHelpContent}
-        quickTips={help.quickTips}
-      />
-    </div>
-  );
-};
-
-/**
- * App Component
- * Root component that wraps the application with Suspense for i18n loading
- */
 const App = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <AppContent />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            <Route path="/" element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              
+              <Route path="transactions" element={<TransactionList />} />
+              <Route path="transactions/new" element={<TransactionForm />} />
+              <Route path="transactions/:id/edit" element={<TransactionForm />} />
+              
+              <Route path="invoices" element={<InvoiceList />} />
+              <Route path="invoices/new" element={<InvoiceForm />} />
+              <Route path="invoices/:id" element={<InvoiceForm />} />
+              <Route path="invoices/:id/edit" element={<InvoiceForm />} />
+              
+              <Route path="customers" element={<CustomerList />} />
+              <Route path="customers/new" element={<CustomerForm />} />
+              <Route path="customers/:id/edit" element={<CustomerForm />} />
+              
+              <Route path="suppliers" element={<SupplierList />} />
+              <Route path="suppliers/new" element={<SupplierForm />} />
+              <Route path="suppliers/:id/edit" element={<SupplierForm />} />
+              
+              <Route path="employees" element={<EmployeeList />} />
+              <Route path="employees/new" element={<EmployeeForm />} />
+              <Route path="employees/:id/edit" element={<EmployeeForm />} />
+              
+              <Route path="payroll" element={<PayrollList />} />
+              <Route path="payroll/new" element={<PayrollForm />} />
+              <Route path="payroll/:id" element={<PayrollForm />} />
+              
+              <Route path="vat" element={<VatDashboard />} />
+              <Route path="vat/return/new" element={<VatDashboard />} />
+              <Route path="vat/returns" element={<VatDashboard />} />
+              
+              <Route path="reports" element={<ReportsDashboard />} />
+              
+              <Route path="bank" element={<BankDashboard />} />
+              <Route path="bank/accounts/new" element={<BankDashboard />} />
+              <Route path="bank/accounts/:id/transactions" element={<BankDashboard />} />
+              <Route path="bank/accounts/:id/reconcile" element={<BankDashboard />} />
+              
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </Suspense>
   );
 };

@@ -1,0 +1,120 @@
+.bank-summary {
+  margin-bottom: 2rem;
+}
+
+.bank-total-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.bank-total-card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 0.5rem;
+}
+
+.bank-total-card .balance {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.bank-total-card .balance.positive {
+  color: #4ade80;
+}
+
+.bank-total-card .balance.negative {
+  color: #f87171;
+}
+
+.bank-total-card span {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bank-accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.bank-account-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.account-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.account-type {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.account-type.current {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.account-type.savings {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.account-name {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 0.25rem;
+}
+
+.account-number {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  font-family: monospace;
+  margin: 0 0 1rem;
+}
+
+.account-balance {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.account-balance.positive {
+  color: #16a34a;
+}
+
+.account-balance.negative {
+  color: #dc2626;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.account-actions .btn {
+  flex: 1;
+  min-width: 80px;
+}

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * Validation message types
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const MESSAGE_TYPE = {
   ERROR: 'error',
   WARNING: 'warning',

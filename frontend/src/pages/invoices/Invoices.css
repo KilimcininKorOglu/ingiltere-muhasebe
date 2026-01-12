@@ -1,0 +1,95 @@
+.invoice-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.invoice-link:hover {
+  text-decoration: underline;
+}
+
+.btn-success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.btn-success:hover {
+  background: #bbf7d0;
+}
+
+.invoice-form-container {
+  max-width: 1000px;
+}
+
+.invoice-items-section {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.invoice-items-section h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.invoice-items-header {
+  display: grid;
+  grid-template-columns: 2fr 80px 100px 80px 100px 40px;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.invoice-item-row {
+  display: grid;
+  grid-template-columns: 2fr 80px 100px 80px 100px 40px;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.invoice-item-row input,
+.invoice-item-row select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.item-total {
+  font-weight: 600;
+  color: #1e293b;
+  text-align: right;
+}
+
+.invoice-totals {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-radius: 8px;
+  max-width: 300px;
+  margin-left: auto;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.total-row.grand-total {
+  border-top: 2px solid #e2e8f0;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #1e293b;
+}

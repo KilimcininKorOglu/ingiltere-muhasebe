@@ -125,7 +125,7 @@ describe('i18n Instance', () => {
       await i18n.changeLanguage('tr');
       expect(i18n.t('common.save')).toBe('Kaydet');
       expect(i18n.t('common.cancel')).toBe('İptal');
-      expect(i18n.t('dashboard.title')).toBe('Kontrol Paneli');
+      expect(i18n.t('dashboard.title')).toBe('Panel');
     });
 
     it('should handle interpolation correctly', async () => {

@@ -20,7 +20,7 @@ const ReviewTransactions = ({ data, updateData }) => {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editVatRate, setEditVatRate] = useState('');
 
-  const transactions = data.transactions || [];
+  const transactions = useMemo(() => data.transactions || [], [data.transactions]);
 
   const vatRateOptions = [
     { value: 20, label: '20% (Standard)' },
