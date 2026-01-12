@@ -189,7 +189,7 @@ const TransactionList = () => {
               <tbody>
                 {transactions.map((tx) => (
                   <tr key={tx.id}>
-                    <td>{formatDate(tx.date)}</td>
+                    <td>{formatDate(tx.transactionDate || tx.date)}</td>
                     <td>{tx.description}</td>
                     <td>{tx.category?.name || tx.category?.nameEn || '-'}</td>
                     <td>

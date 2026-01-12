@@ -16,6 +16,7 @@ const EmployeeForm = () => {
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
+    employeeNumber: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -80,22 +81,20 @@ const EmployeeForm = () => {
 
     try {
       const payload = {
+        employeeNumber: formData.employeeNumber,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email || null,
         phone: formData.phone || null,
-        niNumber: formData.niNumber,
+        niNumber: formData.niNumber || null,
         taxCode: formData.taxCode,
         startDate: formData.startDate,
-        salary: parseFloat(formData.salary),
+        annualSalary: Math.round(parseFloat(formData.salary) * 100),
         payFrequency: formData.payFrequency,
         status: formData.status,
-        address: {
-          line1: formData.addressLine1,
-          line2: formData.addressLine2 || null,
-          city: formData.city,
-          postcode: formData.postcode,
-        },
+        address: formData.addressLine1 || null,
+        city: formData.city || null,
+        postcode: formData.postcode || null,
       };
 
       if (isEdit) {
@@ -130,6 +129,20 @@ const EmployeeForm = () => {
       <div className="form-container">
         <form onSubmit={handleSubmit} className="form">
           {error && <div className="form-error">{error}</div>}
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>{t('employees.employeeNumber')} *</label>
+              <input
+                type="text"
+                name="employeeNumber"
+                value={formData.employeeNumber}
+                onChange={handleChange}
+                placeholder="EMP001"
+                required
+              />
+            </div>
+          </div>
 
           <div className="form-row">
             <div className="form-group">

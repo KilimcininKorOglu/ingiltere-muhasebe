@@ -40,7 +40,8 @@ const InvoiceForm = () => {
     setLoading(true);
     try {
       const custRes = await customerService.getAll().catch(() => ({ data: { data: [] } }));
-      setCustomers(custRes.data?.data || custRes.data || []);
+      const custData = custRes.data?.data?.customers || custRes.data?.data || custRes.data;
+      setCustomers(Array.isArray(custData) ? custData : []);
 
       if (isEdit) {
         const invRes = await invoiceService.getById(id);

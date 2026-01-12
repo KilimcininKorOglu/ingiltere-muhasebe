@@ -27,7 +27,7 @@ const SupplierForm = () => {
     county: '',
     postcode: '',
     country: 'United Kingdom',
-    paymentTerms: '30',
+    paymentTerms: 'net30',
     notes: '',
   });
 
@@ -80,18 +80,14 @@ const SupplierForm = () => {
       const payload = {
         name: formData.name,
         email: formData.email || null,
-        phone: formData.phone || null,
+        phoneNumber: formData.phone || null,
         vatNumber: formData.vatNumber || null,
         companyNumber: formData.companyNumber || null,
-        paymentTerms: parseInt(formData.paymentTerms),
-        address: {
-          line1: formData.addressLine1,
-          line2: formData.addressLine2 || null,
-          city: formData.city,
-          county: formData.county || null,
-          postcode: formData.postcode,
-          country: formData.country,
-        },
+        paymentTerms: formData.paymentTerms,
+        address: formData.addressLine1 ? `${formData.addressLine1}${formData.addressLine2 ? ', ' + formData.addressLine2 : ''}` : null,
+        city: formData.city || null,
+        postcode: formData.postcode || null,
+        country: formData.country || 'United Kingdom',
         notes: formData.notes || null,
       };
 
@@ -180,11 +176,12 @@ const SupplierForm = () => {
                 value={formData.paymentTerms}
                 onChange={handleChange}
               >
-                <option value="7">7 {t('common.days')}</option>
-                <option value="14">14 {t('common.days')}</option>
-                <option value="30">30 {t('common.days')}</option>
-                <option value="60">60 {t('common.days')}</option>
-                <option value="90">90 {t('common.days')}</option>
+                <option value="immediate">Immediate</option>
+                <option value="net7">7 {t('common.days')}</option>
+                <option value="net14">14 {t('common.days')}</option>
+                <option value="net30">30 {t('common.days')}</option>
+                <option value="net60">60 {t('common.days')}</option>
+                <option value="net90">90 {t('common.days')}</option>
               </select>
             </div>
           </div>
