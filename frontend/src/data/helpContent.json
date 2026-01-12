@@ -1,0 +1,289 @@
+{
+  "pages": {
+    "dashboard": {
+      "id": "dashboard",
+      "sections": [
+        {
+          "id": "overview",
+          "titleKey": "help:pageHelp.dashboard.overview.title",
+          "contentKey": "help:pageHelp.dashboard.overview.content"
+        },
+        {
+          "id": "metrics",
+          "titleKey": "help:pageHelp.dashboard.metrics.title",
+          "contentKey": "help:pageHelp.dashboard.metrics.content"
+        },
+        {
+          "id": "transactions",
+          "titleKey": "help:pageHelp.dashboard.transactions.title",
+          "contentKey": "help:pageHelp.dashboard.transactions.content"
+        }
+      ]
+    },
+    "invoices": {
+      "id": "invoices",
+      "sections": [
+        {
+          "id": "overview",
+          "titleKey": "help:pageHelp.invoices.overview.title",
+          "contentKey": "help:pageHelp.invoices.overview.content"
+        },
+        {
+          "id": "creating",
+          "titleKey": "help:pageHelp.invoices.creating.title",
+          "contentKey": "help:pageHelp.invoices.creating.content"
+        },
+        {
+          "id": "status",
+          "titleKey": "help:pageHelp.invoices.status.title",
+          "contentKey": "help:pageHelp.invoices.status.content"
+        }
+      ]
+    },
+    "expenses": {
+      "id": "expenses",
+      "sections": [
+        {
+          "id": "overview",
+          "titleKey": "help:pageHelp.expenses.overview.title",
+          "contentKey": "help:pageHelp.expenses.overview.content"
+        },
+        {
+          "id": "categories",
+          "titleKey": "help:pageHelp.expenses.categories.title",
+          "contentKey": "help:pageHelp.expenses.categories.content"
+        },
+        {
+          "id": "receipts",
+          "titleKey": "help:pageHelp.expenses.receipts.title",
+          "contentKey": "help:pageHelp.expenses.receipts.content"
+        }
+      ]
+    },
+    "settings": {
+      "id": "settings",
+      "sections": [
+        {
+          "id": "overview",
+          "titleKey": "help:pageHelp.settings.overview.title",
+          "contentKey": "help:pageHelp.settings.overview.content"
+        },
+        {
+          "id": "language",
+          "titleKey": "help:pageHelp.settings.language.title",
+          "contentKey": "help:pageHelp.settings.language.content"
+        },
+        {
+          "id": "security",
+          "titleKey": "help:pageHelp.settings.security.title",
+          "contentKey": "help:pageHelp.settings.security.content"
+        }
+      ]
+    },
+    "learn": {
+      "id": "learn",
+      "sections": [
+        {
+          "id": "overview",
+          "titleKey": "help:pageHelp.learn.overview.title",
+          "contentKey": "help:pageHelp.learn.overview.content"
+        },
+        {
+          "id": "articles",
+          "titleKey": "help:pageHelp.learn.articles.title",
+          "contentKey": "help:pageHelp.learn.articles.content"
+        }
+      ]
+    }
+  },
+  "quickTips": [
+    {
+      "id": "keyboard-shortcuts",
+      "titleKey": "help:quickTips.keyboardShortcuts.title",
+      "contentKey": "help:quickTips.keyboardShortcuts.content",
+      "icon": "keyboard"
+    },
+    {
+      "id": "language-switch",
+      "titleKey": "help:quickTips.languageSwitch.title",
+      "contentKey": "help:quickTips.languageSwitch.content",
+      "icon": "language"
+    },
+    {
+      "id": "tax-deadlines",
+      "titleKey": "help:quickTips.taxDeadlines.title",
+      "contentKey": "help:quickTips.taxDeadlines.content",
+      "icon": "calendar"
+    },
+    {
+      "id": "export-data",
+      "titleKey": "help:quickTips.exportData.title",
+      "contentKey": "help:quickTips.exportData.content",
+      "icon": "download"
+    }
+  ],
+  "searchableContent": [
+    {
+      "id": "dashboard-overview",
+      "type": "page",
+      "page": "dashboard",
+      "titleKey": "help:pageHelp.dashboard.overview.title",
+      "contentKey": "help:pageHelp.dashboard.overview.content",
+      "keywords": ["dashboard", "overview", "summary", "finances", "home"]
+    },
+    {
+      "id": "dashboard-metrics",
+      "type": "page",
+      "page": "dashboard",
+      "titleKey": "help:pageHelp.dashboard.metrics.title",
+      "contentKey": "help:pageHelp.dashboard.metrics.content",
+      "keywords": ["metrics", "revenue", "expenses", "profit", "financial"]
+    },
+    {
+      "id": "dashboard-transactions",
+      "type": "page",
+      "page": "dashboard",
+      "titleKey": "help:pageHelp.dashboard.transactions.title",
+      "contentKey": "help:pageHelp.dashboard.transactions.content",
+      "keywords": ["transactions", "payments", "recent", "history"]
+    },
+    {
+      "id": "invoices-overview",
+      "type": "page",
+      "page": "invoices",
+      "titleKey": "help:pageHelp.invoices.overview.title",
+      "contentKey": "help:pageHelp.invoices.overview.content",
+      "keywords": ["invoices", "bills", "billing", "clients"]
+    },
+    {
+      "id": "invoices-creating",
+      "type": "page",
+      "page": "invoices",
+      "titleKey": "help:pageHelp.invoices.creating.title",
+      "contentKey": "help:pageHelp.invoices.creating.content",
+      "keywords": ["create", "new", "invoice", "bill", "send"]
+    },
+    {
+      "id": "invoices-status",
+      "type": "page",
+      "page": "invoices",
+      "titleKey": "help:pageHelp.invoices.status.title",
+      "contentKey": "help:pageHelp.invoices.status.content",
+      "keywords": ["status", "paid", "pending", "overdue", "draft"]
+    },
+    {
+      "id": "expenses-overview",
+      "type": "page",
+      "page": "expenses",
+      "titleKey": "help:pageHelp.expenses.overview.title",
+      "contentKey": "help:pageHelp.expenses.overview.content",
+      "keywords": ["expenses", "spending", "costs", "track"]
+    },
+    {
+      "id": "expenses-categories",
+      "type": "page",
+      "page": "expenses",
+      "titleKey": "help:pageHelp.expenses.categories.title",
+      "contentKey": "help:pageHelp.expenses.categories.content",
+      "keywords": ["categories", "organize", "deductions", "tax"]
+    },
+    {
+      "id": "expenses-receipts",
+      "type": "page",
+      "page": "expenses",
+      "titleKey": "help:pageHelp.expenses.receipts.title",
+      "contentKey": "help:pageHelp.expenses.receipts.content",
+      "keywords": ["receipts", "upload", "scan", "documents", "HMRC"]
+    },
+    {
+      "id": "keyboard-shortcuts",
+      "type": "tip",
+      "titleKey": "help:quickTips.keyboardShortcuts.title",
+      "contentKey": "help:quickTips.keyboardShortcuts.content",
+      "keywords": ["keyboard", "shortcuts", "F1", "help", "navigate"]
+    },
+    {
+      "id": "language-switch",
+      "type": "tip",
+      "titleKey": "help:quickTips.languageSwitch.title",
+      "contentKey": "help:quickTips.languageSwitch.content",
+      "keywords": ["language", "English", "Turkish", "switch", "translate"]
+    },
+    {
+      "id": "tax-deadlines",
+      "type": "tip",
+      "titleKey": "help:quickTips.taxDeadlines.title",
+      "contentKey": "help:quickTips.taxDeadlines.content",
+      "keywords": ["deadlines", "HMRC", "VAT", "self assessment", "corporation tax"]
+    },
+    {
+      "id": "export-data",
+      "type": "tip",
+      "titleKey": "help:quickTips.exportData.title",
+      "contentKey": "help:quickTips.exportData.content",
+      "keywords": ["export", "download", "CSV", "PDF", "reports"]
+    }
+  ],
+  "articles": [
+    {
+      "id": "vat-explained",
+      "slug": "vat-explained",
+      "titleKey": "articles:vatExplained.title",
+      "summaryKey": "articles:vatExplained.summary",
+      "category": "tax",
+      "icon": "📊",
+      "readTime": 8,
+      "keywords": ["VAT", "value added tax", "20%", "registration", "threshold"]
+    },
+    {
+      "id": "corporation-tax",
+      "slug": "corporation-tax",
+      "titleKey": "articles:corporationTax.title",
+      "summaryKey": "articles:corporationTax.summary",
+      "category": "tax",
+      "icon": "🏢",
+      "readTime": 10,
+      "keywords": ["corporation tax", "limited company", "25%", "CT600", "profits"]
+    },
+    {
+      "id": "self-assessment",
+      "slug": "self-assessment",
+      "titleKey": "articles:selfAssessment.title",
+      "summaryKey": "articles:selfAssessment.summary",
+      "category": "tax",
+      "icon": "📝",
+      "readTime": 12,
+      "keywords": ["self assessment", "sole trader", "tax return", "31 January"]
+    },
+    {
+      "id": "paye",
+      "slug": "paye",
+      "titleKey": "articles:paye.title",
+      "summaryKey": "articles:paye.summary",
+      "category": "tax",
+      "icon": "👥",
+      "readTime": 10,
+      "keywords": ["PAYE", "employer", "national insurance", "payroll", "wages"]
+    },
+    {
+      "id": "expenses",
+      "slug": "expenses",
+      "titleKey": "articles:expenses.title",
+      "summaryKey": "articles:expenses.summary",
+      "category": "accounting",
+      "icon": "🧾",
+      "readTime": 8,
+      "keywords": ["expenses", "deductions", "allowable", "business costs"]
+    },
+    {
+      "id": "tax-calendar",
+      "slug": "tax-calendar",
+      "titleKey": "articles:taxCalendar.title",
+      "summaryKey": "articles:taxCalendar.summary",
+      "category": "planning",
+      "icon": "📅",
+      "readTime": 6,
+      "keywords": ["calendar", "deadlines", "dates", "tax year", "quarterly"]
+    }
+  ]
+}

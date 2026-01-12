@@ -1,0 +1,95 @@
+{
+  "id": "tax-calendar",
+  "slug": "tax-calendar",
+  "category": "planning",
+  "icon": "📅",
+  "readTime": 6,
+  "lastUpdated": "2025-01-01",
+  "sections": [
+    {
+      "id": "intro",
+      "type": "intro"
+    },
+    {
+      "id": "tax-year",
+      "type": "content"
+    },
+    {
+      "id": "tax-year-highlight",
+      "type": "highlight"
+    },
+    {
+      "id": "key-dates-overview",
+      "type": "content"
+    },
+    {
+      "id": "april",
+      "type": "month"
+    },
+    {
+      "id": "may",
+      "type": "month"
+    },
+    {
+      "id": "july",
+      "type": "month"
+    },
+    {
+      "id": "october",
+      "type": "month"
+    },
+    {
+      "id": "january",
+      "type": "month"
+    },
+    {
+      "id": "vat-dates",
+      "type": "content"
+    },
+    {
+      "id": "vat-quarters",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "corporation-tax-dates",
+      "type": "content"
+    },
+    {
+      "id": "paye-dates",
+      "type": "content"
+    },
+    {
+      "id": "monthly-deadlines",
+      "type": "content",
+      "hasTable": true
+    },
+    {
+      "id": "penalties",
+      "type": "list"
+    },
+    {
+      "id": "planning-tips",
+      "type": "list"
+    },
+    {
+      "id": "summary",
+      "type": "summary"
+    }
+  ],
+  "relatedArticles": ["vat-explained", "self-assessment", "corporation-tax", "paye"],
+  "externalLinks": [
+    {
+      "titleKey": "articles:taxCalendar.links.hmrcDeadlines",
+      "url": "https://www.gov.uk/self-assessment-tax-returns/deadlines"
+    },
+    {
+      "titleKey": "articles:taxCalendar.links.vatDeadlines",
+      "url": "https://www.gov.uk/vat-returns/deadlines"
+    },
+    {
+      "titleKey": "articles:taxCalendar.links.payeDeadlines",
+      "url": "https://www.gov.uk/running-payroll/reporting-to-hmrc"
+    }
+  ]
+}

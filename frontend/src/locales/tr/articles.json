@@ -1,0 +1,647 @@
+{
+  "pageTitle": "İngiltere Vergileri Hakkında Bilgi Edinin",
+  "pageDescription": "İngiltere vergi sistemini anlamanıza yardımcı olacak kapsamlı rehberler. İngiltere'ye yeni geldiyseniz veya bir iş kuruyorsanız, bu makaleler bilmeniz gereken her şeyi açıklar.",
+  "welcomeMessage": "İngiltere vergilerine yeni misiniz? Sistemin nasıl çalıştığını anlamak için makalelerimizle başlayın. Her makale gerçekçi İngiltere rakamlarını kullanan pratik örnekler içerir.",
+  "backToArticles": "Makalelere Dön",
+  "articleNotFound": "Makale bulunamadı.",
+  "exampleLabel": "Örnek",
+  "summaryTitle": "Özet",
+  "usefulLinks": "Faydalı Bağlantılar",
+  "relatedArticles": "İlgili Makaleler",
+  "disclaimer": "Bu içerik yalnızca bilgilendirme amaçlıdır ve profesyonel vergi danışmanlığı niteliği taşımaz. Vergi kuralları düzenli olarak değişir. Güncel oranları ve eşikleri HMRC veya nitelikli bir muhasebeci ile her zaman doğrulayın.",
+  "lastUpdated": "Son güncelleme: {{date}}",
+  "readTime": "{{minutes}} dk okuma",
+  "articleCount": "{{count}} makale",
+  "articleCount_other": "{{count}} makale",
+  "noArticles": "Bu kategoride makale bulunamadı.",
+  "filters": {
+    "ariaLabel": "Makaleleri kategoriye göre filtrele"
+  },
+  "categories": {
+    "all": "Tüm Konular",
+    "tax": "Vergiler",
+    "accounting": "Muhasebe",
+    "planning": "Planlama"
+  },
+  "vatExplained": {
+    "title": "İngiltere'de KDV'yi Anlamak",
+    "summary": "Katma Değer Vergisi'nin nasıl çalıştığını, ne zaman kayıt yaptırmanız gerektiğini ve HMRC'ye KDV beyannamelerini nasıl sunacağınızı öğrenin.",
+    "sections": {
+      "intro": {
+        "content": "Katma Değer Vergisi (KDV), İngiltere işletmeleri için en önemli vergilerden biridir. Bu kapsamlı rehber, kayıttan beyanname sunumuna kadar KDV hakkında bilmeniz gereken her şeyi açıklar."
+      },
+      "what-is-vat": {
+        "title": "KDV Nedir?",
+        "content": "KDV, İngiltere'de satılan çoğu mal ve hizmete eklenen bir tüketim vergisidir. Tedarik zincirinin her aşamasında alınır ancak sonuçta nihai tüketici tarafından ödenir. Bir işletme olarak, müşterilerinizden KDV toplar ve işletme alımlarında ödediğiniz KDV'yi düşerek HMRC'ye ödersiniz."
+      },
+      "vat-rates": {
+        "title": "KDV Oranları",
+        "content": "İngiltere'de üç KDV oranı vardır. Çoğu mal ve hizmet standart oranda ücretlendirilir. Çocuk giyimi, gıda ve kitaplar gibi bazı kalemler indirimli veya sıfır orana hak kazanır.",
+        "table": {
+          "headers": ["Oran", "Yüzde", "Uygulandığı Alanlar"],
+          "rows": [
+            ["Standart Oran", "%20", "Çoğu mal ve hizmet"],
+            ["İndirimli Oran", "%5", "Ev enerjisi, çocuk araba koltukları, hijyen ürünleri"],
+            ["Sıfır Oran", "%0", "Gıda (çoğu), çocuk giyimi, kitaplar, gazeteler"]
+          ]
+        }
+      },
+      "registration": {
+        "title": "KDV'ye Ne Zaman Kayıt Olunur",
+        "content": "Vergiye tabi cironuz KDV eşiğini aşarsa KDV'ye kayıt olmanız gerekir. Cironuz eşiğin altındaysa da gönüllü olarak kayıt yaptırabilirsiniz; bu, KDV'ye kayıtlı işletmelere satış yapıyorsanız faydalı olabilir."
+      },
+      "threshold": {
+        "title": "KDV Kayıt Eşiği",
+        "content": "Mevcut KDV kayıt eşiği £90.000'dir. Son 12 ayda vergiye tabi cironuz bu tutarı aşarsa veya önümüzdeki 30 gün içinde aşmasını bekliyorsanız, 30 gün içinde KDV'ye kayıt olmanız gerekir."
+      },
+      "charging-vat": {
+        "title": "Müşterilere KDV Uygulamak",
+        "content": "Kayıt olduktan sonra, tüm vergiye tabi mal ve hizmetlere uygun oranda KDV uygulamanız gerekir. KDV, faturalarınızda ayrı olarak gösterilmelidir. Örneğin, %20 KDV ile £100'e bir ürün satarsanız, müşteri £120 öder (£100 + £20 KDV)."
+      },
+      "vat-returns": {
+        "title": "KDV Beyannameleri",
+        "content": "Çoğu işletme üç ayda bir KDV beyannamesi sunar. Her beyannamede, uyguladığınız KDV'yi (çıkış KDV'si) ve alımlarda ödediğiniz KDV'yi (giriş KDV'si) bildirirsiniz. Ya HMRC'ye farkı ödersiniz ya da giriş KDV'niz çıkış KDV'sini aşarsa iade alırsınız."
+      },
+      "quarterly-example": {
+        "title": "Üç Aylık KDV Hesaplama",
+        "content": "Sarah bir danışmanlık işletmesi yönetiyor. Birinci çeyrekte, müşterilere £30.000 artı £6.000 KDV fatura kesti. İşletme giderleri için £2.000 KDV ödedi. KDV beyannamesi gösteriyor: Çıkış KDV'si (£6.000) eksi Giriş KDV'si (£2.000) = HMRC'ye ödenecek £4.000."
+      },
+      "reclaiming": {
+        "title": "Alımlarda KDV'yi Geri Almak",
+        "content": "İşletmeniz için kullanılan mal ve hizmetlerde KDV'yi geri alabilirsiniz. Tüm KDV makbuzlarını ve faturalarını kanıt olarak saklayın. Yaygın geri alınabilir kalemler arasında ofis malzemeleri, profesyonel hizmetler ve iş ekipmanları bulunur. Kişisel alımlarda veya eğlence harcamalarında KDV'yi geri alamazsınız."
+      },
+      "making-tax-digital": {
+        "title": "KDV için Dijital Vergi",
+        "content": "Tüm KDV'ye kayıtlı işletmeler, dijital kayıtlar tutmak ve KDV beyannameleri sunmak için Making Tax Digital (MTD) uyumlu yazılım kullanmalıdır. Bu, artık KDV beyannamelerini doğrudan HMRC web sitesi üzerinden sunamayacağınız anlamına gelir—onaylı muhasebe yazılımı kullanmanız gerekir."
+      },
+      "common-mistakes": {
+        "title": "Kaçınılması Gereken Yaygın KDV Hataları",
+        "content": "Cezalara yol açabilecek bu sık yapılan hatalara dikkat edin:",
+        "items": [
+          "Ciro eşiği aştığında kayıt son tarihini kaçırmak",
+          "İş dışı harcamalarda veya eğlencede KDV talep etmek",
+          "Tüm vergiye tabi satışlarda KDV uygulamayı unutmak",
+          "En az 6 yıl boyunca uygun KDV kayıtları tutmamak",
+          "KDV beyannamelerini geç sunmak veya geç ödemek"
+        ]
+      },
+      "summary": {
+        "content": "KDV, İngiltere işletmeleri için önemli bir vergidir. Cironuz £90.000'i aştığında kayıt olun, çoğu satışta %20 uygulayın, üç aylık beyanname sunun ve MTD uyumlu yazılım kullanın. Nakit akışınızı etkili bir şekilde yönetmek için doğru kayıtlar tutun ve meşru işletme giderlerinde KDV'yi geri alın."
+      }
+    },
+    "links": {
+      "hmrcVat": "HMRC KDV Kayıt Rehberi",
+      "vatRates": "KDV Oranlarını Kontrol Edin",
+      "mtd": "KDV için Dijital Vergi"
+    }
+  },
+  "corporationTax": {
+    "title": "Limited Şirketler için Kurumlar Vergisi",
+    "summary": "Oranlar, son tarihler ve vergi faturanızı nasıl hesaplayacağınız dahil olmak üzere limited şirket yöneticilerinin Kurumlar Vergisi hakkında bilmesi gereken her şey.",
+    "sections": {
+      "intro": {
+        "content": "Kurumlar Vergisi, İngiltere limited şirketlerinin karları üzerinden ödediği vergidir. Nasıl çalıştığını anlamak, her şirket yöneticisi için önemlidir. Bu rehber, oranlardan dosyalama gereksinimlerine kadar her şeyi kapsar."
+      },
+      "what-is-ct": {
+        "title": "Kurumlar Vergisi Nedir?",
+        "content": "Kurumlar Vergisi, İngiltere limited şirketlerinin ve bazı kuruluşların karları üzerinden alınan bir vergidir. Bireylerin ödediği gelir vergisinden farklı olarak, Kurumlar Vergisi şirkete ayrı bir tüzel kişilik olarak uygulanır. Karlar hem ticari karları hem de sermaye kazançlarını içerir."
+      },
+      "who-pays": {
+        "title": "Kurumlar Vergisini Kim Öder?",
+        "content": "Tüm İngiltere limited şirketleri, dünya çapındaki karları üzerinden Kurumlar Vergisi ödemek zorundadır. Bu, özel limited şirketleri (Ltd), halka açık limited şirketleri (PLC) ve İngiltere şubesi veya ofisi olan yabancı şirketleri içerir. Şahıs şirketleri ve ortaklıklar Kurumlar Vergisi ödemez—bunun yerine Gelir Vergisi öderler."
+      },
+      "rates": {
+        "title": "Kurumlar Vergisi Oranları (2024/25)",
+        "content": "Kurumlar Vergisi oranları şirketinizin kar seviyesine bağlıdır. £50.000'e kadar karı olan küçük şirketler daha düşük oran öderken, daha büyük şirketler ana oranı öder.",
+        "table": {
+          "headers": ["Kar Seviyesi", "Oran", "Notlar"],
+          "rows": [
+            ["£50.000'e kadar", "%19", "Küçük kar oranı"],
+            ["£50.001 - £250.000", "%19-25", "Marjinal İndirim uygulanır"],
+            ["£250.000 üzeri", "%25", "Ana oran"]
+          ]
+        }
+      },
+      "marginal-relief": {
+        "title": "Marjinal İndirim",
+        "content": "Karlarınız £50.000 ile £250.000 arasındaysa, vergi faturanızı azaltmak için Marjinal İndirim talep edebilirsiniz. Bu, ani bir sıçrama yerine %19'dan %25'e kademeli bir artış sağlar. HMRC'nin çevrimiçi hesaplayıcısı kesin tutarı hesaplamanıza yardımcı olabilir."
+      },
+      "calculating": {
+        "title": "Kurumlar Vergisini Hesaplama",
+        "content": "Kurumlar Vergisini hesaplamak için toplam gelirinizle başlayın, ardından vergilendirilebilir karınızı bulmak için izin verilen işletme giderlerini düşün. Bu kar rakamına uygun oranı uygulayın."
+      },
+      "calculation-example": {
+        "title": "Hesaplama Örneği",
+        "content": "TechStart Ltd £200.000 gelire ve £160.000 izin verilen gidere sahip, bu da £40.000 vergilendirilebilir kar veriyor. %19 küçük kar oranıyla, ödenecek Kurumlar Vergisi £40.000 × %19 = £7.600."
+      },
+      "allowable-deductions": {
+        "title": "İzin Verilen İndirimler",
+        "content": "Kurumlar Vergisi faturanızı azaltmak için birçok gideri düşebilirsiniz:",
+        "items": [
+          "Personel maaşları, ücretler ve işveren Ulusal Sigortası",
+          "Tesis için kira, faturalar ve işletme vergileri",
+          "Ofis malzemeleri ve ekipman maliyetleri",
+          "Profesyonel ücretler (muhasebeci, avukat)",
+          "Pazarlama ve reklam maliyetleri",
+          "İş amaçlı seyahat ve iaşe",
+          "Çalışanlar için eğitim maliyetleri",
+          "İşletme kredilerinin faizi"
+        ]
+      },
+      "capital-allowances": {
+        "title": "Sermaye İndirimleri",
+        "content": "Makine, araç veya ekipman gibi varlıklar satın aldığınızda, tam maliyeti hemen düşemezsiniz. Bunun yerine, vergi indirimini zaman içinde yaymak için Sermaye İndirimleri talep edersiniz. Yıllık Yatırım İndirimi (AIA), nitelikli sermaye harcamasının satın alma yılında £1 milyona kadarını hemen düşmenize olanak tanır."
+      },
+      "filing-paying": {
+        "title": "Dosyalama ve Ödeme",
+        "content": "HMRC'ye Şirket Vergi Beyannamesi (CT600) sunmanız gerekir. Bu, Companies House'a sunulan yıllık hesaplarınızdan ayrıdır. Borçlu olunan vergiyi nasıl hesapladığınızı gösteren ayrıntılı hesaplar ve vergi hesaplaması eklemeniz gerekecektir."
+      },
+      "deadlines": {
+        "title": "Önemli Son Tarihler",
+        "content": "Ödeme, hesap döneminiz sona erdikten 9 ay ve 1 gün sonra yapılmalıdır. CT600 beyannameniz, hesap dönemi sonundan itibaren 12 ay içinde sunulmalıdır. 31 Mart'ta biten bir yıl için, 1 Ocak'a kadar ödeme yapın ve ertesi yılın 31 Mart'ına kadar dosyalayın."
+      },
+      "losses": {
+        "title": "Zararlarla Başa Çıkma",
+        "content": "Şirketiniz zarar ederse, gelecek yıllarda karları azaltmak için ileri taşıyabilir veya bazı durumlarda zaten ödenmiş vergilerin iadesi için geriye taşıyabilirsiniz. Ayrıca aynı dönemdeki diğer gelir kaynaklarına karşı zararları mahsup edebilirsiniz."
+      },
+      "common-mistakes": {
+        "title": "Yaygın Hatalar",
+        "content": "Cezalara veya fazla vergi ödemeye yol açabilecek bu hatalara karşı dikkatli olun:",
+        "items": [
+          "9 aylık ödeme son tarihini kaçırmak",
+          "CT600 dosyalama son tarihini Companies House hesaplarıyla karıştırmak",
+          "Tüm izin verilen giderleri talep etmemek",
+          "Sermaye İndirimlerini talep etmeyi unutmak",
+          "Giderler için yeterli kayıt tutmamak",
+          "Kişisel harcamaları işletme maliyetleriyle karıştırmak"
+        ]
+      },
+      "summary": {
+        "content": "Limited şirketler, kar seviyesine bağlı olarak %19 ile %25 arasında oranlarda karlar üzerinden Kurumlar Vergisi öder. Yıl sonundan itibaren 9 ay içinde ödeme yapın ve CT600'ünüzü 12 ay içinde sunun. Vergi faturanızı yasal olarak azaltmak için izin verilen giderler ve Sermaye İndirimleri yoluyla kesintileri maksimize edin."
+      }
+    },
+    "links": {
+      "hmrcCt": "HMRC Kurumlar Vergisi Rehberi",
+      "rates": "Kurumlar Vergisi Oranları",
+      "filing": "Şirket Vergi Beyannamenizi Sunun"
+    }
+  },
+  "selfAssessment": {
+    "title": "Şahıs Şirketleri için Beyanname",
+    "summary": "Kayıt, son tarihler ve vergi hesaplamaları dahil olmak üzere serbest çalışan bireyler için Self Assessment vergi beyannamelerine tam rehber.",
+    "sections": {
+      "intro": {
+        "content": "Serbest çalışıyorsanız, kira geliri alıyorsanız veya vergilendirilmemiş geliriniz varsa, Self Assessment vergi beyannamesi doldurmanız gerekecektir. Bu rehber, kayıttan dosyalamaya kadar her şeyde size yol gösterir."
+      },
+      "what-is-sa": {
+        "title": "Self Assessment Nedir?",
+        "content": "Self Assessment, HMRC'nin otomatik olarak kesilmeyen Gelir Vergisini (maaşlardan kesilen gibi) toplamak için kullandığı sistemdir. Kendi vergi faturanızı hesaplar, gelirinizi bildirir ve borçlu olunan vergiyi ödersiniz. Kendi vergi borcunuzu değerlendirmekten sorumlu olduğunuz için 'Self Assessment' (Öz Değerlendirme) olarak adlandırılır."
+      },
+      "who-needs": {
+        "title": "Kimin Dosyalaması Gerekir?",
+        "content": "Şu durumlarda Self Assessment beyannamesi sunmanız gerekir:",
+        "items": [
+          "Şahıs şirketi veya ortaklık olarak serbest çalışıyorsanız",
+          "PAYE dışında geliri olan şirket yöneticisiyseniz",
+          "£2.500 üzerinde kira geliriniz varsa",
+          "Herhangi bir kaynaktan £100.000 üzerinde kazanıyorsanız",
+          "£10.000 üzerinde tasarruf veya yatırım geliri varsa",
+          "Bildirilmesi gereken yabancı gelir alıyorsanız",
+          "Vergi indirimleri veya giderler talep etmeniz gerekiyorsa",
+          "Sermaye Kazancı Vergisi borcunuz varsa"
+        ]
+      },
+      "registering": {
+        "title": "Self Assessment'a Kayıt",
+        "content": "Ticaret yapmaya başladığınızda veya dosyalamanız gerektiğinin farkına varır varmaz HMRC'ye kayıt olun. gov.uk'da çevrimiçi kayıt olabilirsiniz. HMRC size 10 iş günü içinde beyannamenizi sunmak için ihtiyaç duyacağınız Benzersiz Vergi Mükellefi Referansı (UTR) numarası gönderecektir."
+      },
+      "tax-year": {
+        "title": "İngiltere Vergi Yılı",
+        "content": "İngiltere vergi yılı 6 Nisan'dan 5 Nisan'a kadar sürer. Self Assessment beyannameniz bu dönemi kapsar. Örneğin, 2024/25 vergi yılı 6 Nisan 2024'ten 5 Nisan 2025'e kadar sürer ve beyanname 31 Ocak 2026'ya kadar sunulmalıdır."
+      },
+      "income-types": {
+        "title": "Bildirilecek Gelir Türleri",
+        "content": "Self Assessment beyannamenizde tüm vergilendirilebilir geliri bildirin; serbest çalışma karları, kira geliri, temettüler, tasarruf faizi ve herhangi bir istihdam geliri dahil. Vergi zaten kesildiyse (PAYE istihdamından olduğu gibi), yine de bildirin—HMRC zaten ödenen vergiyi mahsup edecektir."
+      },
+      "tax-bands": {
+        "title": "Gelir Vergisi Oranları (2024/25)",
+        "content": "Gelir Vergisi bantlarda alınır. Herhangi bir vergi ödenmeden önce Kişisel Muafiyet alırsınız, ardından bunun üzerindeki gelir için artan oranlar ödersiniz.",
+        "table": {
+          "headers": ["Bant", "Vergilendirilebilir Gelir", "Vergi Oranı"],
+          "rows": [
+            ["Kişisel Muafiyet", "£12.570'e kadar", "%0"],
+            ["Temel Oran", "£12.571 - £50.270", "%20"],
+            ["Yüksek Oran", "£50.271 - £125.140", "%40"],
+            ["Ek Oran", "£125.140 üzeri", "%45"]
+          ]
+        }
+      },
+      "calculation-example": {
+        "title": "Vergi Hesaplama Örneği",
+        "content": "James, £45.000 net karı olan bir şahıs şirketi. Vergi hesaplaması: Kişisel Muafiyet (£12.570) vergiden muaf. Kalan £32.430, %20 oranında vergilendirilir = £6.486. Artı Sınıf 2 NI (£179,40) ve £12.570 üzerindeki karlarda %6 oranında Sınıf 4 NI (£1.945,80). Toplam vergi ve NI: yaklaşık £8.611."
+      },
+      "allowances": {
+        "title": "Muafiyetler ve İndirimler",
+        "content": "Çeşitli muafiyetler vergi faturanızı azaltabilir. Kişisel Muafiyetin ötesinde, emeklilik katkıları, Gift Aid aracılığıyla hayır amaçlı bağışlar ve belirli işletme giderleri için vergi indirimi talep edebilirsiniz. Yüksek kazananlar, £100.000 üzerinde kazanılan her £2 için £1 Kişisel Muafiyet kaybeder."
+      },
+      "national-insurance": {
+        "title": "Serbest Çalışanlar için Ulusal Sigorta",
+        "content": "Serbest çalışan kişiler iki tür Ulusal Sigorta öder: Sınıf 2 ve Sınıf 4. Bu katkılar Devlet Emekli Maaşı hakkınıza sayılır ve Self Assessment aracılığıyla toplanır."
+      },
+      "ni-rates": {
+        "title": "Serbest Çalışan NI Oranları (2024/25)",
+        "content": "Ulusal Sigorta karlarınıza göre hesaplanır:",
+        "table": {
+          "headers": ["Sınıf", "Oran", "Ne Zaman Uygulanır"],
+          "rows": [
+            ["Sınıf 2", "Haftada £3,45", "£6.725 üzerinde karlar"],
+            ["Sınıf 4", "%6", "£12.570 - £50.270 arası karlar"],
+            ["Sınıf 4", "%2", "£50.270 üzeri karlar"]
+          ]
+        }
+      },
+      "filing-process": {
+        "title": "Beyannamenizi Sunma",
+        "content": "Self Assessment beyannamenizi HMRC hesabınız aracılığıyla çevrimiçi olarak sunabilirsiniz. Tüm gelir ve giderlerin kayıtlarına, herhangi bir istihdamdan P60'lara, temettü fişlerine ve emeklilik katkı beyanlarına ihtiyacınız olacak. Çevrimiçi sistem verginizi otomatik olarak hesaplar."
+      },
+      "deadlines": {
+        "title": "Önemli Son Tarihler",
+        "content": "Çevrimiçi beyannameler için son tarih, vergi yılı sona erdikten sonraki 31 Ocak'tır. Ödeme de 31 Ocak'a kadar yapılmalıdır. Kağıt beyannameler için son tarih 31 Ekim'dir. Geç dosyalama otomatik £100 cezaya neden olur, daha uzun gecikmeler için ek cezalar uygulanır."
+      },
+      "payments-on-account": {
+        "title": "Hesapta Ödemeler",
+        "content": "Vergi faturanız £1.000'in üzerindeyse, HMRC gelecek yılın faturasına karşı avans ödemeler talep eder. Bu 'Hesapta Ödemeler', her biri önceki yılın vergi faturasının yarısıdır ve 31 Ocak ve 31 Temmuz'da ödenir."
+      },
+      "poa-example": {
+        "title": "Hesapta Ödemeler Örneği",
+        "content": "Emma'nın 2023/24 vergi faturası £8.000 idi. 2024/25 için şunları öder: Birinci hesap ödemesi (31 Ocak 2025): £4.000. İkinci hesap ödemesi (31 Temmuz 2025): £4.000. Gerçek 2024/25 faturası £9.000 ise, 31 Ocak 2026'da £1.000 bakiyeyi öder, artı her biri £4.500'lük yeni hesap ödemeleri."
+      },
+      "penalties": {
+        "title": "Geç Dosyalama ve Ödeme Cezaları",
+        "content": "HMRC geç dosyalama ve ödeme için ceza uygular:",
+        "items": [
+          "1 gün geç dosyalama: £100 ceza",
+          "3 ay geç: 90 güne kadar günlük ek £10 (maks £900)",
+          "6 ay geç: Ek £300 veya borçlu verinin %5'i (hangisi yüksekse)",
+          "12 ay geç: Ek £300 veya %5 (ciddi durumlarda %100'e kadar olabilir)",
+          "Geç ödeme: Faiz artı 30 gün, 6 ay ve 12 ayda %5 cezalar"
+        ]
+      },
+      "common-mistakes": {
+        "title": "Yaygın Hatalar",
+        "content": "Bu sık yapılan hatalardan kaçının:",
+        "items": [
+          "31 Ocak son tarihini kaçırmak",
+          "Tüm gelir kaynaklarını dahil etmeyi unutmak",
+          "Gider talepleri için makbuz saklamamak",
+          "Kişisel ve işletme giderlerini karıştırmak",
+          "Yıl boyunca vergi ödemeleri için para ayırmamak",
+          "Hesapta Ödemeleri unutmak"
+        ]
+      },
+      "summary": {
+        "content": "Self Assessment, serbest çalışan kişilerin gelir bildirdiği ve vergi ödediği sistemdir. Hemen kayıt olun, iyi kayıtlar tutun ve 31 Ocak'a kadar dosyalayın. Vergi ve Ulusal Sigorta için karların %25-30'unu ayırın. Faturanızı azaltmak için tüm mevcut muafiyetleri kullanın ve meşru işletme giderlerini talep edin."
+      }
+    },
+    "links": {
+      "hmrcSa": "HMRC Self Assessment Rehberi",
+      "register": "Self Assessment'a Kayıt Olun",
+      "taxRates": "Güncel Vergi Oranları ve Bantları"
+    }
+  },
+  "paye": {
+    "title": "PAYE ve İşveren Yükümlülükleri",
+    "summary": "Bordro, vergi kodları ve HMRC'ye raporlama dahil olmak üzere işverenlerin Pay As You Earn hakkında bilmesi gereken her şey.",
+    "sections": {
+      "intro": {
+        "content": "Pay As You Earn (PAYE), HMRC'nin çalışanlardan Gelir Vergisi ve Ulusal Sigorta toplamak için kullandığı sistemdir. Bir işveren olarak, PAYE'yi doğru şekilde işletmekten siz sorumlusunuz. Bu rehber yükümlülüklerinizi açıklar."
+      },
+      "what-is-paye": {
+        "title": "PAYE Nedir?",
+        "content": "PAYE, işverenlerin çalışanların maaşlarından Gelir Vergisi ve Ulusal Sigorta kesintisi yaparak onlara ödemeden önceki yöntemdir. Kesilen tutarlar daha sonra HMRC'ye ödenir. Bu, verginin kaynakta toplanmasını sağlar ve çalışanların daha sonra toplu ödeme yapmak zorunda kalmamasını sağlar."
+      },
+      "employer-responsibilities": {
+        "title": "İşveren Sorumlulukları",
+        "content": "Bir işveren olarak şunları yapmanız gerekir:",
+        "items": [
+          "İlk maaş gününden önce HMRC'ye işveren olarak kayıt olmak",
+          "Her çalışandan doğru Gelir Vergisi ve NI hesaplamak ve kesmek",
+          "İşveren Ulusal Sigorta katkılarını ödemek",
+          "Her maaş gününde veya öncesinde HMRC'ye bordro bilgilerini bildirmek",
+          "Çalışanlara tüm kesintileri gösteren bordro fişleri vermek",
+          "Her vergi yılı sonunda çalışanlara P60 vermek",
+          "Çalışanlar ayrıldığında P45 vermek",
+          "En az 3 yıl boyunca doğru bordro kayıtları tutmak"
+        ]
+      },
+      "registering": {
+        "title": "İşveren Olarak Kayıt",
+        "content": "İlk maaş gününden 4 hafta öncesine kadar HMRC'ye kayıt olun. gov.uk'da çevrimiçi kayıt olabilirsiniz. İşveren PAYE referans numarası ve HMRC'nin çevrimiçi hizmetleri için giriş bilgileri alacaksınız. Herhangi bir çalışana haftada £123 veya daha fazla ödüyorsanız kayıt olmanız gerekir."
+      },
+      "tax-codes": {
+        "title": "Vergi Kodlarını Anlamak",
+        "content": "Her çalışanın ne kadar vergisiz maaş hakkına sahip olduğunu söyleyen bir vergi kodu vardır. HMRC size her çalışan için vergi kodları gönderir. Vergi kodundaki rakamlar vergisiz gelir miktarını gösterir—yıllık Kişisel Muafiyeti almak için 10 ile çarpın."
+      },
+      "common-tax-codes": {
+        "title": "Yaygın Vergi Kodları",
+        "content": "Bu vergi kodlarıyla sık karşılaşacaksınız:",
+        "table": {
+          "headers": ["Vergi Kodu", "Anlamı", "Vergisiz Tutar"],
+          "rows": [
+            ["1257L", "Standart Kişisel Muafiyet", "Yılda £12.570"],
+            ["BR", "Tüm gelir Temel Oranda (%20) vergilendirilir", "£0"],
+            ["D0", "Tüm gelir Yüksek Oranda (%40) vergilendirilir", "£0"],
+            ["D1", "Tüm gelir Ek Oranda (%45) vergilendirilir", "£0"],
+            ["NT", "Vergi kesilmez", "Sınırsız"],
+            ["0T", "Vergisiz muafiyet yok", "£0"]
+          ]
+        }
+      },
+      "calculating-deductions": {
+        "title": "Vergi ve NI Hesaplama",
+        "content": "Kesintileri otomatik olarak hesaplamak için bordro yazılımı kullanın. Her ödeme döneminde, çalışanın vergi kodunu kullanarak vergisiz maaşını hesaplayın, kalan maaş üzerinden vergi hesaplayın ve kazançlara göre çalışan ve işveren Ulusal Sigortasını hesaplayın."
+      },
+      "payslip-example": {
+        "title": "Bordro Fişi Örneği",
+        "content": "Sarah aylık brüt £3.000 kazanıyor (vergi kodu 1257L). Aylık vergisiz muafiyet: £1.047,50. Vergilendirilebilir maaş: £1.952,50. %20 vergi: £390,50. Çalışan NI (£1.048 üzerindeki kazançlarda %8): £156,16. Net maaş: £2.453,34. İşveren ayrıca £266,78 NI öder (£758 üzerindeki kazançlarda %13,8)."
+      },
+      "national-insurance": {
+        "title": "Ulusal Sigorta Katkıları",
+        "content": "Hem çalışanlar hem de işverenler Ulusal Sigorta öder. Çalışanlar haftada £242 ile £967 arası kazançlarda %8, bunun üzerinde %2 öder. İşverenler haftada £175 üzerindeki tüm kazançlarda %13,8 öder. Bu eşikler yıllık olarak değişir."
+      },
+      "ni-categories": {
+        "title": "NI Kategori Harfleri",
+        "content": "Çalışanın durumuna göre farklı kategoriler uygulanır:",
+        "table": {
+          "headers": ["Kategori", "Çalışan Türü", "Notlar"],
+          "rows": [
+            ["A", "Standart çalışanlar", "En yaygın kategori"],
+            ["B", "Sertifikalı evli kadınlar/dullar", "İndirimli oran"],
+            ["C", "Devlet Emekli yaşı üstü çalışanlar", "Çalışan NI'sı yok"],
+            ["H", "25 yaş altı çıraklar", "Azaltılmış işveren NI'sı"],
+            ["M", "21 yaş altı çalışanlar", "Azaltılmış işveren NI'sı"]
+          ]
+        }
+      },
+      "rti": {
+        "title": "Gerçek Zamanlı Bilgi (RTI)",
+        "content": "HMRC, bordro bilgilerinin gerçek zamanlı olarak bildirilmesini gerektirir. Çalışanlara her ödeme yaptığınızda, bordro yazılımınız aracılığıyla HMRC'ye rapor gönderirsiniz. Bu, eski yıllık beyanname sisteminin yerini almıştır."
+      },
+      "fps-eps": {
+        "title": "FPS ve EPS Gönderimleri",
+        "content": "Her maaş gününde veya öncesinde, çalışanlara ne ödediğinizi ve ne kadar vergi/NI kesildiğini gösteren Tam Ödeme Gönderimi (FPS) sunun. İşveren Ödeme Özeti (EPS), geri alımları (yasal ödeme gibi) bildirmek veya bir vergi ayında ödeme yapmadıysanız kullanılır."
+      },
+      "payment-deadlines": {
+        "title": "HMRC'ye Ödeme",
+        "content": "Aylık ödeme: Takip eden ayın 22'sine kadar (posta ile ödeme yapılıyorsa 19'u). Üç aylık ödeme: Küçük işverenler için geçerli (ortalama aylık ödemeler £1.500'ün altında). Daha hızlı işleme ve cezalardan kaçınmak için elektronik ödeme yapın."
+      },
+      "year-end": {
+        "title": "Yıl Sonu Görevleri",
+        "content": "Vergi yılı sonunda (5 Nisan), son gönderim olarak işaretlenmiş son FPS'inizi gönderin. Her çalışana yıl boyunca toplam maaşlarını ve kesintilerini gösteren P60 verin. HMRC'den alınan yeni vergi kodlarını uygulayarak yeni vergi yılı için çalışan kayıtlarını güncelleyin."
+      },
+      "common-mistakes": {
+        "title": "Yaygın PAYE Hataları",
+        "content": "Bu sık yapılan bordro hatalarından kaçının:",
+        "items": [
+          "FPS raporlarını geç göndermek",
+          "Yanlış vergi kodları kullanmak",
+          "Ödeme son tarihini kaçırmak",
+          "Yıl ortası vergi kodu değişikliklerini güncellememek",
+          "Çalışanlar ayrıldığında P45 vermeyi unutmak",
+          "Gerekli süre boyunca kayıt tutmamak",
+          "PAYE'den kaçınmak için çalışanlara 'kayıt dışı' ödeme yapmak"
+        ]
+      },
+      "summary": {
+        "content": "PAYE işverenin sorumluluğundadır. İlk maaş gününden önce kayıt olun, çalışan vergi kodlarını kullanarak doğru vergi ve NI kesin ve RTI kullanarak her maaş gününde veya öncesinde HMRC'ye rapor edin. HMRC'ye aylık veya üç aylık ödeme yapın ve yıl sonu görevlerini zamanında tamamlayın. Uyumlu kalmak için güvenilir bordro yazılımı kullanın."
+      }
+    },
+    "links": {
+      "hmrcPaye": "HMRC İşverenler için PAYE",
+      "taxCodes": "Vergi Kodlarını Anlamak",
+      "niRates": "Ulusal Sigorta Oranları"
+    }
+  },
+  "expenses": {
+    "title": "İzin Verilen İşletme Giderleri",
+    "summary": "Vergi faturanızı azaltmak için talep edebileceğiniz işletme giderlerine rehber; izin verilen ne sayılır ve düzgün kayıt nasıl tutulur dahil.",
+    "sections": {
+      "intro": {
+        "content": "İzin verilen giderleri talep etmek vergilendirilebilir karınızı ve dolayısıyla vergi faturanızı azaltır. Ancak, neyi talep edebileceğiniz konusunda katı kurallar vardır. Bu rehber hangi giderlerin izin verildiğini ve bunları doğru şekilde nasıl talep edeceğinizi açıklar."
+      },
+      "what-are-allowable": {
+        "title": "İzin Verilen Giderler Nedir?",
+        "content": "İzin verilen giderler, 'tamamen ve yalnızca' iş amaçları için olan maliyetlerdir. Bir gider kısmen kişisel ve kısmen iş amaçlıysa, yalnızca iş kısmını talep edebilirsiniz. Giderin ayrıca işletmenizi yönetmek için gerekli olması gerekir."
+      },
+      "key-principle": {
+        "title": "Temel İlke",
+        "content": "HMRC'nin testi, giderin ticaret veya iş amaçları için 'tamamen ve yalnızca' yapılıp yapılmadığıdır. Net bir iş amacı gösteremiyorsanız, talep etmeyin. Şüphe duyduğunuzda, makbuzu yine de saklayın ve muhasebecinizle görüşün."
+      },
+      "common-expenses": {
+        "title": "Yaygın İzin Verilen Giderler",
+        "content": "Genellikle talep edebileceğiniz ana gider kategorileri şunlardır:",
+        "table": {
+          "headers": ["Kategori", "Örnekler", "Notlar"],
+          "rows": [
+            ["Ofis Maliyetleri", "Kira, faturalar, sigorta, işletme vergileri", "Karma kullanımda yalnızca iş kısmı"],
+            ["Personel Maliyetleri", "Maaşlar, işveren NI, emeklilik katkıları", "Alt yükleniciler dahil"],
+            ["Seyahat", "İş gezileri, yakıt, park, toplu taşıma", "Düzenli işyerine gidiş geliş değil"],
+            ["Profesyonel Ücretler", "Muhasebeci, avukat, danışmanlar", "İş amaçları için olmalı"],
+            ["Ekipman", "Bilgisayarlar, aletler, makineler", "Pahalı kalemler için sermaye indirimleri gerekebilir"],
+            ["Pazarlama", "Reklam, web sitesi maliyetleri, kartvizitler", "İşletmeyi tanıtmalı"]
+          ]
+        }
+      },
+      "office-costs": {
+        "title": "Ofis ve Tesis Maliyetleri",
+        "content": "İş tesisleri kiralıyorsanız, tam kira ve ilgili maliyetler (işletme vergileri, faturalar, sigorta) izin verilir. Ev ofisi için, kullanılan odalara ve çalışma süresine göre bir oran talep edebilirsiniz. Alternatif olarak, basitleştirilmiş giderler sabit oranını kullanın."
+      },
+      "travel": {
+        "title": "Seyahat ve İaşe",
+        "content": "İş seyahati izin verilir, ancak kalıcı bir işyerine düzenli gidiş gelişiniz izin verilmez. Geçici işyerlerine, müşteri toplantılarına ve iş etkinliklerine seyahat talep edebilirsiniz. İaşe (yemek), iş amaçları için normal üssünüzden uzaktayken izin verilir."
+      },
+      "mileage-rates": {
+        "title": "Onaylı Kilometre Oranları",
+        "content": "İş için kendi aracınızı kullanıyorsanız, şu vergiden muaf oranları talep edin:",
+        "table": {
+          "headers": ["Araç Tipi", "İlk 10.000 Mil", "Ek Mil"],
+          "rows": [
+            ["Arabalar ve kamyonetler", "Mil başına 45p", "Mil başına 25p"],
+            ["Motosikletler", "Mil başına 24p", "Mil başına 24p"],
+            ["Bisikletler", "Mil başına 20p", "Mil başına 20p"]
+          ]
+        }
+      },
+      "staff-costs": {
+        "title": "Personel ve Alt Yüklenici Maliyetleri",
+        "content": "Çalışan maaşları, ikramiyeler, işveren Ulusal Sigortası ve emeklilik katkıları hepsi izin verilir. Alt yüklenicilere ve serbest çalışanlara ödemeler de düşülebilir. Tüm ödemelerin kayıtlarını tutun ve çalışanlar için PAYE'yi doğru şekilde işlettiğinizden emin olun."
+      },
+      "working-from-home": {
+        "title": "Evden Çalışma",
+        "content": "Evden çalışıyorsanız, ev giderlerinin bir oranını talep edebilirsiniz. Bu, ipotek faizi veya kira (oran), faturalar, belediye vergisi (oran) ve ev sigortasını içerir. Kullanılan oda sayısına ve çalışılan saatlere göre hesaplayın."
+      },
+      "wfh-example": {
+        "title": "Evden Çalışma Örneği",
+        "content": "Tom, 6 odalı evinin bir odasını sadece iş için kullanıyor, haftada 40 saat çalışıyor. Yıllık ev giderleri £12.000. Maliyetlerin 1/6'sını (bir oda) × ilgili kullanım = yılda yaklaşık £2.000 talep edebilir. Alternatif olarak, evde ayda 25+ saat çalışmak için HMRC'nin basitleştirilmiş giderler oranı olan ayda £26'yı (yılda £312) kullanabilir."
+      },
+      "capital-vs-revenue": {
+        "title": "Sermaye vs Gelir Giderleri",
+        "content": "Gelir giderleri (günlük işletme maliyetleri) karlardan hemen düşülür. Sermaye giderleri (ekipman, araç, makine gibi varlıklar) vergi indirimini zaman içinde yayan Sermaye İndirimleri aracılığıyla talep edilmelidir. Yıllık Yatırım İndirimi, sermaye harcamasının £1 milyona kadarını hemen talep etmenize olanak tanır."
+      },
+      "not-allowable": {
+        "title": "İzin Verilmeyen Giderler",
+        "content": "Şunlar için talep edemezsiniz:",
+        "items": [
+          "Kişisel giderler veya karma giderlerin kişisel kısmı",
+          "Müşteriler veya tedarikçiler için eğlence",
+          "Ev ile düzenli işyeri arasında seyahat (gidiş geliş)",
+          "Koruyucu olmadıkça veya logonuzla üniforma olmadıkça giysi",
+          "Yasayı çiğnemek için cezalar (park cezaları, hız cezaları)",
+          "Bir iş satın almanın başlangıç maliyeti"
+        ]
+      },
+      "record-keeping": {
+        "title": "Kayıt Tutma",
+        "content": "Tüm işletme giderleri için makbuz ve faturalar saklayın. Tarih, tutar, tedarikçi ve iş amacını kaydedin. Giderleri kategoriye göre izlemek için muhasebe yazılımı veya elektronik tablo kullanın. Makbuzların dijital fotoğrafları HMRC amaçları için kabul edilir."
+      },
+      "hmrc-records": {
+        "title": "Kayıtlar Ne Kadar Süre Saklanmalı",
+        "content": "Tüm işletme kayıtlarını ilgili yıl için 31 Ocak vergi son tarihinden sonra en az 5 yıl saklayın. Limited Şirketler için, hesap dönemi sonundan itibaren 6 yıl kayıt saklayın. HMRC beyannameleri birkaç yıl sorgulayabilir, bu nedenle daha uzun süre daha güvenlidir."
+      },
+      "simplified-expenses": {
+        "title": "Basitleştirilmiş Giderler",
+        "content": "HMRC, şahıs şirketleri ve ortaklıklar için basitleştirilmiş giderler sunar. Gerçek maliyetleri hesaplamak yerine, araçlar, evden çalışma ve evde iş tesisleri için sabit oranlar kullanın. Bu daha kolaydır ancak gerçek maliyetlerden daha az indirim sağlayabilir."
+      },
+      "common-mistakes": {
+        "title": "Yaygın Gider Hataları",
+        "content": "Bu hatalardan kaçının:",
+        "items": [
+          "Kişisel giderleri işletme maliyeti olarak talep etmek",
+          "Gider talepleri için makbuz saklamamak",
+          "Tüm meşru giderleri talep etmeyi unutmak",
+          "Eğlence maliyetlerini talep etmek",
+          "Karma kullanım giderlerini doğru bölmemek",
+          "Uygun hesaplama yapmadan ev ofisi giderleri talep etmek"
+        ]
+      },
+      "summary": {
+        "content": "Tamamen ve yalnızca iş için olan tüm giderleri talep edin. En az 5 yıl makbuzlarla uygun kayıtlar tutun. Daha kolaysa basitleştirilmiş giderleri kullanın, ancak hangisinin daha iyi indirim sağladığını görmek için hesaplama yapın. Yaygın izin verilen giderler arasında ofis maliyetleri, seyahat, personel maliyetleri ve profesyonel ücretler bulunur."
+      }
+    },
+    "links": {
+      "hmrcExpenses": "HMRC Giderler Rehberi",
+      "simplified": "Basitleştirilmiş Giderler",
+      "records": "Kayıt Tutma"
+    }
+  },
+  "taxCalendar": {
+    "title": "İngiltere Vergi Takvimi",
+    "summary": "Vergi yılı boyunca KDV, Kurumlar Vergisi, Self Assessment ve PAYE için önemli tarihler ve son tarihler.",
+    "sections": {
+      "intro": {
+        "content": "Vergi son tarihlerini kaçırmak cezalar ve faiz ücretlerine neden olabilir. Bu takvim, yıl boyunca HMRC ile uyumlu kalmak için bilmeniz gereken tüm önemli tarihleri listeler."
+      },
+      "tax-year": {
+        "title": "İngiltere Vergi Yılı",
+        "content": "İngiltere vergi yılı 6 Nisan'dan ertesi yılın 5 Nisan'ına kadar sürer. Bu olağandışı zamanlama, takvimin değiştiği 1752 yılına dayanır. Çoğu işletme vergisi bu vergi yılıyla uyumludur, ancak şirketler farklı hesap yılı sonları seçebilir."
+      },
+      "tax-year-highlight": {
+        "title": "Mevcut Vergi Yılı",
+        "content": "2024/25 vergi yılı 6 Nisan 2024'ten 5 Nisan 2025'e kadar sürer. Bu yıl için beyannameler ve ödemeler çoğunlukla Ocak 2026'ya kadar yapılmalıdır."
+      },
+      "key-dates-overview": {
+        "title": "Önemli Tarihlere Genel Bakış",
+        "content": "İşte hatırlamanız gereken en önemli tarihler. Bunları takviminize işaretleyin ve her son tarihten en az bir hafta önce hatırlatıcı ayarlayın."
+      },
+      "april": {
+        "title": "Nisan",
+        "content": "6 Nisan: Yeni vergi yılı başlar. Yeni vergi kodları ve NI eşikleri için bordroyu güncelleyin. 19 Nisan: Önceki vergi yılının son PAYE ödemesi için son tarih (elektronik ödeme yapılıyorsa 22'si). Nisan sonu: Tüm çalışanlara P60 gönderin."
+      },
+      "may": {
+        "title": "Mayıs",
+        "content": "3 Mayıs: Posta ile P35 yıllık işveren beyannamesi için son tarih. 31 Mayıs: Önceki vergi yılı için son FPS gönderimi için en son tarih. 31 Mayıs: 5 Nisan'da istihdam edilen tüm çalışanlara P60 verin."
+      },
+      "july": {
+        "title": "Temmuz",
+        "content": "31 Temmuz: Self Assessment için İkinci Hesap Ödemesi vadesi (gerekli olanlar için). 6 Temmuz: Çalışan faydaları ve giderlerini bildiren P11D ve P11D(b) formları için son tarih."
+      },
+      "october": {
+        "title": "Ekim",
+        "content": "5 Ekim: Önceki vergi yılında yeni serbest çalışanlar için Self Assessment'a kayıt son tarihi. 31 Ekim: Kağıt Self Assessment beyannameleri için son tarih (çoğu kişi artık çevrimiçi dosyalıyor)."
+      },
+      "january": {
+        "title": "Ocak",
+        "content": "31 Ocak: ÖNEMLİ SON TARİH. Çevrimiçi Self Assessment beyannameleri vadesi. Self Assessment vergi ödemesi vadesi. Gelecek yıl için İlk Hesap Ödemesi vadesi. HMRC için en yoğun dönem—son dakikaya bırakmayın!"
+      },
+      "vat-dates": {
+        "title": "KDV Beyanname Son Tarihleri",
+        "content": "KDV beyannameleri, KDV çeyreğiniz sona erdikten 1 ay ve 7 gün sonra vadedir. Çoğu işletme standart üç aylık dönemlerdedir, ancak farklı düzenlemeler için başvurabilirsiniz."
+      },
+      "vat-quarters": {
+        "title": "Standart KDV Çeyrekleri",
+        "content": "Standart KDV dönemleri ve son tarihleri:",
+        "table": {
+          "headers": ["KDV Çeyreği Bitişi", "Beyanname ve Ödeme Vadesi"],
+          "rows": [
+            ["31 Mart", "7 Mayıs"],
+            ["30 Haziran", "7 Ağustos"],
+            ["30 Eylül", "7 Kasım"],
+            ["31 Aralık", "7 Şubat"]
+          ]
+        }
+      },
+      "corporation-tax-dates": {
+        "title": "Kurumlar Vergisi Son Tarihleri",
+        "content": "Kurumlar Vergisi son tarihleri şirketinizin hesap dönemi bitiş tarihine bağlıdır. Ödeme, dönem bittikten 9 ay ve 1 gün sonra yapılmalıdır. CT600 beyannamesi 12 ay sonra yapılmalıdır. Örneğin, 31 Aralık 2024'te biten bir yıl: 1 Ekim 2025'e kadar ödeyin, CT600'ü 31 Aralık 2025'e kadar dosyalayın."
+      },
+      "paye-dates": {
+        "title": "PAYE Son Tarihleri",
+        "content": "PAYE, ortalama aylık ödemelerinize bağlı olarak aylık veya üç aylık olarak ödenir. FPS'yi her maaş gününde veya öncesinde gönderin. HMRC'ye takip eden ayın 22'sine kadar (posta ile 19'u) ödeme yapın."
+      },
+      "monthly-deadlines": {
+        "title": "Aylık PAYE Son Tarihleri",
+        "content": "Yıl boyunca düzenli PAYE son tarihleri:",
+        "table": {
+          "headers": ["Görev", "Son Tarih"],
+          "rows": [
+            ["FPS Gönder", "Maaş gününde veya öncesinde"],
+            ["EPS Gönder (gerekirse)", "Takip eden ayın 19'una kadar"],
+            ["HMRC'ye Öde (elektronik)", "Takip eden ayın 22'sine kadar"],
+            ["HMRC'ye Öde (posta)", "Takip eden ayın 19'una kadar"]
+          ]
+        }
+      },
+      "penalties": {
+        "title": "Geç Dosyalama Cezaları",
+        "content": "HMRC kaçırılan son tarihler için ceza uygular:",
+        "items": [
+          "Self Assessment: Hemen £100, zamanla artan",
+          "KDV: Borçlu KDV'nin %2'sinden başlayan varsayılan ek ücret, %15'e kadar",
+          "Kurumlar Vergisi: £100'den başlayan otomatik cezalar",
+          "PAYE RTI: Her geç FPS gönderimi için cezalar",
+          "Tüm geç ödemelerde mevcut HMRC oranlarında faiz uygulanır"
+        ]
+      },
+      "planning-tips": {
+        "title": "Planlama İpuçları",
+        "content": "Bu ipuçlarıyla son tarihlerin önünde olun:",
+        "items": [
+          "Her son tarihten 2 hafta önce takvim hatırlatıcıları ayarlayın",
+          "Son tarih hatırlatıcıları olan muhasebe yazılımı kullanın",
+          "Son dakika sorunlarından kaçınmak için beyannameleri erken dosyalayın",
+          "Vergi parasını ayrı bir banka hesabında ayırın",
+          "Maliyeti yaymak için HMRC'ye aylık ödemeler yapmayı düşünün",
+          "Sadece yıl sonunda değil, üç ayda bir vergi durumunuzu gözden geçirin"
+        ]
+      },
+      "summary": {
+        "content": "Çoğu kişi için önemli tarih 31 Ocak'tır—Self Assessment beyannameleri ve ödemeleri vadedir. KDV beyannameleri üç aylıktır, Kurumlar Vergisi yıl sonundan 9 ay sonradır ve PAYE aylıktır. Cezalardan ve stresten kaçınmak için hatırlatıcıları önceden ayarlayın ve erken dosyalayın."
+      }
+    },
+    "links": {
+      "hmrcDeadlines": "Self Assessment Son Tarihleri",
+      "vatDeadlines": "KDV Beyanname Son Tarihleri",
+      "payeDeadlines": "PAYE Raporlama"
+    }
+  }
+}

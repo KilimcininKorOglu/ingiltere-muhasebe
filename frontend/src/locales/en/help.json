@@ -77,6 +77,17 @@
         "title": "Security Settings",
         "content": "Manage your account security settings including password changes, two-factor authentication, and session management."
       }
+    },
+    "learn": {
+      "title": "Learn Help",
+      "overview": {
+        "title": "Educational Articles",
+        "content": "Access comprehensive guides about UK taxes. Learn about VAT, Corporation Tax, Self Assessment, PAYE, allowable expenses, and important tax deadlines."
+      },
+      "articles": {
+        "title": "Reading Articles",
+        "content": "Browse articles by category or read the full content. Each article includes practical examples with realistic UK figures to help you understand tax concepts."
+      }
     }
   },
   "quickTips": {
