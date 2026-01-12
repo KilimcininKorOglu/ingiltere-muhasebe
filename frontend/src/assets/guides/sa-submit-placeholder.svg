@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="350" fill="white" stroke="#b1b4b6" rx="4"/>
+  <rect x="100" y="150" width="600" height="60" fill="#00703c" rx="4"/>
+  <text x="150" y="188" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">✓ Tax return submitted</text>
+  <text x="100" y="250" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Confirmation</text>
+  <text x="100" y="280" fill="#505a5f" font-family="Arial, sans-serif" font-size="16">Your Self Assessment tax return has been successfully submitted.</text>
+  <rect x="100" y="310" width="600" height="80" fill="#f3f2f1" rx="4"/>
+  <text x="120" y="340" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Reference number</text>
+  <text x="120" y="370" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="20">SA-2024-123456789</text>
+  <text x="100" y="420" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16">Tax due: £3,456.78</text>
+  <text x="100" y="445" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16">Payment deadline: 31 January 2025</text>
+  <text x="400" y="480" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC Self Assessment submission confirmation</text>
+</svg>

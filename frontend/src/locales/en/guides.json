@@ -1,0 +1,322 @@
+{
+  "guides": {
+    "pageTitle": "HMRC Filing Guides",
+    "pageDescription": "Step-by-step instructions for manually submitting your tax returns to HMRC. Follow these guides to ensure accurate and timely filing.",
+    "disclaimer": "These guides are for informational purposes only and do not constitute tax advice. Always verify information with HMRC or a qualified tax professional. HMRC portal interfaces may change; screenshots are for illustration only.",
+    "selectGuide": "Select a filing guide",
+    "quickLinks": "Quick Links",
+    "links": {
+      "hmrcLogin": "HMRC Online Services Login",
+      "hmrcContact": "Contact HMRC",
+      "taxForms": "Tax Return Forms",
+      "taxAppeals": "Tax Appeals"
+    },
+    "tabs": {
+      "vat": "VAT Return",
+      "ct": "Corporation Tax (CT600)",
+      "sa": "Self Assessment"
+    },
+    "common": {
+      "prerequisites": "Before You Start",
+      "expandAll": "Expand All",
+      "collapseAll": "Collapse All",
+      "clickToEnlarge": "Click to enlarge",
+      "fieldMappings": "Field Mappings",
+      "hmrcField": "HMRC Field",
+      "appValue": "App Value",
+      "description": "Description",
+      "tip": "Tip",
+      "warning": "Warning",
+      "needHelp": "Need Help?"
+    },
+    "vat": {
+      "title": "VAT Return Filing Guide",
+      "intro": "This guide walks you through the process of submitting your VAT return to HMRC through their online portal. Your VAT data from the app can be used to fill in the required fields.",
+      "prereq1": "Your Government Gateway user ID and password",
+      "prereq2": "Your VAT registration number",
+      "prereq3": "Your sales and purchase records for the VAT period",
+      "prereq4": "Your calculated VAT figures from this app",
+      "yourVatData": "Your VAT Data Summary",
+      "step1": {
+        "title": "Sign in to HMRC Online Services",
+        "description": "Access the HMRC online services portal using your Government Gateway credentials.",
+        "screenshotAlt": "HMRC Government Gateway login page",
+        "sub1": "Go to www.gov.uk/log-in-register-hmrc-online-services",
+        "sub2": "Click 'Sign in' and enter your Government Gateway user ID",
+        "sub3": "Enter your password and complete any two-factor authentication if prompted",
+        "tip": "If you've forgotten your Government Gateway credentials, you can recover them on the login page."
+      },
+      "step2": {
+        "title": "Navigate to Your VAT Account",
+        "description": "Once logged in, access your VAT account from the dashboard.",
+        "screenshotAlt": "HMRC business tax account showing VAT section",
+        "sub1": "From your Business Tax Account dashboard, click on 'VAT'",
+        "sub2": "You'll see your VAT account summary including any returns due"
+      },
+      "step3": {
+        "title": "Start Your VAT Return",
+        "description": "Begin the VAT return submission process for the current period.",
+        "sub1": "Click 'Submit VAT Return' or 'Complete VAT Return'",
+        "sub2": "Confirm the VAT period you are submitting for",
+        "sub3": "Review any obligations or deadlines shown",
+        "tip": "Make sure you're submitting for the correct VAT period. The dates should match your accounting records."
+      },
+      "step4": {
+        "title": "Enter Your VAT Figures",
+        "description": "Fill in the 9-box VAT return form with your calculated figures. Use the values from your app as shown in the field mappings below.",
+        "screenshotAlt": "HMRC VAT return form showing boxes 1-9",
+        "warning": "Double-check all figures before proceeding. Incorrect entries may result in penalties or interest charges."
+      },
+      "step5": {
+        "title": "Review Your VAT Return",
+        "description": "Carefully review all entered figures before submission.",
+        "sub1": "Check that Box 3 equals Box 1 plus Box 2",
+        "sub2": "Verify Box 5 equals Box 3 minus Box 4",
+        "sub3": "Ensure all figures match your accounting records",
+        "warning": "You cannot amend a VAT return after submission. Any corrections must be made in your next VAT return or by contacting HMRC."
+      },
+      "step6": {
+        "title": "Submit Your VAT Return",
+        "description": "Confirm the declaration and submit your VAT return to HMRC.",
+        "screenshotAlt": "HMRC VAT return submission confirmation page",
+        "sub1": "Read and accept the declaration statement",
+        "sub2": "Click 'Submit' to send your return to HMRC",
+        "tip": "Save or print your submission receipt for your records."
+      },
+      "step7": {
+        "title": "Make Payment or Claim Refund",
+        "description": "If VAT is due (Box 5 is positive), arrange payment. If you're due a refund (Box 5 is negative), it will be processed automatically.",
+        "sub1": "If paying: Note the payment reference and amount due",
+        "sub2": "Set up a Direct Debit, pay by bank transfer, or use another payment method",
+        "sub3": "Keep records of your payment confirmation",
+        "tip": "Setting up a Direct Debit ensures you never miss a payment deadline."
+      },
+      "fields": {
+        "box1": "Box 1 - VAT due on sales",
+        "box1Desc": "VAT charged on all goods and services sold during this period",
+        "box2": "Box 2 - VAT due on acquisitions",
+        "box2Desc": "VAT due on goods acquired from EU countries (if applicable)",
+        "box3": "Box 3 - Total VAT due",
+        "box3Desc": "Sum of Box 1 and Box 2 (calculated automatically)",
+        "box4": "Box 4 - VAT reclaimed",
+        "box4Desc": "VAT reclaimed on purchases and expenses for business use",
+        "box5": "Box 5 - Net VAT due",
+        "box5Desc": "Difference between Box 3 and Box 4 (amount to pay or reclaim)",
+        "box6": "Box 6 - Total sales excluding VAT",
+        "box6Desc": "Total value of all sales and outputs excluding VAT",
+        "box7": "Box 7 - Total purchases excluding VAT",
+        "box7Desc": "Total value of all purchases and inputs excluding VAT",
+        "box8": "Box 8 - EU supplies excluding VAT",
+        "box8Desc": "Total value of goods supplied to EU countries",
+        "box9": "Box 9 - EU acquisitions excluding VAT",
+        "box9Desc": "Total value of goods acquired from EU countries"
+      },
+      "deadlineTitle": "VAT Return Deadline",
+      "deadlineInfo": "Your VAT return and payment are due 1 calendar month and 7 days after the end of your VAT accounting period. Late submissions may incur penalties.",
+      "hmrcVatGuide": "HMRC VAT Returns Guide",
+      "hmrcVatContact": "Contact HMRC VAT Helpline"
+    },
+    "ct": {
+      "title": "Corporation Tax (CT600) Filing Guide",
+      "intro": "This guide helps you file your Company Tax Return (CT600) with HMRC. Corporation Tax returns are more complex than VAT and typically require professional preparation.",
+      "prereq1": "Your Government Gateway user ID and password",
+      "prereq2": "Your company's Unique Taxpayer Reference (UTR)",
+      "prereq3": "Your company's registration number",
+      "prereq4": "Completed annual accounts (Companies House accounts)",
+      "prereq5": "Full accounting records for the period",
+      "yourCtData": "Your Corporation Tax Data Summary",
+      "step1": {
+        "title": "Sign in to HMRC Online Services",
+        "description": "Access the HMRC online services portal using your Government Gateway credentials for your company.",
+        "screenshotAlt": "HMRC Government Gateway login page",
+        "sub1": "Go to www.gov.uk/log-in-register-hmrc-online-services",
+        "sub2": "Sign in with your company's Government Gateway credentials",
+        "sub3": "Complete two-factor authentication if prompted",
+        "tip": "Make sure you're using the Government Gateway account linked to your company, not your personal account."
+      },
+      "step2": {
+        "title": "Access Corporation Tax Services",
+        "description": "Navigate to the Corporation Tax section from your business tax dashboard.",
+        "screenshotAlt": "HMRC business tax account showing Corporation Tax section",
+        "sub1": "From the Business Tax Account, select 'Corporation Tax'",
+        "sub2": "View your company's Corporation Tax overview",
+        "sub3": "Check for any outstanding returns or payments due"
+      },
+      "step3": {
+        "title": "Prepare Your CT600 Return",
+        "description": "Before starting online, ensure you have all required information ready.",
+        "sub1": "Prepare your company's full accounts for the period",
+        "sub2": "Calculate your taxable profits using your accounting records",
+        "sub3": "Identify any reliefs or deductions you're entitled to claim",
+        "warning": "CT600 returns are complex. Consider using professional accounting software or consulting an accountant."
+      },
+      "step4": {
+        "title": "Start Your CT600 Return",
+        "description": "Begin filling in the CT600 form for your accounting period.",
+        "screenshotAlt": "HMRC CT600 form first page",
+        "sub1": "Click 'File a Company Tax Return'",
+        "sub2": "Confirm your company details and accounting period",
+        "sub3": "Select which supplementary pages apply to your company",
+        "sub4": "Begin entering your company information"
+      },
+      "step5": {
+        "title": "Enter Financial Information",
+        "description": "Input your company's financial figures from your accounts. Use the field mappings below to match app values to HMRC fields.",
+        "tip": "Keep your annual accounts open alongside for reference as you complete each section."
+      },
+      "step6": {
+        "title": "Attach Accounts and Computations",
+        "description": "Upload or attach your company accounts and tax computations.",
+        "sub1": "Attach your full annual accounts in iXBRL format",
+        "sub2": "Include your Corporation Tax computation",
+        "sub3": "Add any supplementary schedules if required",
+        "warning": "HMRC requires accounts in iXBRL format for online filing. Check your accounting software can produce these."
+      },
+      "step7": {
+        "title": "Review and Submit",
+        "description": "Carefully review your CT600 return before final submission.",
+        "screenshotAlt": "HMRC CT600 review and submit page",
+        "sub1": "Check all figures match your prepared accounts",
+        "sub2": "Verify the Corporation Tax liability calculation",
+        "sub3": "Accept the declaration and submit your return",
+        "tip": "Download and save a copy of your submitted return for your records."
+      },
+      "step8": {
+        "title": "Pay Corporation Tax",
+        "description": "Arrange payment of any Corporation Tax due within the deadline.",
+        "sub1": "Note the payment reference number provided",
+        "sub2": "Choose your payment method (bank transfer, Direct Debit, etc.)",
+        "sub3": "Pay by the deadline (9 months and 1 day after accounting period ends)",
+        "sub4": "Keep confirmation of payment for your records",
+        "tip": "Large companies may need to pay in quarterly instalments. Check if this applies to you."
+      },
+      "fields": {
+        "turnover": "Total turnover",
+        "turnoverDesc": "Total sales and other income for the accounting period",
+        "tradingProfits": "Trading profits",
+        "tradingProfitsDesc": "Profit from your company's trade before deductions",
+        "netTradingProfits": "Net trading profits",
+        "netTradingProfitsDesc": "Trading profits after capital allowances and other adjustments",
+        "chargableProfits": "Chargeable profits",
+        "chargableProfitsDesc": "Total profits subject to Corporation Tax",
+        "ctPayable": "Corporation Tax payable",
+        "ctPayableDesc": "Amount of Corporation Tax due for this period",
+        "taxRefund": "Tax refund due",
+        "taxRefundDesc": "Amount due back if you've overpaid or have losses to carry back"
+      },
+      "deadlineTitle": "Corporation Tax Deadlines",
+      "deadlineInfo": "There are different deadlines for filing your return and paying tax:",
+      "deadlineReturn": "CT600 Return: 12 months after the end of your accounting period",
+      "deadlinePayment": "Tax Payment: 9 months and 1 day after the end of your accounting period",
+      "hmrcCtGuide": "HMRC Company Tax Returns Guide",
+      "hmrcCtContact": "Contact HMRC Corporation Tax Helpline"
+    },
+    "sa": {
+      "title": "Self Assessment Filing Guide",
+      "intro": "This guide walks you through completing your Self Assessment tax return online. Self Assessment is used to report income from self-employment, rental income, dividends, and other sources.",
+      "prereq1": "Your Government Gateway user ID and password",
+      "prereq2": "Your Unique Taxpayer Reference (UTR)",
+      "prereq3": "Your National Insurance number",
+      "prereq4": "Records of all income for the tax year (6 April to 5 April)",
+      "prereq5": "Details of any tax already paid (P60, P45, etc.)",
+      "yourSaData": "Your Self Assessment Data Summary",
+      "step1": {
+        "title": "Sign in to HMRC Online Services",
+        "description": "Access the HMRC Self Assessment portal using your personal Government Gateway account.",
+        "screenshotAlt": "HMRC Government Gateway login page",
+        "sub1": "Go to www.gov.uk/log-in-register-hmrc-online-services",
+        "sub2": "Sign in with your personal Government Gateway user ID",
+        "sub3": "Complete identity verification if this is your first time",
+        "tip": "If you haven't registered for Self Assessment, you must do so before you can file. Allow time for HMRC to send your activation code."
+      },
+      "step2": {
+        "title": "Access Your Self Assessment Account",
+        "description": "Navigate to your Self Assessment section from your personal tax account.",
+        "screenshotAlt": "HMRC personal tax account showing Self Assessment section",
+        "sub1": "From your Personal Tax Account, select 'Self Assessment'",
+        "sub2": "Review any messages or notices from HMRC"
+      },
+      "step3": {
+        "title": "Start Your Tax Return",
+        "description": "Begin a new Self Assessment return for the relevant tax year.",
+        "sub1": "Click 'Complete your tax return'",
+        "sub2": "Confirm the tax year (6 April to 5 April)",
+        "sub3": "Answer the tailoring questions to determine which sections you need",
+        "sub4": "The system will show you which pages to complete based on your answers",
+        "tip": "Answer the tailoring questions carefully. This ensures you complete all required sections and skip irrelevant ones."
+      },
+      "step4": {
+        "title": "Complete Personal Details",
+        "description": "Verify and update your personal information.",
+        "screenshotAlt": "HMRC Self Assessment personal details page",
+        "sub1": "Check your name, address, and date of birth are correct",
+        "sub2": "Update your contact details if needed",
+        "sub3": "Confirm your National Insurance number"
+      },
+      "step5": {
+        "title": "Enter Income Details",
+        "description": "Report all sources of income for the tax year. Use the field mappings below to enter values from the app.",
+        "warning": "Report ALL income, even if tax was already deducted at source. HMRC cross-references multiple data sources."
+      },
+      "step6": {
+        "title": "Complete Self-Employment Section",
+        "description": "If you're self-employed, complete the self-employment pages with your business income and expenses.",
+        "tip": "Keep detailed records of all business expenses. You can claim allowable expenses to reduce your tax bill."
+      },
+      "step7": {
+        "title": "Enter Reliefs and Deductions",
+        "description": "Claim any tax reliefs you're entitled to.",
+        "sub1": "Pension contributions (if not deducted at source)",
+        "sub2": "Gift Aid donations",
+        "sub3": "Professional fees and subscriptions"
+      },
+      "step8": {
+        "title": "Review and Submit",
+        "description": "Check your tax calculation and submit your return.",
+        "screenshotAlt": "HMRC Self Assessment tax calculation summary",
+        "sub1": "Review the tax calculation shown",
+        "sub2": "Check all income sources are included",
+        "sub3": "Accept the declaration and submit",
+        "warning": "Once submitted, you have 12 months to make corrections. After that, you'll need to write to HMRC."
+      },
+      "step9": {
+        "title": "Pay Any Tax Due",
+        "description": "If tax is owed, arrange payment before the deadline.",
+        "sub1": "Note the amount due and payment reference",
+        "sub2": "Choose a payment method",
+        "sub3": "Pay by 31 January (or set up a Time to Pay arrangement if needed)",
+        "sub4": "Consider payments on account for next year",
+        "tip": "You can set up a budget payment plan to spread your tax payments throughout the year."
+      },
+      "fields": {
+        "totalIncome": "Total Income",
+        "taxDue": "Tax Due",
+        "turnover": "Business turnover",
+        "turnoverDesc": "Total income from self-employment before expenses",
+        "expenses": "Allowable expenses",
+        "expensesDesc": "Business expenses that can be deducted",
+        "netProfit": "Net business profit",
+        "netProfitDesc": "Turnover minus allowable expenses",
+        "employmentIncome": "Employment income",
+        "employmentIncomeDesc": "Salary and wages from employment (before tax)",
+        "selfEmploymentIncome": "Self-employment income",
+        "selfEmploymentIncomeDesc": "Net profit from all self-employment",
+        "rentalIncome": "Property income",
+        "rentalIncomeDesc": "Net income from rental properties",
+        "dividends": "Dividend income",
+        "dividendsDesc": "Dividends received from UK and foreign companies",
+        "savingsInterest": "Savings interest",
+        "savingsInterestDesc": "Interest from bank accounts and investments"
+      },
+      "deadlineTitle": "Self Assessment Deadlines",
+      "deadlineInfo": "Key deadlines for Self Assessment:",
+      "deadlinePaper": "Paper returns: 31 October after the tax year ends",
+      "deadlineOnline": "Online returns: 31 January after the tax year ends",
+      "deadlinePayment": "Tax payment: 31 January after the tax year ends",
+      "paymentOnAccountTitle": "Payments on Account",
+      "paymentOnAccountInfo": "If your tax bill is £1,000 or more, you may need to make advance payments towards next year's bill. These are called 'payments on account' and are due on 31 January and 31 July.",
+      "hmrcSaGuide": "HMRC Self Assessment Guide",
+      "hmrcSaContact": "Contact HMRC Self Assessment Helpline"
+    }
+  }
+}

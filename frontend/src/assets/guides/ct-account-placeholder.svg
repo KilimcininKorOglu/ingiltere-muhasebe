@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="350" fill="white" stroke="#b1b4b6" rx="4"/>
+  <text x="100" y="170" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="28" font-weight="bold">Corporation Tax</text>
+  <rect x="100" y="190" width="600" height="80" fill="#f3f2f1" rx="4"/>
+  <text x="120" y="220" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Company details</text>
+  <text x="120" y="250" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16">Example Company Ltd - UTR: 1234567890</text>
+  <rect x="100" y="290" width="600" height="100" fill="#f3f2f1" rx="4"/>
+  <text x="120" y="320" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Accounting period</text>
+  <text x="120" y="350" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="18">1 April 2023 to 31 March 2024</text>
+  <text x="120" y="375" fill="#d4351c" font-family="Arial, sans-serif" font-size="16">CT600 due: 31 March 2025</text>
+  <rect x="100" y="410" width="250" height="40" fill="#00703c" rx="4"/>
+  <text x="120" y="437" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">File Company Tax Return</text>
+  <text x="400" y="480" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC Corporation Tax account</text>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="460" fill="white" stroke="#b1b4b6" rx="4"/>
+  <text x="100" y="160" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="24" font-weight="bold">Company Tax Return CT600</text>
+  <text x="100" y="185" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Accounting period: 1 April 2023 to 31 March 2024</text>
+  
+  <text x="100" y="230" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Company information</text>
+  <line x1="100" y1="240" x2="700" y2="240" stroke="#b1b4b6" stroke-width="1"/>
+  
+  <text x="100" y="270" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Company name</text>
+  <rect x="350" y="255" width="350" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="310" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Company registration number</text>
+  <rect x="350" y="295" width="350" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="360" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Income and profits</text>
+  <line x1="100" y1="370" x2="700" y2="370" stroke="#b1b4b6" stroke-width="1"/>
+  
+  <text x="100" y="400" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total turnover</text>
+  <rect x="350" y="385" width="350" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="440" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Trading profits</text>
+  <rect x="350" y="425" width="350" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="480" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Chargeable gains</text>
+  <rect x="350" y="465" width="350" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="520" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Profits chargeable to Corporation Tax</text>
+  <rect x="350" y="505" width="350" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="555" fill="#1d70b8" font-family="Arial, sans-serif" font-size="14" text-decoration="underline">Continue to next section →</text>
+  
+  <text x="400" y="585" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC CT600 form</text>
+</svg>
