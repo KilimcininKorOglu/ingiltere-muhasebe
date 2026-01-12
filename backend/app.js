@@ -27,6 +27,7 @@ const transactionsRoutes = require('./routes/transactions');
 const payrollRoutes = require('./routes/payroll');
 const reportsRoutes = require('./routes/reports');
 const vatRoutes = require('./routes/vat');
+const dashboardRoutes = require('./routes/dashboard');
 
 // Initialize Express app
 const app = express();
@@ -92,6 +93,7 @@ app.get('/api', (req, res) => {
       payroll: '/api/payroll',
       reports: '/api/reports',
       vat: '/api/vat',
+      dashboard: '/api/dashboard',
       health: '/health'
     },
     documentation: {
@@ -204,6 +206,13 @@ app.get('/api', (req, res) => {
         thresholdConfig: 'GET /api/vat/threshold-config',
         dashboardSummary: 'GET /api/vat/dashboard-summary',
         turnoverBreakdown: 'GET /api/vat/turnover-breakdown'
+      },
+      dashboard: {
+        summary: 'GET /api/dashboard/summary',
+        quickSummary: 'GET /api/dashboard/quick-summary',
+        monthlySummary: 'GET /api/dashboard/monthly-summary',
+        alerts: 'GET /api/dashboard/alerts',
+        recentActivity: 'GET /api/dashboard/recent-activity'
       }
     }
   });
@@ -227,6 +236,7 @@ app.use('/api/transactions', transactionsRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/vat', vatRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
