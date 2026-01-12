@@ -473,6 +473,29 @@ describe('Invoice API', () => {
       expect(response.body.data.items[0].description).toBe('Test Service');
     });
 
+    it('should include customer details in response', async () => {
+      const response = await request(app)
+        .get(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.customer).toBeDefined();
+      expect(response.body.data.customer.name).toBe('Test Customer Ltd');
+      expect(response.body.data.customer.id).toBe(testCustomer.id);
+    });
+
+    it('should include isOverdue flag in response', async () => {
+      const response = await request(app)
+        .get(`/api/invoices/${testInvoiceId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('isOverdue');
+      expect(typeof response.body.data.isOverdue).toBe('boolean');
+    });
+
     it('should return 404 for non-existent invoice', async () => {
       const response = await request(app)
         .get('/api/invoices/999999')
@@ -485,6 +508,49 @@ describe('Invoice API', () => {
   });
 
   describe('GET /api/invoices', () => {
+    let testInvoiceIds = [];
+
+    beforeAll(async () => {
+      // Create multiple test invoices for filtering tests
+      const invoices = [
+        {
+          customerId: testCustomer.id,
+          invoiceDate: '2026-01-01',
+          dueDate: '2026-01-15',
+          items: [{ description: 'Service A', quantity: 1, unitPrice: 10000 }]
+        },
+        {
+          customerId: testCustomer.id,
+          invoiceDate: '2026-01-05',
+          dueDate: '2026-01-20',
+          items: [{ description: 'Service B', quantity: 1, unitPrice: 20000 }]
+        },
+        {
+          customerId: testCustomer.id,
+          invoiceDate: '2026-01-10',
+          dueDate: '2026-01-25',
+          items: [{ description: 'Service C', quantity: 1, unitPrice: 30000 }]
+        }
+      ];
+
+      for (const invoiceData of invoices) {
+        const response = await request(app)
+          .post('/api/invoices')
+          .set('Authorization', `Bearer ${authToken}`)
+          .send(invoiceData);
+        if (response.body.data) {
+          testInvoiceIds.push(response.body.data.id);
+        }
+      }
+    });
+
+    afterAll(() => {
+      const { deleteInvoice } = require('../database/models/Invoice');
+      testInvoiceIds.forEach(id => {
+        try { deleteInvoice(id); } catch {}
+      });
+    });
+
     it('should return paginated list of invoices', async () => {
       const response = await request(app)
         .get('/api/invoices')
@@ -496,6 +562,93 @@ describe('Invoice API', () => {
       expect(response.body.data).toHaveProperty('total');
       expect(response.body.data).toHaveProperty('page');
       expect(response.body.data).toHaveProperty('limit');
+    });
+
+    it('should include isOverdue flag for each invoice', async () => {
+      const response = await request(app)
+        .get('/api/invoices')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      response.body.data.invoices.forEach(invoice => {
+        expect(invoice).toHaveProperty('isOverdue');
+        expect(typeof invoice.isOverdue).toBe('boolean');
+      });
+    });
+
+    it('should filter invoices by status', async () => {
+      const response = await request(app)
+        .get('/api/invoices?status=draft')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      response.body.data.invoices.forEach(invoice => {
+        expect(invoice.status).toBe('draft');
+      });
+    });
+
+    it('should filter invoices by date range', async () => {
+      const response = await request(app)
+        .get('/api/invoices?dateFrom=2026-01-03&dateTo=2026-01-08')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      response.body.data.invoices.forEach(invoice => {
+        expect(invoice.issueDate >= '2026-01-03').toBe(true);
+        expect(invoice.issueDate <= '2026-01-08').toBe(true);
+      });
+    });
+
+    it('should search invoices by invoice number or customer name', async () => {
+      const response = await request(app)
+        .get('/api/invoices?search=Test Customer')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      response.body.data.invoices.forEach(invoice => {
+        expect(invoice.customerName.toLowerCase()).toContain('test customer');
+      });
+    });
+
+    it('should filter invoices by customer ID', async () => {
+      const response = await request(app)
+        .get(`/api/invoices?customerId=${testCustomer.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      response.body.data.invoices.forEach(invoice => {
+        expect(invoice.customerName).toBe('Test Customer Ltd');
+      });
+    });
+
+    it('should sort invoices by totalAmount', async () => {
+      const response = await request(app)
+        .get('/api/invoices?sortBy=totalAmount&sortOrder=ASC')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      const amounts = response.body.data.invoices.map(inv => inv.totalAmount);
+      for (let i = 1; i < amounts.length; i++) {
+        expect(amounts[i] >= amounts[i - 1]).toBe(true);
+      }
+    });
+
+    it('should paginate invoices correctly', async () => {
+      const response = await request(app)
+        .get('/api/invoices?page=1&limit=2')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.invoices.length).toBeLessThanOrEqual(2);
+      expect(response.body.data.page).toBe(1);
+      expect(response.body.data.limit).toBe(2);
     });
   });
 

@@ -392,6 +392,37 @@ describe('Invoice Model', () => {
         expect(result.invoices.length).toBe(1);
         expect(result.invoices[0].status).toBe('paid');
       });
+
+      test('should filter by date range', () => {
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0001', issueDate: '2026-01-01' });
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0002', issueDate: '2026-01-15' });
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0003', issueDate: '2026-02-01' });
+        
+        const result = Invoice.getInvoicesByUserId(testUserId, { dateFrom: '2026-01-10', dateTo: '2026-01-20' });
+        
+        expect(result.invoices.length).toBe(1);
+        expect(result.invoices[0].issueDate).toBe('2026-01-15');
+      });
+
+      test('should search by invoice number or customer name', () => {
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0001', customerName: 'ABC Company' });
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0002', customerName: 'XYZ Corp' });
+        
+        const result = Invoice.getInvoicesByUserId(testUserId, { search: 'ABC' });
+        
+        expect(result.invoices.length).toBe(1);
+        expect(result.invoices[0].customerName).toBe('ABC Company');
+      });
+
+      test('should include isOverdue flag for each invoice', () => {
+        Invoice.createInvoice({ ...validInvoiceData, userId: testUserId, invoiceNumber: 'INV-2026-0001' });
+        
+        const result = Invoice.getInvoicesByUserId(testUserId);
+        
+        expect(result.invoices.length).toBe(1);
+        expect(result.invoices[0]).toHaveProperty('isOverdue');
+        expect(typeof result.invoices[0].isOverdue).toBe('boolean');
+      });
     });
 
     describe('updateInvoice', () => {
@@ -493,6 +524,53 @@ describe('Invoice Model', () => {
         expect(counts.draft).toBe(2);
         expect(counts.paid).toBe(1);
         expect(counts.pending).toBe(0);
+      });
+    });
+
+    describe('isInvoiceOverdue', () => {
+      test('should return true for pending invoice with past due date', () => {
+        const invoice = {
+          status: 'pending',
+          dueDate: '2025-01-01'
+        };
+        
+        expect(Invoice.isInvoiceOverdue(invoice, '2026-01-12')).toBe(true);
+      });
+
+      test('should return false for pending invoice with future due date', () => {
+        const invoice = {
+          status: 'pending',
+          dueDate: '2026-12-31'
+        };
+        
+        expect(Invoice.isInvoiceOverdue(invoice, '2026-01-12')).toBe(false);
+      });
+
+      test('should return false for draft invoice even with past due date', () => {
+        const invoice = {
+          status: 'draft',
+          dueDate: '2025-01-01'
+        };
+        
+        expect(Invoice.isInvoiceOverdue(invoice, '2026-01-12')).toBe(false);
+      });
+
+      test('should return false for paid invoice even with past due date', () => {
+        const invoice = {
+          status: 'paid',
+          dueDate: '2025-01-01'
+        };
+        
+        expect(Invoice.isInvoiceOverdue(invoice, '2026-01-12')).toBe(false);
+      });
+
+      test('should return true for overdue status invoice with past due date', () => {
+        const invoice = {
+          status: 'overdue',
+          dueDate: '2025-01-01'
+        };
+        
+        expect(Invoice.isInvoiceOverdue(invoice, '2026-01-12')).toBe(true);
       });
     });
   });
