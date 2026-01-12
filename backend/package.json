@@ -1,0 +1,46 @@
+{
+  "name": "ingiltere-muhasebe-backend",
+  "version": "1.0.0",
+  "description": "UK Accounting Backend - Tax rates and calculations API with bilingual support (English/Turkish)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
+    "test": "jest --coverage --forceExit",
+    "test:watch": "jest --watch",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "uk",
+    "tax",
+    "accounting",
+    "vat",
+    "income-tax",
+    "corporation-tax",
+    "national-insurance",
+    "bilingual"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/tests/**",
+      "!**/coverage/**"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}
