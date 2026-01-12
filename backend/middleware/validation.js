@@ -1487,6 +1487,692 @@ function sanitizeProfileUpdate(req, res, next) {
   next();
 }
 
+/**
+ * Valid transaction types.
+ */
+const TRANSACTION_TYPES = ['income', 'expense', 'transfer'];
+
+/**
+ * Valid transaction statuses.
+ */
+const TRANSACTION_STATUSES = ['pending', 'cleared', 'reconciled', 'void'];
+
+/**
+ * Valid payment methods.
+ */
+const PAYMENT_METHODS = ['cash', 'bank_transfer', 'card', 'cheque', 'direct_debit', 'standing_order', 'other'];
+
+/**
+ * Valid recurring frequencies.
+ */
+const RECURRING_FREQUENCIES = ['weekly', 'monthly', 'yearly'];
+
+/**
+ * Validates transaction creation request body.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function validateTransactionCreate(req, res, next) {
+  const errors = [];
+  const {
+    categoryId,
+    type,
+    status,
+    transactionDate,
+    description,
+    reference,
+    amount,
+    vatRate,
+    vatAmount,
+    totalAmount,
+    currency,
+    paymentMethod,
+    payee,
+    receiptPath,
+    notes,
+    isRecurring,
+    recurringFrequency,
+    linkedTransactionId
+  } = req.body;
+
+  // Type validation (required)
+  if (!type) {
+    errors.push({
+      field: 'type',
+      message: 'Transaction type is required',
+      messageTr: 'İşlem tipi zorunludur'
+    });
+  } else if (typeof type !== 'string') {
+    errors.push({
+      field: 'type',
+      message: 'Transaction type must be a string',
+      messageTr: 'İşlem tipi metin olmalıdır'
+    });
+  } else if (!TRANSACTION_TYPES.includes(type)) {
+    errors.push({
+      field: 'type',
+      message: `Transaction type must be one of: ${TRANSACTION_TYPES.join(', ')}`,
+      messageTr: `İşlem tipi şunlardan biri olmalıdır: ${TRANSACTION_TYPES.join(', ')}`
+    });
+  }
+
+  // Transaction date validation (required)
+  if (!transactionDate) {
+    errors.push({
+      field: 'transactionDate',
+      message: 'Transaction date is required',
+      messageTr: 'İşlem tarihi zorunludur'
+    });
+  } else if (typeof transactionDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(transactionDate)) {
+    errors.push({
+      field: 'transactionDate',
+      message: 'Transaction date must be in YYYY-MM-DD format',
+      messageTr: 'İşlem tarihi YYYY-MM-DD formatında olmalıdır'
+    });
+  } else {
+    const date = new Date(transactionDate);
+    if (isNaN(date.getTime())) {
+      errors.push({
+        field: 'transactionDate',
+        message: 'Transaction date is not a valid date',
+        messageTr: 'İşlem tarihi geçerli bir tarih değil'
+      });
+    }
+  }
+
+  // Description validation (required)
+  if (!description) {
+    errors.push({
+      field: 'description',
+      message: 'Description is required',
+      messageTr: 'Açıklama zorunludur'
+    });
+  } else if (typeof description !== 'string') {
+    errors.push({
+      field: 'description',
+      message: 'Description must be a string',
+      messageTr: 'Açıklama metin olmalıdır'
+    });
+  } else if (description.trim().length < 2) {
+    errors.push({
+      field: 'description',
+      message: 'Description must be at least 2 characters long',
+      messageTr: 'Açıklama en az 2 karakter olmalıdır'
+    });
+  } else if (description.length > 500) {
+    errors.push({
+      field: 'description',
+      message: 'Description must not exceed 500 characters',
+      messageTr: 'Açıklama 500 karakteri geçmemelidir'
+    });
+  }
+
+  // Category ID validation (optional)
+  if (categoryId !== undefined && categoryId !== null) {
+    if (typeof categoryId !== 'number' || !Number.isInteger(categoryId) || categoryId <= 0) {
+      errors.push({
+        field: 'categoryId',
+        message: 'Category ID must be a positive integer',
+        messageTr: 'Kategori ID pozitif bir tam sayı olmalıdır'
+      });
+    }
+  }
+
+  // Status validation (optional)
+  if (status !== undefined && status !== null && status !== '') {
+    if (!TRANSACTION_STATUSES.includes(status)) {
+      errors.push({
+        field: 'status',
+        message: `Status must be one of: ${TRANSACTION_STATUSES.join(', ')}`,
+        messageTr: `Durum şunlardan biri olmalıdır: ${TRANSACTION_STATUSES.join(', ')}`
+      });
+    }
+  }
+
+  // Amount validation (optional, but should be non-negative integer in pence)
+  if (amount !== undefined && amount !== null) {
+    if (typeof amount !== 'number' || !Number.isInteger(amount)) {
+      errors.push({
+        field: 'amount',
+        message: 'Amount must be an integer (in pence)',
+        messageTr: 'Tutar tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (amount < 0) {
+      errors.push({
+        field: 'amount',
+        message: 'Amount cannot be negative',
+        messageTr: 'Tutar negatif olamaz'
+      });
+    }
+  }
+
+  // VAT rate validation (optional, in basis points 0-10000)
+  if (vatRate !== undefined && vatRate !== null) {
+    if (typeof vatRate !== 'number' || !Number.isInteger(vatRate)) {
+      errors.push({
+        field: 'vatRate',
+        message: 'VAT rate must be an integer (in basis points)',
+        messageTr: 'KDV oranı tam sayı olmalıdır (baz puan cinsinden)'
+      });
+    } else if (vatRate < 0 || vatRate > 10000) {
+      errors.push({
+        field: 'vatRate',
+        message: 'VAT rate must be between 0 and 10000 (0% to 100%)',
+        messageTr: 'KDV oranı 0 ile 10000 arasında olmalıdır (%0 ile %100)'
+      });
+    }
+  }
+
+  // VAT amount validation (optional)
+  if (vatAmount !== undefined && vatAmount !== null) {
+    if (typeof vatAmount !== 'number' || !Number.isInteger(vatAmount)) {
+      errors.push({
+        field: 'vatAmount',
+        message: 'VAT amount must be an integer (in pence)',
+        messageTr: 'KDV tutarı tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (vatAmount < 0) {
+      errors.push({
+        field: 'vatAmount',
+        message: 'VAT amount cannot be negative',
+        messageTr: 'KDV tutarı negatif olamaz'
+      });
+    }
+  }
+
+  // Total amount validation (optional)
+  if (totalAmount !== undefined && totalAmount !== null) {
+    if (typeof totalAmount !== 'number' || !Number.isInteger(totalAmount)) {
+      errors.push({
+        field: 'totalAmount',
+        message: 'Total amount must be an integer (in pence)',
+        messageTr: 'Toplam tutar tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (totalAmount < 0) {
+      errors.push({
+        field: 'totalAmount',
+        message: 'Total amount cannot be negative',
+        messageTr: 'Toplam tutar negatif olamaz'
+      });
+    }
+  }
+
+  // Currency validation (optional)
+  if (currency !== undefined && currency !== null && currency !== '') {
+    if (!VALID_CURRENCIES.includes(currency.toUpperCase())) {
+      errors.push({
+        field: 'currency',
+        message: `Currency must be one of: ${VALID_CURRENCIES.join(', ')}`,
+        messageTr: `Para birimi şunlardan biri olmalıdır: ${VALID_CURRENCIES.join(', ')}`
+      });
+    }
+  }
+
+  // Payment method validation (optional)
+  if (paymentMethod !== undefined && paymentMethod !== null && paymentMethod !== '') {
+    if (!PAYMENT_METHODS.includes(paymentMethod)) {
+      errors.push({
+        field: 'paymentMethod',
+        message: `Payment method must be one of: ${PAYMENT_METHODS.join(', ')}`,
+        messageTr: `Ödeme yöntemi şunlardan biri olmalıdır: ${PAYMENT_METHODS.join(', ')}`
+      });
+    }
+  }
+
+  // Reference validation (optional)
+  if (reference !== undefined && reference !== null && reference !== '') {
+    if (typeof reference !== 'string') {
+      errors.push({
+        field: 'reference',
+        message: 'Reference must be a string',
+        messageTr: 'Referans metin olmalıdır'
+      });
+    } else if (reference.length > 100) {
+      errors.push({
+        field: 'reference',
+        message: 'Reference must not exceed 100 characters',
+        messageTr: 'Referans 100 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Payee validation (optional)
+  if (payee !== undefined && payee !== null && payee !== '') {
+    if (typeof payee !== 'string') {
+      errors.push({
+        field: 'payee',
+        message: 'Payee must be a string',
+        messageTr: 'Alıcı metin olmalıdır'
+      });
+    } else if (payee.length > 255) {
+      errors.push({
+        field: 'payee',
+        message: 'Payee must not exceed 255 characters',
+        messageTr: 'Alıcı 255 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Receipt path validation (optional)
+  if (receiptPath !== undefined && receiptPath !== null && receiptPath !== '') {
+    if (typeof receiptPath !== 'string') {
+      errors.push({
+        field: 'receiptPath',
+        message: 'Receipt path must be a string',
+        messageTr: 'Makbuz yolu metin olmalıdır'
+      });
+    } else if (receiptPath.length > 500) {
+      errors.push({
+        field: 'receiptPath',
+        message: 'Receipt path must not exceed 500 characters',
+        messageTr: 'Makbuz yolu 500 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Notes validation (optional)
+  if (notes !== undefined && notes !== null && notes !== '') {
+    if (typeof notes !== 'string') {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must be a string',
+        messageTr: 'Notlar metin olmalıdır'
+      });
+    } else if (notes.length > 2000) {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must not exceed 2000 characters',
+        messageTr: 'Notlar 2000 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // isRecurring validation (optional)
+  if (isRecurring !== undefined && isRecurring !== null) {
+    if (typeof isRecurring !== 'boolean') {
+      errors.push({
+        field: 'isRecurring',
+        message: 'isRecurring must be a boolean',
+        messageTr: 'isRecurring boolean olmalıdır'
+      });
+    }
+  }
+
+  // Recurring frequency validation (required if isRecurring is true)
+  if (isRecurring === true && (!recurringFrequency || recurringFrequency === '')) {
+    errors.push({
+      field: 'recurringFrequency',
+      message: 'Recurring frequency is required when isRecurring is true',
+      messageTr: 'isRecurring true olduğunda tekrar sıklığı zorunludur'
+    });
+  } else if (recurringFrequency !== undefined && recurringFrequency !== null && recurringFrequency !== '') {
+    if (!RECURRING_FREQUENCIES.includes(recurringFrequency)) {
+      errors.push({
+        field: 'recurringFrequency',
+        message: `Recurring frequency must be one of: ${RECURRING_FREQUENCIES.join(', ')}`,
+        messageTr: `Tekrar sıklığı şunlardan biri olmalıdır: ${RECURRING_FREQUENCIES.join(', ')}`
+      });
+    }
+  }
+
+  // Linked transaction ID validation (optional)
+  if (linkedTransactionId !== undefined && linkedTransactionId !== null) {
+    if (typeof linkedTransactionId !== 'number' || !Number.isInteger(linkedTransactionId) || linkedTransactionId <= 0) {
+      errors.push({
+        field: 'linkedTransactionId',
+        message: 'Linked transaction ID must be a positive integer',
+        messageTr: 'Bağlı işlem ID pozitif bir tam sayı olmalıdır'
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    return sendValidationError(res, errors);
+  }
+
+  next();
+}
+
+/**
+ * Validates transaction update request body.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function validateTransactionUpdate(req, res, next) {
+  const errors = [];
+  const {
+    categoryId,
+    type,
+    status,
+    transactionDate,
+    description,
+    reference,
+    amount,
+    vatRate,
+    vatAmount,
+    totalAmount,
+    currency,
+    paymentMethod,
+    payee,
+    receiptPath,
+    notes,
+    isRecurring,
+    recurringFrequency,
+    linkedTransactionId
+  } = req.body;
+
+  // Type validation (optional on update)
+  if (type !== undefined && type !== null) {
+    if (typeof type !== 'string') {
+      errors.push({
+        field: 'type',
+        message: 'Transaction type must be a string',
+        messageTr: 'İşlem tipi metin olmalıdır'
+      });
+    } else if (!TRANSACTION_TYPES.includes(type)) {
+      errors.push({
+        field: 'type',
+        message: `Transaction type must be one of: ${TRANSACTION_TYPES.join(', ')}`,
+        messageTr: `İşlem tipi şunlardan biri olmalıdır: ${TRANSACTION_TYPES.join(', ')}`
+      });
+    }
+  }
+
+  // Transaction date validation (optional on update)
+  if (transactionDate !== undefined && transactionDate !== null) {
+    if (typeof transactionDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(transactionDate)) {
+      errors.push({
+        field: 'transactionDate',
+        message: 'Transaction date must be in YYYY-MM-DD format',
+        messageTr: 'İşlem tarihi YYYY-MM-DD formatında olmalıdır'
+      });
+    } else {
+      const date = new Date(transactionDate);
+      if (isNaN(date.getTime())) {
+        errors.push({
+          field: 'transactionDate',
+          message: 'Transaction date is not a valid date',
+          messageTr: 'İşlem tarihi geçerli bir tarih değil'
+        });
+      }
+    }
+  }
+
+  // Description validation (optional on update)
+  if (description !== undefined && description !== null) {
+    if (typeof description !== 'string') {
+      errors.push({
+        field: 'description',
+        message: 'Description must be a string',
+        messageTr: 'Açıklama metin olmalıdır'
+      });
+    } else if (description.trim().length < 2) {
+      errors.push({
+        field: 'description',
+        message: 'Description must be at least 2 characters long',
+        messageTr: 'Açıklama en az 2 karakter olmalıdır'
+      });
+    } else if (description.length > 500) {
+      errors.push({
+        field: 'description',
+        message: 'Description must not exceed 500 characters',
+        messageTr: 'Açıklama 500 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Category ID validation (optional)
+  if (categoryId !== undefined && categoryId !== null && categoryId !== 0) {
+    if (typeof categoryId !== 'number' || !Number.isInteger(categoryId) || categoryId < 0) {
+      errors.push({
+        field: 'categoryId',
+        message: 'Category ID must be a non-negative integer',
+        messageTr: 'Kategori ID negatif olmayan bir tam sayı olmalıdır'
+      });
+    }
+  }
+
+  // Status validation (optional)
+  if (status !== undefined && status !== null && status !== '') {
+    if (!TRANSACTION_STATUSES.includes(status)) {
+      errors.push({
+        field: 'status',
+        message: `Status must be one of: ${TRANSACTION_STATUSES.join(', ')}`,
+        messageTr: `Durum şunlardan biri olmalıdır: ${TRANSACTION_STATUSES.join(', ')}`
+      });
+    }
+  }
+
+  // Amount validation (optional)
+  if (amount !== undefined && amount !== null) {
+    if (typeof amount !== 'number' || !Number.isInteger(amount)) {
+      errors.push({
+        field: 'amount',
+        message: 'Amount must be an integer (in pence)',
+        messageTr: 'Tutar tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (amount < 0) {
+      errors.push({
+        field: 'amount',
+        message: 'Amount cannot be negative',
+        messageTr: 'Tutar negatif olamaz'
+      });
+    }
+  }
+
+  // VAT rate validation (optional)
+  if (vatRate !== undefined && vatRate !== null) {
+    if (typeof vatRate !== 'number' || !Number.isInteger(vatRate)) {
+      errors.push({
+        field: 'vatRate',
+        message: 'VAT rate must be an integer (in basis points)',
+        messageTr: 'KDV oranı tam sayı olmalıdır (baz puan cinsinden)'
+      });
+    } else if (vatRate < 0 || vatRate > 10000) {
+      errors.push({
+        field: 'vatRate',
+        message: 'VAT rate must be between 0 and 10000 (0% to 100%)',
+        messageTr: 'KDV oranı 0 ile 10000 arasında olmalıdır (%0 ile %100)'
+      });
+    }
+  }
+
+  // VAT amount validation (optional)
+  if (vatAmount !== undefined && vatAmount !== null) {
+    if (typeof vatAmount !== 'number' || !Number.isInteger(vatAmount)) {
+      errors.push({
+        field: 'vatAmount',
+        message: 'VAT amount must be an integer (in pence)',
+        messageTr: 'KDV tutarı tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (vatAmount < 0) {
+      errors.push({
+        field: 'vatAmount',
+        message: 'VAT amount cannot be negative',
+        messageTr: 'KDV tutarı negatif olamaz'
+      });
+    }
+  }
+
+  // Total amount validation (optional)
+  if (totalAmount !== undefined && totalAmount !== null) {
+    if (typeof totalAmount !== 'number' || !Number.isInteger(totalAmount)) {
+      errors.push({
+        field: 'totalAmount',
+        message: 'Total amount must be an integer (in pence)',
+        messageTr: 'Toplam tutar tam sayı olmalıdır (peni cinsinden)'
+      });
+    } else if (totalAmount < 0) {
+      errors.push({
+        field: 'totalAmount',
+        message: 'Total amount cannot be negative',
+        messageTr: 'Toplam tutar negatif olamaz'
+      });
+    }
+  }
+
+  // Currency validation (optional)
+  if (currency !== undefined && currency !== null && currency !== '') {
+    if (!VALID_CURRENCIES.includes(currency.toUpperCase())) {
+      errors.push({
+        field: 'currency',
+        message: `Currency must be one of: ${VALID_CURRENCIES.join(', ')}`,
+        messageTr: `Para birimi şunlardan biri olmalıdır: ${VALID_CURRENCIES.join(', ')}`
+      });
+    }
+  }
+
+  // Payment method validation (optional)
+  if (paymentMethod !== undefined && paymentMethod !== null && paymentMethod !== '') {
+    if (!PAYMENT_METHODS.includes(paymentMethod)) {
+      errors.push({
+        field: 'paymentMethod',
+        message: `Payment method must be one of: ${PAYMENT_METHODS.join(', ')}`,
+        messageTr: `Ödeme yöntemi şunlardan biri olmalıdır: ${PAYMENT_METHODS.join(', ')}`
+      });
+    }
+  }
+
+  // Reference validation (optional)
+  if (reference !== undefined && reference !== null && reference !== '') {
+    if (typeof reference !== 'string') {
+      errors.push({
+        field: 'reference',
+        message: 'Reference must be a string',
+        messageTr: 'Referans metin olmalıdır'
+      });
+    } else if (reference.length > 100) {
+      errors.push({
+        field: 'reference',
+        message: 'Reference must not exceed 100 characters',
+        messageTr: 'Referans 100 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Payee validation (optional)
+  if (payee !== undefined && payee !== null && payee !== '') {
+    if (typeof payee !== 'string') {
+      errors.push({
+        field: 'payee',
+        message: 'Payee must be a string',
+        messageTr: 'Alıcı metin olmalıdır'
+      });
+    } else if (payee.length > 255) {
+      errors.push({
+        field: 'payee',
+        message: 'Payee must not exceed 255 characters',
+        messageTr: 'Alıcı 255 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Receipt path validation (optional)
+  if (receiptPath !== undefined && receiptPath !== null && receiptPath !== '') {
+    if (typeof receiptPath !== 'string') {
+      errors.push({
+        field: 'receiptPath',
+        message: 'Receipt path must be a string',
+        messageTr: 'Makbuz yolu metin olmalıdır'
+      });
+    } else if (receiptPath.length > 500) {
+      errors.push({
+        field: 'receiptPath',
+        message: 'Receipt path must not exceed 500 characters',
+        messageTr: 'Makbuz yolu 500 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // Notes validation (optional)
+  if (notes !== undefined && notes !== null && notes !== '') {
+    if (typeof notes !== 'string') {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must be a string',
+        messageTr: 'Notlar metin olmalıdır'
+      });
+    } else if (notes.length > 2000) {
+      errors.push({
+        field: 'notes',
+        message: 'Notes must not exceed 2000 characters',
+        messageTr: 'Notlar 2000 karakteri geçmemelidir'
+      });
+    }
+  }
+
+  // isRecurring validation (optional)
+  if (isRecurring !== undefined && isRecurring !== null) {
+    if (typeof isRecurring !== 'boolean') {
+      errors.push({
+        field: 'isRecurring',
+        message: 'isRecurring must be a boolean',
+        messageTr: 'isRecurring boolean olmalıdır'
+      });
+    }
+  }
+
+  // Recurring frequency validation (optional)
+  if (recurringFrequency !== undefined && recurringFrequency !== null && recurringFrequency !== '') {
+    if (!RECURRING_FREQUENCIES.includes(recurringFrequency)) {
+      errors.push({
+        field: 'recurringFrequency',
+        message: `Recurring frequency must be one of: ${RECURRING_FREQUENCIES.join(', ')}`,
+        messageTr: `Tekrar sıklığı şunlardan biri olmalıdır: ${RECURRING_FREQUENCIES.join(', ')}`
+      });
+    }
+  }
+
+  // Linked transaction ID validation (optional)
+  if (linkedTransactionId !== undefined && linkedTransactionId !== null && linkedTransactionId !== 0) {
+    if (typeof linkedTransactionId !== 'number' || !Number.isInteger(linkedTransactionId) || linkedTransactionId < 0) {
+      errors.push({
+        field: 'linkedTransactionId',
+        message: 'Linked transaction ID must be a non-negative integer',
+        messageTr: 'Bağlı işlem ID negatif olmayan bir tam sayı olmalıdır'
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    return sendValidationError(res, errors);
+  }
+
+  next();
+}
+
+/**
+ * Sanitizes transaction request body.
+ * Trims strings and normalizes values.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ */
+function sanitizeTransaction(req, res, next) {
+  const body = req.body;
+
+  // Trim string fields
+  const stringFields = ['description', 'reference', 'payee', 'receiptPath', 'notes'];
+
+  for (const field of stringFields) {
+    if (body[field] && typeof body[field] === 'string') {
+      body[field] = body[field].trim();
+    }
+  }
+
+  // Normalize currency (uppercase)
+  if (body.currency && typeof body.currency === 'string') {
+    body.currency = body.currency.toUpperCase();
+  }
+
+  next();
+}
+
 module.exports = {
   validateRegistration,
   validateLogin,
@@ -1507,6 +2193,10 @@ module.exports = {
   // Profile validation
   validateProfileUpdate,
   sanitizeProfileUpdate,
+  // Transaction validation
+  validateTransactionCreate,
+  validateTransactionUpdate,
+  sanitizeTransaction,
   // Authentication
   authenticateToken,
   // Constants
@@ -1518,7 +2208,11 @@ module.exports = {
   VALID_LANGUAGES,
   INVOICE_CURRENCIES,
   INVOICE_STATUSES,
-  VALID_VAT_RATE_IDS
+  VALID_VAT_RATE_IDS,
+  TRANSACTION_TYPES,
+  TRANSACTION_STATUSES,
+  PAYMENT_METHODS,
+  RECURRING_FREQUENCIES
 };
 
 /**
