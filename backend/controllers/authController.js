@@ -1,12 +1,13 @@
 /**
  * Auth Controller
- * Handles authentication operations including user registration and login.
+ * Handles authentication operations including user registration, login, and logout.
  * 
  * @module controllers/authController
  */
 
 const { createUser, findByEmail, authenticate, sanitizeUser } = require('../database/models/User');
 const { generateToken } = require('../utils/jwt');
+const { addToBlacklist } = require('../utils/tokenBlacklist');
 const { HTTP_STATUS, ERROR_CODES, createErrorResponse } = require('../utils/errorCodes');
 
 /**
@@ -222,8 +223,77 @@ async function getProfile(req, res) {
   }
 }
 
+/**
+ * Logs out the current user by invalidating their JWT token.
+ * POST /api/auth/logout
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.token - The current JWT token from auth middleware
+ * @param {Object} res - Express response object
+ */
+async function logout(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+
+    // Get the token from the request (set by auth middleware)
+    const token = req.token;
+
+    if (!token) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.AUTH_TOKEN_MISSING.code,
+          message: ERROR_CODES.AUTH_TOKEN_MISSING.message
+        }
+      });
+    }
+
+    // Add token to blacklist
+    const blacklisted = addToBlacklist(token);
+
+    if (!blacklisted) {
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+          message: {
+            en: 'Failed to invalidate token',
+            tr: 'Jeton geçersiz kılınamadı'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        message: {
+          en: 'Successfully logged out',
+          tr: 'Başarıyla çıkış yapıldı'
+        }
+      },
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Logout error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
+  logout,
   getProfile
 };

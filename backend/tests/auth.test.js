@@ -86,10 +86,19 @@ beforeEach(() => {
 });
 
 // Import modules for unit testing
-const { register, login } = require('../controllers/authController');
+const { register, login, logout } = require('../controllers/authController');
 const { validateRegistration, validateLogin, sanitizeRegistration } = require('../middleware/validation');
+const { authenticate } = require('../middleware/auth');
 const { hashPassword, comparePassword, validatePassword } = require('../utils/password');
 const { generateToken, verifyToken, decodeToken } = require('../utils/jwt');
+const { 
+  addToBlacklist, 
+  isBlacklisted, 
+  removeFromBlacklist, 
+  clearBlacklist, 
+  getBlacklistSize,
+  cleanupExpiredTokens 
+} = require('../utils/tokenBlacklist');
 
 describe('Auth API', () => {
   describe('Password Utility', () => {
@@ -599,6 +608,336 @@ describe('Auth API', () => {
       sanitizeRegistration(req, res, next);
       
       expect(req.body.companyNumber).toBe('SC123456');
+    });
+  });
+
+  describe('Token Blacklist Utility', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should add token to blacklist', () => {
+      const token = generateToken({ id: 1, email: 'test@example.com' });
+      
+      const result = addToBlacklist(token);
+      
+      expect(result).toBe(true);
+      expect(isBlacklisted(token)).toBe(true);
+    });
+
+    test('should handle Bearer prefix when adding to blacklist', () => {
+      const token = generateToken({ id: 1, email: 'test@example.com' });
+      
+      addToBlacklist(`Bearer ${token}`);
+      
+      expect(isBlacklisted(token)).toBe(true);
+      expect(isBlacklisted(`Bearer ${token}`)).toBe(true);
+    });
+
+    test('should return false for non-blacklisted token', () => {
+      const token = generateToken({ id: 1, email: 'test@example.com' });
+      
+      expect(isBlacklisted(token)).toBe(false);
+    });
+
+    test('should remove token from blacklist', () => {
+      const token = generateToken({ id: 1, email: 'test@example.com' });
+      addToBlacklist(token);
+      
+      expect(isBlacklisted(token)).toBe(true);
+      
+      const removed = removeFromBlacklist(token);
+      
+      expect(removed).toBe(true);
+      expect(isBlacklisted(token)).toBe(false);
+    });
+
+    test('should clear all tokens from blacklist', () => {
+      const token1 = generateToken({ id: 1, email: 'test1@example.com' });
+      const token2 = generateToken({ id: 2, email: 'test2@example.com' });
+      
+      addToBlacklist(token1);
+      addToBlacklist(token2);
+      
+      expect(getBlacklistSize()).toBe(2);
+      
+      clearBlacklist();
+      
+      expect(getBlacklistSize()).toBe(0);
+      expect(isBlacklisted(token1)).toBe(false);
+      expect(isBlacklisted(token2)).toBe(false);
+    });
+
+    test('should return false when adding null token', () => {
+      expect(addToBlacklist(null)).toBe(false);
+      expect(addToBlacklist(undefined)).toBe(false);
+      expect(addToBlacklist('')).toBe(false);
+    });
+
+    test('should return false when checking null token', () => {
+      expect(isBlacklisted(null)).toBe(false);
+      expect(isBlacklisted(undefined)).toBe(false);
+      expect(isBlacklisted('')).toBe(false);
+    });
+
+    test('should return correct blacklist size', () => {
+      expect(getBlacklistSize()).toBe(0);
+      
+      const token = generateToken({ id: 1, email: 'test@example.com' });
+      addToBlacklist(token);
+      
+      expect(getBlacklistSize()).toBe(1);
+    });
+  });
+
+  describe('Auth Middleware', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should reject request without token', async () => {
+      const req = createMockRequest({}, {}, {});
+      const res = createMockResponse();
+      const next = jest.fn();
+      
+      await authenticate(req, res, next);
+      
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.error.code).toBe('AUTH_TOKEN_MISSING');
+    });
+
+    test('should reject request with invalid token', async () => {
+      const req = createMockRequest({}, {}, {
+        authorization: 'Bearer invalid.token.here'
+      });
+      const res = createMockResponse();
+      const next = jest.fn();
+      
+      await authenticate(req, res, next);
+      
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.error.code).toBe('AUTH_TOKEN_INVALID');
+    });
+
+    test('should reject request with blacklisted token', async () => {
+      // First register a user
+      const regReq = createMockRequest({
+        email: 'middleware@example.com',
+        password: 'ValidPass123',
+        name: 'Middleware User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const token = regRes.jsonData.data.token;
+      
+      // Blacklist the token
+      addToBlacklist(token);
+      
+      const req = createMockRequest({}, {}, {
+        authorization: `Bearer ${token}`
+      });
+      const res = createMockResponse();
+      const next = jest.fn();
+      
+      await authenticate(req, res, next);
+      
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.error.code).toBe('AUTH_TOKEN_INVALID');
+    });
+
+    test('should authenticate valid token and attach user', async () => {
+      // First register a user
+      const regReq = createMockRequest({
+        email: 'valid@example.com',
+        password: 'ValidPass123',
+        name: 'Valid User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const token = regRes.jsonData.data.token;
+      
+      const req = createMockRequest({}, {}, {
+        authorization: `Bearer ${token}`
+      });
+      const res = createMockResponse();
+      const next = jest.fn();
+      
+      await authenticate(req, res, next);
+      
+      expect(next).toHaveBeenCalled();
+      expect(req.user).toBeDefined();
+      expect(req.user.email).toBe('valid@example.com');
+      expect(req.token).toBe(token);
+      // Password hash should not be exposed
+      expect(req.user.passwordHash).toBeUndefined();
+    });
+  });
+
+  describe('Logout Controller', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should logout successfully and blacklist token', async () => {
+      // First register a user
+      const regReq = createMockRequest({
+        email: 'logout@example.com',
+        password: 'ValidPass123',
+        name: 'Logout User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const token = regRes.jsonData.data.token;
+      
+      // Create logout request with token attached (simulating auth middleware)
+      const req = createMockRequest({}, {}, {});
+      req.token = token;
+      req.user = regRes.jsonData.data.user;
+      
+      const res = createMockResponse();
+      
+      await logout(req, res);
+      
+      expect(res.statusCode).toBe(200);
+      expect(res.jsonData.success).toBe(true);
+      expect(res.jsonData.data.message).toBeDefined();
+      expect(res.jsonData.data.message.en).toBe('Successfully logged out');
+      expect(res.jsonData.data.message.tr).toBe('Başarıyla çıkış yapıldı');
+      
+      // Token should now be blacklisted
+      expect(isBlacklisted(token)).toBe(true);
+    });
+
+    test('should reject logout without token', async () => {
+      const req = createMockRequest({}, {}, {});
+      // No token attached
+      const res = createMockResponse();
+      
+      await logout(req, res);
+      
+      expect(res.statusCode).toBe(401);
+      expect(res.jsonData.success).toBe(false);
+      expect(res.jsonData.error.code).toBe('AUTH_TOKEN_MISSING');
+    });
+
+    test('should prevent token reuse after logout', async () => {
+      // Register a user
+      const regReq = createMockRequest({
+        email: 'reuse@example.com',
+        password: 'ValidPass123',
+        name: 'Reuse Test User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      const token = regRes.jsonData.data.token;
+      
+      // Logout
+      const logoutReq = createMockRequest({}, {}, {});
+      logoutReq.token = token;
+      logoutReq.user = regRes.jsonData.data.user;
+      const logoutRes = createMockResponse();
+      await logout(logoutReq, logoutRes);
+      
+      expect(logoutRes.statusCode).toBe(200);
+      
+      // Try to authenticate with the same token
+      const authReq = createMockRequest({}, {}, {
+        authorization: `Bearer ${token}`
+      });
+      const authRes = createMockResponse();
+      const next = jest.fn();
+      
+      await authenticate(authReq, authRes, next);
+      
+      // Should be rejected because token is blacklisted
+      expect(next).not.toHaveBeenCalled();
+      expect(authRes.statusCode).toBe(401);
+    });
+  });
+
+  describe('Full Login-Logout Flow', () => {
+    beforeEach(() => {
+      clearBlacklist();
+    });
+
+    afterEach(() => {
+      clearBlacklist();
+    });
+
+    test('should complete full login and logout flow', async () => {
+      // 1. Register a user
+      const regReq = createMockRequest({
+        email: 'fullflow@example.com',
+        password: 'ValidPass123',
+        name: 'Full Flow User'
+      });
+      const regRes = createMockResponse();
+      await register(regReq, regRes);
+      
+      expect(regRes.statusCode).toBe(201);
+      expect(regRes.jsonData.data.token).toBeDefined();
+      
+      // 2. Login with the user
+      const loginReq = createMockRequest({
+        email: 'fullflow@example.com',
+        password: 'ValidPass123'
+      });
+      const loginRes = createMockResponse();
+      await login(loginReq, loginRes);
+      
+      expect(loginRes.statusCode).toBe(200);
+      const token = loginRes.jsonData.data.token;
+      expect(token).toBeDefined();
+      
+      // 3. Verify token works with auth middleware
+      const authReq = createMockRequest({}, {}, {
+        authorization: `Bearer ${token}`
+      });
+      const authRes = createMockResponse();
+      const next = jest.fn();
+      await authenticate(authReq, authRes, next);
+      
+      expect(next).toHaveBeenCalled();
+      expect(authReq.user).toBeDefined();
+      
+      // 4. Logout
+      const logoutReq = createMockRequest({}, {}, {});
+      logoutReq.token = token;
+      logoutReq.user = loginRes.jsonData.data.user;
+      const logoutRes = createMockResponse();
+      await logout(logoutReq, logoutRes);
+      
+      expect(logoutRes.statusCode).toBe(200);
+      
+      // 5. Token should no longer work
+      const authReq2 = createMockRequest({}, {}, {
+        authorization: `Bearer ${token}`
+      });
+      const authRes2 = createMockResponse();
+      const next2 = jest.fn();
+      await authenticate(authReq2, authRes2, next2);
+      
+      expect(next2).not.toHaveBeenCalled();
+      expect(authRes2.statusCode).toBe(401);
     });
   });
 });
