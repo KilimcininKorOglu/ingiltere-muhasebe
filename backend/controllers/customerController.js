@@ -24,6 +24,12 @@ const {
 } = require('../database/models/Customer');
 const { query: dbQuery } = require('../database/index');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
+const {
+  getCustomerTransactionHistory,
+  getCustomerInvoiceHistory,
+  getCustomerSummary,
+  validateDateRange
+} = require('../services/customerSummaryService');
 
 /**
  * Creates a new customer.
@@ -718,6 +724,216 @@ async function search(req, res) {
   }
 }
 
+/**
+ * Gets transaction history for a specific customer.
+ * GET /api/customers/:id/transactions
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Customer ID
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function getTransactionHistory(req, res) {
+  try {
+    const { lang = 'en', page = 1, limit = 20, type, startDate, endDate, sortBy, sortOrder } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Validate date range if provided
+    if (startDate || endDate) {
+      const dateValidation = validateDateRange(startDate, endDate);
+      if (!dateValidation.isValid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: {
+              en: dateValidation.error,
+              tr: dateValidation.error
+            }
+          }
+        });
+      }
+    }
+
+    const result = getCustomerTransactionHistory(userId, parseInt(id, 10), {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      type,
+      startDate,
+      endDate,
+      sortBy,
+      sortOrder
+    });
+
+    if (!result.success) {
+      const statusCode = result.error === 'Customer not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.FORBIDDEN;
+      return res.status(statusCode).json({
+        success: false,
+        error: {
+          code: result.error === 'Customer not found' ? 'RES_NOT_FOUND' : 'AUTHZ_RESOURCE_OWNER_ONLY',
+          message: {
+            en: result.error,
+            tr: result.error === 'Customer not found' ? 'Müşteri bulunamadı' : 'Erişim reddedildi'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get customer transaction history error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets invoice history for a specific customer with status filtering.
+ * GET /api/customers/:id/invoices
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Customer ID
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function getInvoiceHistory(req, res) {
+  try {
+    const { lang = 'en', page = 1, limit = 20, status, startDate, endDate, sortBy, sortOrder } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Validate date range if provided
+    if (startDate || endDate) {
+      const dateValidation = validateDateRange(startDate, endDate);
+      if (!dateValidation.isValid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: {
+              en: dateValidation.error,
+              tr: dateValidation.error
+            }
+          }
+        });
+      }
+    }
+
+    const result = getCustomerInvoiceHistory(userId, parseInt(id, 10), {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      status,
+      startDate,
+      endDate,
+      sortBy,
+      sortOrder
+    });
+
+    if (!result.success) {
+      const statusCode = result.error === 'Customer not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.FORBIDDEN;
+      return res.status(statusCode).json({
+        success: false,
+        error: {
+          code: result.error === 'Customer not found' ? 'RES_NOT_FOUND' : 'AUTHZ_RESOURCE_OWNER_ONLY',
+          message: {
+            en: result.error,
+            tr: result.error === 'Customer not found' ? 'Müşteri bulunamadı' : 'Erişim reddedildi'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get customer invoice history error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
+/**
+ * Gets summary information for a specific customer.
+ * Includes invoice totals, transaction totals, and outstanding balance.
+ * GET /api/customers/:id/summary
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.params.id - Customer ID
+ * @param {Object} req.user - Authenticated user from middleware
+ * @param {Object} res - Express response object
+ */
+async function getSummary(req, res) {
+  try {
+    const { lang = 'en' } = req.query;
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const result = getCustomerSummary(userId, parseInt(id, 10));
+
+    if (!result.success) {
+      const statusCode = result.error === 'Customer not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.FORBIDDEN;
+      return res.status(statusCode).json({
+        success: false,
+        error: {
+          code: result.error === 'Customer not found' ? 'RES_NOT_FOUND' : 'AUTHZ_RESOURCE_OWNER_ONLY',
+          message: {
+            en: result.error,
+            tr: result.error === 'Customer not found' ? 'Müşteri bulunamadı' : 'Erişim reddedildi'
+          }
+        }
+      });
+    }
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: result.data,
+      meta: {
+        language: lang,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Get customer summary error:', error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      error: {
+        code: ERROR_CODES.SYS_INTERNAL_ERROR.code,
+        message: ERROR_CODES.SYS_INTERNAL_ERROR.message
+      }
+    });
+  }
+}
+
 module.exports = {
   create,
   getById,
@@ -729,6 +945,9 @@ module.exports = {
   getActive,
   getB2B,
   search,
+  getTransactionHistory,
+  getInvoiceHistory,
+  getSummary,
   // Export for testing
   hasUnpaidInvoices
 };

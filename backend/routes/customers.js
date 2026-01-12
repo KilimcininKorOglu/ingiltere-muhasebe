@@ -19,7 +19,10 @@ const {
   getStats,
   getActive,
   getB2B,
-  search
+  search,
+  getTransactionHistory,
+  getInvoiceHistory,
+  getSummary
 } = require('../controllers/customerController');
 
 const { authenticate } = require('../middleware/auth');
@@ -80,6 +83,50 @@ router.get('/search', authenticate, search);
  * @returns { success: true, data: { customers: CustomerData[], total: number, page: number, limit: number } }
  */
 router.get('/', authenticate, list);
+
+/**
+ * @route   GET /api/customers/:id/transactions
+ * @desc    Get transaction history for a specific customer
+ * @header  Authorization: Bearer <token>
+ * @param   id - Customer ID
+ * @query   page - Page number (default: 1)
+ * @query   limit - Items per page (default: 20)
+ * @query   type - Filter by transaction type (income, expense)
+ * @query   startDate - Start date filter (YYYY-MM-DD)
+ * @query   endDate - End date filter (YYYY-MM-DD)
+ * @query   sortBy - Sort field (transactionDate, amount, totalAmount, type, status, createdAt)
+ * @query   sortOrder - Sort order (ASC, DESC)
+ * @access  Private
+ * @returns { success: true, data: { transactions: TransactionData[], total: number, page: number, limit: number } }
+ */
+router.get('/:id/transactions', authenticate, getTransactionHistory);
+
+/**
+ * @route   GET /api/customers/:id/invoices
+ * @desc    Get invoice history for a specific customer with status filtering
+ * @header  Authorization: Bearer <token>
+ * @param   id - Customer ID
+ * @query   page - Page number (default: 1)
+ * @query   limit - Items per page (default: 20)
+ * @query   status - Filter by invoice status (draft, pending, paid, overdue, cancelled, void)
+ * @query   startDate - Start date filter (YYYY-MM-DD) for issue date
+ * @query   endDate - End date filter (YYYY-MM-DD) for issue date
+ * @query   sortBy - Sort field (issueDate, dueDate, invoiceNumber, totalAmount, status, createdAt)
+ * @query   sortOrder - Sort order (ASC, DESC)
+ * @access  Private
+ * @returns { success: true, data: { invoices: InvoiceData[], total: number, page: number, limit: number } }
+ */
+router.get('/:id/invoices', authenticate, getInvoiceHistory);
+
+/**
+ * @route   GET /api/customers/:id/summary
+ * @desc    Get summary information for a specific customer including totals and outstanding balance
+ * @header  Authorization: Bearer <token>
+ * @param   id - Customer ID
+ * @access  Private
+ * @returns { success: true, data: CustomerSummaryData }
+ */
+router.get('/:id/summary', authenticate, getSummary);
 
 /**
  * @route   GET /api/customers/:id
