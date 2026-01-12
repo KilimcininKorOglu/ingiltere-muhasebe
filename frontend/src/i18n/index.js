@@ -19,6 +19,10 @@ import {
 // Import translation resources
 import enTranslation from '../locales/en/translation.json';
 import trTranslation from '../locales/tr/translation.json';
+import enFinancial from '../locales/en/financial.json';
+import trFinancial from '../locales/tr/financial.json';
+import enTax from '../locales/en/tax.json';
+import trTax from '../locales/tr/tax.json';
 
 /**
  * Translation resources organized by language and namespace
@@ -26,9 +30,13 @@ import trTranslation from '../locales/tr/translation.json';
 const resources = {
   en: {
     translation: enTranslation,
+    financial: enFinancial,
+    tax: enTax,
   },
   tr: {
     translation: trTranslation,
+    financial: trFinancial,
+    tax: trTax,
   },
 };
 
@@ -55,7 +63,7 @@ i18n
     defaultNS: DEFAULT_NAMESPACE,
 
     // Namespace to use when not specified
-    ns: [DEFAULT_NAMESPACE],
+    ns: [DEFAULT_NAMESPACE, 'financial', 'tax'],
 
     // Language detection configuration
     detection: {

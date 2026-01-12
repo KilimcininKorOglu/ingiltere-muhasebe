@@ -50,6 +50,7 @@ coverage/
 *.sqlite-wal
 *.sqlite-shm
 data/
+!frontend/src/data/
 
 # Misc
 *.tmp

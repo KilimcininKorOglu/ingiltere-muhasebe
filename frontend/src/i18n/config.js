@@ -54,6 +54,8 @@ export const NAMESPACES = {
   translation: 'translation',
   common: 'common',
   errors: 'errors',
+  financial: 'financial',
+  tax: 'tax',
 };
 
 /**
