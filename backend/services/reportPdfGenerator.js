@@ -863,6 +863,314 @@ async function generatePayeSummaryPdf(report, businessDetails, options = {}) {
   });
 }
 
+// Import balance sheet template
+const balanceSheetTemplate = require('../templates/reports/balanceSheet');
+
+/**
+ * Generates a PDF for a Balance Sheet report.
+ * 
+ * @param {Object} report - Balance Sheet report data
+ * @param {Object} businessDetails - Business details
+ * @param {Object} [options={}] - Generation options
+ * @returns {Promise<Buffer>} PDF document as buffer
+ */
+async function generateBalanceSheetPdf(report, businessDetails, options = {}) {
+  const { lang = 'en' } = options;
+  const bsLabels = balanceSheetTemplate.getLabels(lang);
+  const mainLabels = getLabels(lang);
+  const commonLabels = mainLabels.common;
+  
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: balanceSheetTemplate.layout.pageSize,
+        margins: balanceSheetTemplate.layout.margins,
+        info: {
+          Title: bsLabels.title,
+          Author: businessDetails?.businessName || 'Company',
+          Subject: bsLabels.title,
+          Keywords: 'balance sheet, assets, liabilities, equity, uk, accounting',
+          Creator: 'UK Accounting System'
+        }
+      });
+      
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+      
+      let y = balanceSheetTemplate.layout.margins.top;
+      const pageWidth = doc.page.width - balanceSheetTemplate.layout.margins.left - balanceSheetTemplate.layout.margins.right;
+      
+      // Draw business name
+      if (businessDetails && businessDetails.businessName) {
+        doc.font(balanceSheetTemplate.fonts.bold)
+           .fontSize(14)
+           .fillColor(balanceSheetTemplate.colors.primary)
+           .text(businessDetails.businessName, balanceSheetTemplate.layout.margins.left, y);
+        y += 20;
+        
+        if (businessDetails.businessAddress) {
+          doc.font(balanceSheetTemplate.fonts.regular)
+             .fontSize(9)
+             .fillColor(balanceSheetTemplate.colors.textLight)
+             .text(businessDetails.businessAddress, balanceSheetTemplate.layout.margins.left, y, { width: 300 });
+          y += 15;
+        }
+        y += 10;
+      }
+      
+      // Report title
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(balanceSheetTemplate.layout.fontSize.title)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(bsLabels.title, balanceSheetTemplate.layout.margins.left, y);
+      y += 25;
+      
+      // Subtitle
+      doc.font(balanceSheetTemplate.fonts.regular)
+         .fontSize(balanceSheetTemplate.layout.fontSize.subtitle)
+         .fillColor(balanceSheetTemplate.colors.textLight)
+         .text(bsLabels.subtitle, balanceSheetTemplate.layout.margins.left, y);
+      y += 18;
+      
+      // As of date box
+      const boxY = y;
+      const boxHeight = 40;
+      
+      doc.rect(balanceSheetTemplate.layout.margins.left, boxY, pageWidth, boxHeight)
+         .fillColor(balanceSheetTemplate.colors.background)
+         .fill();
+      doc.rect(balanceSheetTemplate.layout.margins.left, boxY, pageWidth, boxHeight)
+         .strokeColor(balanceSheetTemplate.colors.border)
+         .stroke();
+      
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(10)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(`${bsLabels.asOfDate}:`, balanceSheetTemplate.layout.margins.left + 10, boxY + 8);
+      doc.font(balanceSheetTemplate.fonts.regular)
+         .fillColor(balanceSheetTemplate.colors.text)
+         .text(formatPdfDate(report.asOfDate), balanceSheetTemplate.layout.margins.left + 100, boxY + 8);
+      
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .text(`${bsLabels.generatedOn}:`, balanceSheetTemplate.layout.margins.left + 10, boxY + 24);
+      doc.font(balanceSheetTemplate.fonts.regular)
+         .text(formatPdfDate(new Date().toISOString().split('T')[0]), balanceSheetTemplate.layout.margins.left + 100, boxY + 24);
+      
+      y = boxY + boxHeight + balanceSheetTemplate.layout.sectionSpacing;
+      
+      // ==================== ASSETS SECTION ====================
+      y = drawSectionTitle(doc, bsLabels.assetsSectionTitle, y);
+      
+      const headers = [bsLabels.categoryCode, bsLabels.category, bsLabels.amount];
+      const widths = [80, 320, 100];
+      
+      // Current Assets subsection
+      if (report.assets.currentAssets && report.assets.currentAssets.categories.length > 0) {
+        doc.font(balanceSheetTemplate.fonts.bold)
+           .fontSize(10)
+           .fillColor(balanceSheetTemplate.colors.assets)
+           .text(bsLabels.currentAssets, balanceSheetTemplate.layout.margins.left, y);
+        y += 16;
+        
+        const currentAssetRows = report.assets.currentAssets.categories.map(cat => [
+          cat.categoryCode,
+          lang === 'tr' ? (cat.categoryNameTr || cat.categoryName) : cat.categoryName,
+          formatMoney(cat.amount)
+        ]);
+        currentAssetRows.push(['', commonLabels.subtotal, formatMoney(report.assets.currentAssets.total)]);
+        
+        y = drawTable(doc, headers, currentAssetRows, widths, y, { alignRight: [2], showTotalsRow: true });
+        y += 10;
+      }
+      
+      // Fixed Assets subsection
+      if (report.assets.fixedAssets && report.assets.fixedAssets.categories.length > 0) {
+        doc.font(balanceSheetTemplate.fonts.bold)
+           .fontSize(10)
+           .fillColor(balanceSheetTemplate.colors.assets)
+           .text(bsLabels.fixedAssets, balanceSheetTemplate.layout.margins.left, y);
+        y += 16;
+        
+        const fixedAssetRows = report.assets.fixedAssets.categories.map(cat => [
+          cat.categoryCode,
+          lang === 'tr' ? (cat.categoryNameTr || cat.categoryName) : cat.categoryName,
+          formatMoney(cat.amount)
+        ]);
+        fixedAssetRows.push(['', commonLabels.subtotal, formatMoney(report.assets.fixedAssets.total)]);
+        
+        y = drawTable(doc, headers, fixedAssetRows, widths, y, { alignRight: [2], showTotalsRow: true });
+        y += 10;
+      }
+      
+      // Total Assets
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(11)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(bsLabels.totalAssets, balanceSheetTemplate.layout.margins.left, y);
+      doc.text(formatMoney(report.assets.total), balanceSheetTemplate.layout.margins.left + 400, y, { width: 100, align: 'right' });
+      y += 20;
+      
+      drawLine(doc, y - 5, { color: balanceSheetTemplate.colors.primary, width: 1 });
+      y += balanceSheetTemplate.layout.sectionSpacing;
+      
+      // ==================== LIABILITIES SECTION ====================
+      y = drawSectionTitle(doc, bsLabels.liabilitiesSectionTitle, y);
+      
+      // Current Liabilities
+      if (report.liabilities.currentLiabilities && report.liabilities.currentLiabilities.categories.length > 0) {
+        doc.font(balanceSheetTemplate.fonts.bold)
+           .fontSize(10)
+           .fillColor(balanceSheetTemplate.colors.liabilities)
+           .text(bsLabels.currentLiabilities, balanceSheetTemplate.layout.margins.left, y);
+        y += 16;
+        
+        const currentLiabRows = report.liabilities.currentLiabilities.categories.map(cat => [
+          cat.categoryCode,
+          lang === 'tr' ? (cat.categoryNameTr || cat.categoryName) : cat.categoryName,
+          formatMoney(cat.amount)
+        ]);
+        currentLiabRows.push(['', commonLabels.subtotal, formatMoney(report.liabilities.currentLiabilities.total)]);
+        
+        y = drawTable(doc, headers, currentLiabRows, widths, y, { alignRight: [2], showTotalsRow: true });
+        y += 10;
+      }
+      
+      // Long-term Liabilities
+      if (report.liabilities.longTermLiabilities && report.liabilities.longTermLiabilities.categories.length > 0) {
+        doc.font(balanceSheetTemplate.fonts.bold)
+           .fontSize(10)
+           .fillColor(balanceSheetTemplate.colors.liabilities)
+           .text(bsLabels.longTermLiabilities, balanceSheetTemplate.layout.margins.left, y);
+        y += 16;
+        
+        const longTermLiabRows = report.liabilities.longTermLiabilities.categories.map(cat => [
+          cat.categoryCode,
+          lang === 'tr' ? (cat.categoryNameTr || cat.categoryName) : cat.categoryName,
+          formatMoney(cat.amount)
+        ]);
+        longTermLiabRows.push(['', commonLabels.subtotal, formatMoney(report.liabilities.longTermLiabilities.total)]);
+        
+        y = drawTable(doc, headers, longTermLiabRows, widths, y, { alignRight: [2], showTotalsRow: true });
+        y += 10;
+      }
+      
+      // Total Liabilities
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(11)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(bsLabels.totalLiabilities, balanceSheetTemplate.layout.margins.left, y);
+      doc.text(formatMoney(report.liabilities.total), balanceSheetTemplate.layout.margins.left + 400, y, { width: 100, align: 'right' });
+      y += 20;
+      
+      drawLine(doc, y - 5, { color: balanceSheetTemplate.colors.primary, width: 1 });
+      y += balanceSheetTemplate.layout.sectionSpacing;
+      
+      // ==================== EQUITY SECTION ====================
+      // Check for page break
+      if (y + 150 > doc.page.height - balanceSheetTemplate.layout.margins.bottom) {
+        doc.addPage();
+        y = balanceSheetTemplate.layout.margins.top;
+      }
+      
+      y = drawSectionTitle(doc, bsLabels.equitySectionTitle, y);
+      
+      // Equity categories
+      if (report.equity.categories && report.equity.categories.length > 0) {
+        const equityRows = report.equity.categories.map(cat => [
+          cat.categoryCode,
+          lang === 'tr' ? (cat.categoryNameTr || cat.categoryName) : cat.categoryName,
+          formatMoney(cat.amount)
+        ]);
+        
+        // Add retained earnings / current period earnings if present
+        if (report.equity.retainedEarnings !== undefined) {
+          equityRows.push(['', bsLabels.retainedEarnings, formatMoney(report.equity.retainedEarnings)]);
+        }
+        if (report.equity.currentPeriodEarnings !== undefined) {
+          equityRows.push(['', bsLabels.currentPeriodEarnings, formatMoney(report.equity.currentPeriodEarnings)]);
+        }
+        
+        y = drawTable(doc, headers, equityRows, widths, y, { alignRight: [2] });
+        y += 10;
+      }
+      
+      // Total Equity
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(11)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(bsLabels.totalEquity, balanceSheetTemplate.layout.margins.left, y);
+      doc.text(formatMoney(report.equity.total), balanceSheetTemplate.layout.margins.left + 400, y, { width: 100, align: 'right' });
+      y += 20;
+      
+      drawLine(doc, y - 5, { color: balanceSheetTemplate.colors.primary, width: 1 });
+      y += balanceSheetTemplate.layout.sectionSpacing;
+      
+      // ==================== BALANCE CHECK ====================
+      const totalLiabilitiesEquity = (report.liabilities.total || 0) + (report.equity.total || 0);
+      const isBalanced = report.assets.total === totalLiabilitiesEquity;
+      const balanceColor = isBalanced ? balanceSheetTemplate.colors.balanced : balanceSheetTemplate.colors.notBalanced;
+      
+      // Summary box
+      const summaryBoxY = y;
+      const summaryBoxHeight = 70;
+      
+      doc.rect(balanceSheetTemplate.layout.margins.left, summaryBoxY, pageWidth, summaryBoxHeight)
+         .fillColor(isBalanced ? '#e6f7ed' : '#fef2f2')
+         .fill();
+      
+      doc.rect(balanceSheetTemplate.layout.margins.left, summaryBoxY, pageWidth, summaryBoxHeight)
+         .strokeColor(balanceColor)
+         .lineWidth(2)
+         .stroke();
+      
+      let summaryY = summaryBoxY + 10;
+      
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(11)
+         .fillColor(balanceSheetTemplate.colors.primary)
+         .text(bsLabels.totalAssets, balanceSheetTemplate.layout.margins.left + 15, summaryY);
+      doc.text(formatMoney(report.assets.total), balanceSheetTemplate.layout.margins.left + 200, summaryY, { width: 100, align: 'right' });
+      
+      summaryY += 18;
+      doc.text(bsLabels.totalLiabilitiesAndEquity, balanceSheetTemplate.layout.margins.left + 15, summaryY);
+      doc.text(formatMoney(totalLiabilitiesEquity), balanceSheetTemplate.layout.margins.left + 200, summaryY, { width: 100, align: 'right' });
+      
+      summaryY += 22;
+      doc.font(balanceSheetTemplate.fonts.bold)
+         .fontSize(12)
+         .fillColor(balanceColor)
+         .text(bsLabels.balanceCheck + ': ' + (isBalanced ? bsLabels.balanced : bsLabels.notBalanced), 
+           balanceSheetTemplate.layout.margins.left + 15, summaryY);
+      
+      if (!isBalanced) {
+        const discrepancy = report.assets.total - totalLiabilitiesEquity;
+        doc.text(`${bsLabels.discrepancy}: ${formatMoney(discrepancy)}`, 
+          balanceSheetTemplate.layout.margins.left + 300, summaryY);
+      }
+      
+      // Footer
+      const bottomY = doc.page.height - balanceSheetTemplate.layout.margins.bottom - 20;
+      
+      drawLine(doc, bottomY, { color: balanceSheetTemplate.colors.border });
+      
+      doc.font(balanceSheetTemplate.fonts.italic)
+         .fontSize(balanceSheetTemplate.layout.fontSize.footer)
+         .fillColor(balanceSheetTemplate.colors.textLight)
+         .text(bsLabels.footer.disclaimer, balanceSheetTemplate.layout.margins.left, bottomY + 8, {
+           width: pageWidth,
+           align: 'center'
+         });
+      
+      doc.end();
+      
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 /**
  * Validates that report data is suitable for PDF generation.
  * 
@@ -878,7 +1186,7 @@ function validateReportForPdf(report, reportType) {
     return { isValid: false, errors };
   }
   
-  if (!report.period) {
+  if (!report.period && reportType !== 'balance-sheet') {
     errors.push('Report period is required');
   }
   
@@ -905,6 +1213,13 @@ function validateReportForPdf(report, reportType) {
       if (!report.totals) errors.push('Totals data is required');
       if (!report.hmrcLiability) errors.push('HMRC liability data is required');
       break;
+    
+    case 'balance-sheet':
+      if (!report.asOfDate) errors.push('As of date is required');
+      if (!report.assets) errors.push('Assets data is required');
+      if (!report.liabilities) errors.push('Liabilities data is required');
+      if (!report.equity) errors.push('Equity data is required');
+      break;
       
     default:
       errors.push(`Unknown report type: ${reportType}`);
@@ -922,6 +1237,7 @@ module.exports = {
   generateVatSummaryPdf,
   generateCashFlowPdf,
   generatePayeSummaryPdf,
+  generateBalanceSheetPdf,
   
   // Validation
   validateReportForPdf,
