@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="460" fill="white" stroke="#b1b4b6" rx="4"/>
+  <text x="100" y="160" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="24" font-weight="bold">VAT Return</text>
+  <text x="100" y="185" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Period: 1 January 2024 to 31 March 2024</text>
+  
+  <text x="100" y="220" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 1</text>
+  <text x="200" y="220" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">VAT due on sales and other outputs</text>
+  <rect x="550" y="205" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="260" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 2</text>
+  <text x="200" y="260" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">VAT due on acquisitions from EU</text>
+  <rect x="550" y="245" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="300" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 3</text>
+  <text x="200" y="300" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total VAT due (Box 1 + Box 2)</text>
+  <rect x="550" y="285" width="150" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="340" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 4</text>
+  <text x="200" y="340" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">VAT reclaimed on purchases</text>
+  <rect x="550" y="325" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="380" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 5</text>
+  <text x="200" y="380" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Net VAT to pay or reclaim</text>
+  <rect x="550" y="365" width="150" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="420" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 6</text>
+  <text x="200" y="420" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total value of sales excluding VAT</text>
+  <rect x="550" y="405" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="460" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 7</text>
+  <text x="200" y="460" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total value of purchases excluding VAT</text>
+  <rect x="550" y="445" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="500" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 8</text>
+  <text x="200" y="500" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total value of EU supplies</text>
+  <rect x="550" y="485" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="540" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Box 9</text>
+  <text x="200" y="540" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Total value of EU acquisitions</text>
+  <rect x="550" y="525" width="150" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="400" y="580" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC VAT return form</text>
+</svg>

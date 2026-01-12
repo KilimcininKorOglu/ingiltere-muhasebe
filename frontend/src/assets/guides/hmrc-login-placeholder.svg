@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="350" fill="white" stroke="#b1b4b6" rx="4"/>
+  <text x="100" y="170" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="28" font-weight="bold">Sign in</text>
+  <text x="100" y="210" fill="#505a5f" font-family="Arial, sans-serif" font-size="16">Sign in with your Government Gateway user ID and password.</text>
+  <text x="100" y="260" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">User ID</text>
+  <rect x="100" y="275" width="400" height="40" fill="white" stroke="#0b0c0c" stroke-width="2" rx="2"/>
+  <text x="100" y="345" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Password</text>
+  <rect x="100" y="360" width="400" height="40" fill="white" stroke="#0b0c0c" stroke-width="2" rx="2"/>
+  <rect x="100" y="420" width="120" height="40" fill="#00703c" rx="4"/>
+  <text x="130" y="447" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Sign in</text>
+  <text x="400" y="480" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC portal login page</text>
+</svg>

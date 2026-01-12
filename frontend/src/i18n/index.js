@@ -19,24 +19,34 @@ import {
 // Import translation resources
 import enTranslation from '../locales/en/translation.json';
 import trTranslation from '../locales/tr/translation.json';
-import enFinancial from '../locales/en/financial.json';
-import trFinancial from '../locales/tr/financial.json';
-import enTax from '../locales/en/tax.json';
-import trTax from '../locales/tr/tax.json';
+import enGuides from '../locales/en/guides.json';
+import trGuides from '../locales/tr/guides.json';
+
+/**
+ * Merge translation objects deeply
+ */
+const mergeTranslations = (...objects) => {
+  return objects.reduce((acc, obj) => {
+    Object.keys(obj).forEach((key) => {
+      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+        acc[key] = mergeTranslations(acc[key] || {}, obj[key]);
+      } else {
+        acc[key] = obj[key];
+      }
+    });
+    return acc;
+  }, {});
+};
 
 /**
  * Translation resources organized by language and namespace
  */
 const resources = {
   en: {
-    translation: enTranslation,
-    financial: enFinancial,
-    tax: enTax,
+    translation: mergeTranslations(enTranslation, enGuides),
   },
   tr: {
-    translation: trTranslation,
-    financial: trFinancial,
-    tax: trTax,
+    translation: mergeTranslations(trTranslation, trGuides),
   },
 };
 

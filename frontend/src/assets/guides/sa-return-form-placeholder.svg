@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  <rect x="50" y="30" width="700" height="60" fill="#0b0c0c" rx="4"/>
+  <text x="70" y="68" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GOV.UK</text>
+  <rect x="50" y="120" width="700" height="460" fill="white" stroke="#b1b4b6" rx="4"/>
+  <text x="100" y="160" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="24" font-weight="bold">Self Assessment tax return</text>
+  <text x="100" y="185" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Tax year: 6 April 2023 to 5 April 2024</text>
+  
+  <text x="100" y="230" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Income from employment</text>
+  <line x1="100" y1="240" x2="700" y2="240" stroke="#b1b4b6" stroke-width="1"/>
+  
+  <text x="100" y="270" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Salary or wages</text>
+  <rect x="450" y="255" width="250" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="310" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Tax deducted</text>
+  <rect x="450" y="295" width="250" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="360" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Self-employment income</text>
+  <line x1="100" y1="370" x2="700" y2="370" stroke="#b1b4b6" stroke-width="1"/>
+  
+  <text x="100" y="400" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Business turnover</text>
+  <rect x="450" y="385" width="250" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="440" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Allowable expenses</text>
+  <rect x="450" y="425" width="250" height="25" fill="white" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="480" fill="#505a5f" font-family="Arial, sans-serif" font-size="14">Net profit</text>
+  <rect x="450" y="465" width="250" height="25" fill="#f3f2f1" stroke="#0b0c0c" rx="2"/>
+  
+  <text x="100" y="530" fill="#0b0c0c" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Other income</text>
+  <line x1="100" y1="540" x2="700" y2="540" stroke="#b1b4b6" stroke-width="1"/>
+  
+  <text x="100" y="565" fill="#1d70b8" font-family="Arial, sans-serif" font-size="14" text-decoration="underline">Save and continue →</text>
+  
+  <text x="400" y="590" fill="#505a5f" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">Placeholder - Actual HMRC Self Assessment form</text>
+</svg>

@@ -1,0 +1,322 @@
+{
+  "guides": {
+    "pageTitle": "HMRC Beyanname Kılavuzları",
+    "pageDescription": "Vergi beyannamelerinizi HMRC'ye manuel olarak göndermek için adım adım talimatlar. Doğru ve zamanında beyanname vermek için bu kılavuzları takip edin.",
+    "disclaimer": "Bu kılavuzlar yalnızca bilgilendirme amaçlıdır ve vergi tavsiyesi niteliği taşımaz. Bilgileri her zaman HMRC veya yetkili bir vergi uzmanı ile doğrulayın. HMRC portal arayüzleri değişebilir; ekran görüntüleri yalnızca örnek amaçlıdır.",
+    "selectGuide": "Bir beyanname kılavuzu seçin",
+    "quickLinks": "Hızlı Bağlantılar",
+    "links": {
+      "hmrcLogin": "HMRC Çevrimiçi Hizmetler Girişi",
+      "hmrcContact": "HMRC ile İletişim",
+      "taxForms": "Vergi Beyanname Formları",
+      "taxAppeals": "Vergi İtirazları"
+    },
+    "tabs": {
+      "vat": "KDV Beyannamesi",
+      "ct": "Kurumlar Vergisi (CT600)",
+      "sa": "Bireysel Beyanname"
+    },
+    "common": {
+      "prerequisites": "Başlamadan Önce",
+      "expandAll": "Tümünü Genişlet",
+      "collapseAll": "Tümünü Daralt",
+      "clickToEnlarge": "Büyütmek için tıklayın",
+      "fieldMappings": "Alan Eşleştirmeleri",
+      "hmrcField": "HMRC Alanı",
+      "appValue": "Uygulama Değeri",
+      "description": "Açıklama",
+      "tip": "İpucu",
+      "warning": "Uyarı",
+      "needHelp": "Yardıma mı İhtiyacınız Var?"
+    },
+    "vat": {
+      "title": "KDV Beyanname Kılavuzu",
+      "intro": "Bu kılavuz, KDV beyannamenizi HMRC'nin çevrimiçi portalı üzerinden gönderme sürecinde size yol gösterir. Uygulamadan alınan KDV verileriniz gerekli alanları doldurmak için kullanılabilir.",
+      "prereq1": "Government Gateway kullanıcı kimliğiniz ve şifreniz",
+      "prereq2": "KDV sicil numaranız",
+      "prereq3": "KDV dönemi için satış ve alış kayıtlarınız",
+      "prereq4": "Bu uygulamadan hesaplanan KDV rakamlarınız",
+      "yourVatData": "KDV Veri Özeti",
+      "step1": {
+        "title": "HMRC Çevrimiçi Hizmetlerine Giriş Yapın",
+        "description": "Government Gateway kimlik bilgilerinizi kullanarak HMRC çevrimiçi hizmetler portalına erişin.",
+        "screenshotAlt": "HMRC Government Gateway giriş sayfası",
+        "sub1": "www.gov.uk/log-in-register-hmrc-online-services adresine gidin",
+        "sub2": "'Sign in' seçeneğine tıklayın ve Government Gateway kullanıcı kimliğinizi girin",
+        "sub3": "Şifrenizi girin ve istenirse iki faktörlü doğrulamayı tamamlayın",
+        "tip": "Government Gateway kimlik bilgilerinizi unuttuysanız, giriş sayfasından kurtarabilirsiniz."
+      },
+      "step2": {
+        "title": "KDV Hesabınıza Gidin",
+        "description": "Giriş yaptıktan sonra kontrol panelinden KDV hesabınıza erişin.",
+        "screenshotAlt": "KDV bölümünü gösteren HMRC iş vergi hesabı",
+        "sub1": "İş Vergi Hesabı kontrol panelinizden 'VAT' seçeneğine tıklayın",
+        "sub2": "Vadesi gelen beyannameler dahil KDV hesap özetinizi göreceksiniz"
+      },
+      "step3": {
+        "title": "KDV Beyannamenizi Başlatın",
+        "description": "Mevcut dönem için KDV beyanname gönderim sürecini başlatın.",
+        "sub1": "'Submit VAT Return' veya 'Complete VAT Return' seçeneğine tıklayın",
+        "sub2": "Beyanname verdiğiniz KDV dönemini onaylayın",
+        "sub3": "Gösterilen yükümlülükleri veya son tarihleri inceleyin",
+        "tip": "Doğru KDV dönemi için beyanname verdiğinizden emin olun. Tarihler muhasebe kayıtlarınızla eşleşmelidir."
+      },
+      "step4": {
+        "title": "KDV Rakamlarınızı Girin",
+        "description": "9 kutulu KDV beyanname formunu hesaplanan rakamlarınızla doldurun. Aşağıdaki alan eşleştirmelerinde gösterilen uygulama değerlerini kullanın.",
+        "screenshotAlt": "1-9 kutularını gösteren HMRC KDV beyanname formu",
+        "warning": "Devam etmeden önce tüm rakamları iki kez kontrol edin. Yanlış girişler cezalara veya faiz ücretlerine neden olabilir."
+      },
+      "step5": {
+        "title": "KDV Beyannamenizi İnceleyin",
+        "description": "Göndermeden önce tüm girilen rakamları dikkatlice inceleyin.",
+        "sub1": "Kutu 3'ün Kutu 1 artı Kutu 2'ye eşit olduğunu kontrol edin",
+        "sub2": "Kutu 5'in Kutu 3 eksi Kutu 4'e eşit olduğunu doğrulayın",
+        "sub3": "Tüm rakamların muhasebe kayıtlarınızla eşleştiğinden emin olun",
+        "warning": "Gönderimden sonra KDV beyannamesini değiştiremezsiniz. Düzeltmeler bir sonraki KDV beyannamenizde veya HMRC ile iletişime geçerek yapılmalıdır."
+      },
+      "step6": {
+        "title": "KDV Beyannamenizi Gönderin",
+        "description": "Beyanı onaylayın ve KDV beyannamenizi HMRC'ye gönderin.",
+        "screenshotAlt": "HMRC KDV beyanname gönderim onay sayfası",
+        "sub1": "Beyan bildirimini okuyun ve kabul edin",
+        "sub2": "Beyannamenizi HMRC'ye göndermek için 'Submit' seçeneğine tıklayın",
+        "tip": "Kayıtlarınız için gönderim makbuzunuzu kaydedin veya yazdırın."
+      },
+      "step7": {
+        "title": "Ödeme Yapın veya İade Talep Edin",
+        "description": "KDV borçluysa (Kutu 5 pozitif), ödeme düzenleyin. İade hakkınız varsa (Kutu 5 negatif), otomatik olarak işlenecektir.",
+        "sub1": "Ödeme yapıyorsanız: Ödeme referansını ve vadesi gelen tutarı not edin",
+        "sub2": "Otomatik ödeme talimatı verin, banka havalesi yapın veya başka bir ödeme yöntemi kullanın",
+        "sub3": "Ödeme onayı kayıtlarını saklayın",
+        "tip": "Otomatik ödeme talimatı vermek, hiçbir ödeme son tarihini kaçırmamanızı sağlar."
+      },
+      "fields": {
+        "box1": "Kutu 1 - Satışlardan kaynaklanan KDV",
+        "box1Desc": "Bu dönemde satılan tüm mal ve hizmetler için tahsil edilen KDV",
+        "box2": "Kutu 2 - Edinimlerden kaynaklanan KDV",
+        "box2Desc": "AB ülkelerinden edinilen mallar için ödenmesi gereken KDV (varsa)",
+        "box3": "Kutu 3 - Toplam KDV borcu",
+        "box3Desc": "Kutu 1 ve Kutu 2 toplamı (otomatik hesaplanır)",
+        "box4": "Kutu 4 - İade edilen KDV",
+        "box4Desc": "İş kullanımı için alımlar ve giderler üzerinden iade edilen KDV",
+        "box5": "Kutu 5 - Net KDV borcu",
+        "box5Desc": "Kutu 3 ve Kutu 4 arasındaki fark (ödenecek veya iade alınacak tutar)",
+        "box6": "Kutu 6 - KDV hariç toplam satışlar",
+        "box6Desc": "KDV hariç tüm satışların ve çıktıların toplam değeri",
+        "box7": "Kutu 7 - KDV hariç toplam alımlar",
+        "box7Desc": "KDV hariç tüm alımların ve girdilerin toplam değeri",
+        "box8": "Kutu 8 - KDV hariç AB tedarikleri",
+        "box8Desc": "AB ülkelerine sağlanan malların toplam değeri",
+        "box9": "Kutu 9 - KDV hariç AB edinimleri",
+        "box9Desc": "AB ülkelerinden edinilen malların toplam değeri"
+      },
+      "deadlineTitle": "KDV Beyanname Son Tarihi",
+      "deadlineInfo": "KDV beyannameniz ve ödemeniz, KDV hesap döneminizin bitiminden 1 takvim ayı ve 7 gün sonra sona erer. Geç gönderimlerde cezalar uygulanabilir.",
+      "hmrcVatGuide": "HMRC KDV Beyanname Kılavuzu",
+      "hmrcVatContact": "HMRC KDV Yardım Hattı ile İletişim"
+    },
+    "ct": {
+      "title": "Kurumlar Vergisi (CT600) Beyanname Kılavuzu",
+      "intro": "Bu kılavuz, Şirket Vergi Beyannamesi (CT600) dosyalamanızda size yardımcı olur. Kurumlar Vergisi beyannameleri KDV'den daha karmaşıktır ve genellikle profesyonel hazırlık gerektirir.",
+      "prereq1": "Government Gateway kullanıcı kimliğiniz ve şifreniz",
+      "prereq2": "Şirketinizin Benzersiz Mükellef Referansı (UTR)",
+      "prereq3": "Şirketinizin sicil numarası",
+      "prereq4": "Tamamlanmış yıllık hesaplar (Companies House hesapları)",
+      "prereq5": "Dönem için tam muhasebe kayıtları",
+      "yourCtData": "Kurumlar Vergisi Veri Özeti",
+      "step1": {
+        "title": "HMRC Çevrimiçi Hizmetlerine Giriş Yapın",
+        "description": "Şirketiniz için Government Gateway kimlik bilgilerinizi kullanarak HMRC çevrimiçi hizmetler portalına erişin.",
+        "screenshotAlt": "HMRC Government Gateway giriş sayfası",
+        "sub1": "www.gov.uk/log-in-register-hmrc-online-services adresine gidin",
+        "sub2": "Şirketinizin Government Gateway kimlik bilgileriyle giriş yapın",
+        "sub3": "İstenirse iki faktörlü doğrulamayı tamamlayın",
+        "tip": "Kişisel hesabınızı değil, şirketinize bağlı Government Gateway hesabını kullandığınızdan emin olun."
+      },
+      "step2": {
+        "title": "Kurumlar Vergisi Hizmetlerine Erişin",
+        "description": "İş vergi kontrol panelinizden Kurumlar Vergisi bölümüne gidin.",
+        "screenshotAlt": "Kurumlar Vergisi bölümünü gösteren HMRC iş vergi hesabı",
+        "sub1": "İş Vergi Hesabından 'Corporation Tax' seçin",
+        "sub2": "Şirketinizin Kurumlar Vergisi genel görünümünü izleyin",
+        "sub3": "Vadesi gelen beyannameleri veya ödemeleri kontrol edin"
+      },
+      "step3": {
+        "title": "CT600 Beyannamenizi Hazırlayın",
+        "description": "Çevrimiçi başlamadan önce, gerekli tüm bilgilerin hazır olduğundan emin olun.",
+        "sub1": "Dönem için şirketinizin tam hesaplarını hazırlayın",
+        "sub2": "Muhasebe kayıtlarınızı kullanarak vergilendirilebilir karlarınızı hesaplayın",
+        "sub3": "Talep etme hakkınız olan indirimleri veya kesintileri belirleyin",
+        "warning": "CT600 beyannameleri karmaşıktır. Profesyonel muhasebe yazılımı kullanmayı veya bir muhasebeciye danışmayı düşünün."
+      },
+      "step4": {
+        "title": "CT600 Beyannamenizi Başlatın",
+        "description": "Hesap döneminiz için CT600 formunu doldurmaya başlayın.",
+        "screenshotAlt": "HMRC CT600 formu ilk sayfa",
+        "sub1": "'File a Company Tax Return' seçeneğine tıklayın",
+        "sub2": "Şirket bilgilerinizi ve hesap dönemini onaylayın",
+        "sub3": "Şirketiniz için geçerli olan ek sayfaları seçin",
+        "sub4": "Şirket bilgilerinizi girmeye başlayın"
+      },
+      "step5": {
+        "title": "Finansal Bilgileri Girin",
+        "description": "Şirketinizin hesaplarından finansal rakamları girin. Uygulama değerlerini HMRC alanlarıyla eşleştirmek için aşağıdaki alan eşleştirmelerini kullanın.",
+        "tip": "Her bölümü tamamlarken referans için yıllık hesaplarınızı açık tutun."
+      },
+      "step6": {
+        "title": "Hesapları ve Hesaplamaları Ekleyin",
+        "description": "Şirket hesaplarınızı ve vergi hesaplamalarınızı yükleyin veya ekleyin.",
+        "sub1": "Tam yıllık hesaplarınızı iXBRL formatında ekleyin",
+        "sub2": "Kurumlar Vergisi hesaplamanızı dahil edin",
+        "sub3": "Gerekirse ek çizelgeleri ekleyin",
+        "warning": "HMRC, çevrimiçi dosyalama için iXBRL formatında hesaplar gerektirir. Muhasebe yazılımınızın bunları üretip üretemeyeceğini kontrol edin."
+      },
+      "step7": {
+        "title": "İnceleyin ve Gönderin",
+        "description": "Son göndermeden önce CT600 beyannamenizi dikkatlice inceleyin.",
+        "screenshotAlt": "HMRC CT600 inceleme ve gönderme sayfası",
+        "sub1": "Tüm rakamların hazırladığınız hesaplarla eşleştiğini kontrol edin",
+        "sub2": "Kurumlar Vergisi yükümlülük hesaplamasını doğrulayın",
+        "sub3": "Beyanı kabul edin ve beyannamenizi gönderin",
+        "tip": "Kayıtlarınız için gönderilen beyannamenizin bir kopyasını indirin ve kaydedin."
+      },
+      "step8": {
+        "title": "Kurumlar Vergisini Ödeyin",
+        "description": "Son tarih içinde vadesi gelen Kurumlar Vergisini ödeme düzenlemesi yapın.",
+        "sub1": "Sağlanan ödeme referans numarasını not edin",
+        "sub2": "Ödeme yönteminizi seçin (banka havalesi, otomatik ödeme talimatı, vb.)",
+        "sub3": "Son tarihe kadar ödeyin (hesap döneminin bitiminden 9 ay ve 1 gün sonra)",
+        "sub4": "Ödeme onayını kayıtlarınız için saklayın",
+        "tip": "Büyük şirketlerin üç ayda bir taksitler halinde ödemesi gerekebilir. Bunun sizin için geçerli olup olmadığını kontrol edin."
+      },
+      "fields": {
+        "turnover": "Toplam ciro",
+        "turnoverDesc": "Hesap dönemi için toplam satışlar ve diğer gelirler",
+        "tradingProfits": "Ticari karlar",
+        "tradingProfitsDesc": "Kesintiler öncesi şirketinizin ticaretinden elde edilen kar",
+        "netTradingProfits": "Net ticari karlar",
+        "netTradingProfitsDesc": "Sermaye ödenekleri ve diğer düzeltmeler sonrası ticari karlar",
+        "chargableProfits": "Vergilendirilebilir karlar",
+        "chargableProfitsDesc": "Kurumlar Vergisine tabi toplam karlar",
+        "ctPayable": "Ödenecek Kurumlar Vergisi",
+        "ctPayableDesc": "Bu dönem için ödenmesi gereken Kurumlar Vergisi tutarı",
+        "taxRefund": "Vergi iadesi",
+        "taxRefundDesc": "Fazla ödeme yaptıysanız veya geri taşınacak zararlarınız varsa geri ödenecek tutar"
+      },
+      "deadlineTitle": "Kurumlar Vergisi Son Tarihleri",
+      "deadlineInfo": "Beyanname vermek ve vergi ödemek için farklı son tarihler vardır:",
+      "deadlineReturn": "CT600 Beyannamesi: Hesap döneminizin bitiminden 12 ay sonra",
+      "deadlinePayment": "Vergi Ödemesi: Hesap döneminizin bitiminden 9 ay ve 1 gün sonra",
+      "hmrcCtGuide": "HMRC Şirket Vergi Beyannameleri Kılavuzu",
+      "hmrcCtContact": "HMRC Kurumlar Vergisi Yardım Hattı ile İletişim"
+    },
+    "sa": {
+      "title": "Bireysel Beyanname Kılavuzu",
+      "intro": "Bu kılavuz, Bireysel Beyanname vergi beyannamenizi çevrimiçi doldurmanızda size yol gösterir. Bireysel Beyanname, serbest meslek, kira geliri, temettüler ve diğer kaynaklardan elde edilen gelirleri bildirmek için kullanılır.",
+      "prereq1": "Government Gateway kullanıcı kimliğiniz ve şifreniz",
+      "prereq2": "Benzersiz Mükellef Referansınız (UTR)",
+      "prereq3": "Ulusal Sigorta numaranız",
+      "prereq4": "Vergi yılı için tüm gelir kayıtları (6 Nisan - 5 Nisan)",
+      "prereq5": "Daha önce ödenen verginin ayrıntıları (P60, P45, vb.)",
+      "yourSaData": "Bireysel Beyanname Veri Özeti",
+      "step1": {
+        "title": "HMRC Çevrimiçi Hizmetlerine Giriş Yapın",
+        "description": "Kişisel Government Gateway hesabınızı kullanarak HMRC Bireysel Beyanname portalına erişin.",
+        "screenshotAlt": "HMRC Government Gateway giriş sayfası",
+        "sub1": "www.gov.uk/log-in-register-hmrc-online-services adresine gidin",
+        "sub2": "Kişisel Government Gateway kullanıcı kimliğinizle giriş yapın",
+        "sub3": "İlk kez yapıyorsanız kimlik doğrulamayı tamamlayın",
+        "tip": "Bireysel Beyanname için kayıt olmadıysanız, dosyalamadan önce kayıt olmanız gerekir. HMRC'nin aktivasyon kodunuzu göndermesi için zaman tanıyın."
+      },
+      "step2": {
+        "title": "Bireysel Beyanname Hesabınıza Erişin",
+        "description": "Kişisel vergi hesabınızdan Bireysel Beyanname bölümüne gidin.",
+        "screenshotAlt": "Bireysel Beyanname bölümünü gösteren HMRC kişisel vergi hesabı",
+        "sub1": "Kişisel Vergi Hesabınızdan 'Self Assessment' seçin",
+        "sub2": "HMRC'den gelen mesajları veya bildirimleri inceleyin"
+      },
+      "step3": {
+        "title": "Vergi Beyannamenizi Başlatın",
+        "description": "İlgili vergi yılı için yeni bir Bireysel Beyanname başlatın.",
+        "sub1": "'Complete your tax return' seçeneğine tıklayın",
+        "sub2": "Vergi yılını onaylayın (6 Nisan - 5 Nisan)",
+        "sub3": "Hangi bölümleri doldurmanız gerektiğini belirlemek için özelleştirme sorularını yanıtlayın",
+        "sub4": "Sistem, yanıtlarınıza göre tamamlamanız gereken sayfaları gösterecektir",
+        "tip": "Özelleştirme sorularını dikkatli yanıtlayın. Bu, tüm gerekli bölümleri tamamlamanızı ve ilgisiz olanları atlamanızı sağlar."
+      },
+      "step4": {
+        "title": "Kişisel Bilgileri Tamamlayın",
+        "description": "Kişisel bilgilerinizi doğrulayın ve güncelleyin.",
+        "screenshotAlt": "HMRC Bireysel Beyanname kişisel bilgiler sayfası",
+        "sub1": "Adınızın, adresinizin ve doğum tarihinizin doğru olduğunu kontrol edin",
+        "sub2": "Gerekirse iletişim bilgilerinizi güncelleyin",
+        "sub3": "Ulusal Sigorta numaranızı onaylayın"
+      },
+      "step5": {
+        "title": "Gelir Bilgilerini Girin",
+        "description": "Vergi yılı için tüm gelir kaynaklarını bildirin. Uygulamadan değerleri girmek için aşağıdaki alan eşleştirmelerini kullanın.",
+        "warning": "Kaynakta vergi kesintisi yapılmış olsa bile TÜM gelirleri bildirin. HMRC birden fazla veri kaynağını çapraz kontrol eder."
+      },
+      "step6": {
+        "title": "Serbest Meslek Bölümünü Tamamlayın",
+        "description": "Serbest meslek sahibiyseniz, iş geliriniz ve giderlerinizle serbest meslek sayfalarını tamamlayın.",
+        "tip": "Tüm iş giderlerinin ayrıntılı kayıtlarını tutun. Vergi faturanızı azaltmak için izin verilen giderleri talep edebilirsiniz."
+      },
+      "step7": {
+        "title": "İndirimler ve Kesintileri Girin",
+        "description": "Hak sahibi olduğunuz vergi indirimlerini talep edin.",
+        "sub1": "Emekli maaşı katkıları (kaynakta kesilmemişse)",
+        "sub2": "Yardım amaçlı bağışlar",
+        "sub3": "Mesleki ücretler ve abonelikler"
+      },
+      "step8": {
+        "title": "İnceleyin ve Gönderin",
+        "description": "Vergi hesaplamanızı kontrol edin ve beyannamenizi gönderin.",
+        "screenshotAlt": "HMRC Bireysel Beyanname vergi hesaplama özeti",
+        "sub1": "Gösterilen vergi hesaplamasını inceleyin",
+        "sub2": "Tüm gelir kaynaklarının dahil edildiğini kontrol edin",
+        "sub3": "Beyanı kabul edin ve gönderin",
+        "warning": "Gönderdikten sonra düzeltme yapmak için 12 ayınız var. Bundan sonra HMRC'ye yazmanız gerekecek."
+      },
+      "step9": {
+        "title": "Borçlu Vergiyi Ödeyin",
+        "description": "Vergi borçluysa, son tarihten önce ödeme düzenleyin.",
+        "sub1": "Vadesi gelen tutarı ve ödeme referansını not edin",
+        "sub2": "Bir ödeme yöntemi seçin",
+        "sub3": "31 Ocak'a kadar ödeyin (veya gerekirse Ödeme Zamanı düzenlemesi yapın)",
+        "sub4": "Gelecek yıl için peşin ödemeleri değerlendirin",
+        "tip": "Vergi ödemelerinizi yıl boyunca yaymak için bütçe ödeme planı oluşturabilirsiniz."
+      },
+      "fields": {
+        "totalIncome": "Toplam Gelir",
+        "taxDue": "Ödenecek Vergi",
+        "turnover": "İş cirosu",
+        "turnoverDesc": "Giderler öncesi serbest meslekten elde edilen toplam gelir",
+        "expenses": "İzin verilen giderler",
+        "expensesDesc": "Düşülebilecek iş giderleri",
+        "netProfit": "Net iş karı",
+        "netProfitDesc": "Ciro eksi izin verilen giderler",
+        "employmentIncome": "İstihdam geliri",
+        "employmentIncomeDesc": "İstihdamdan elde edilen maaş ve ücretler (vergi öncesi)",
+        "selfEmploymentIncome": "Serbest meslek geliri",
+        "selfEmploymentIncomeDesc": "Tüm serbest meslekten elde edilen net kar",
+        "rentalIncome": "Mülk geliri",
+        "rentalIncomeDesc": "Kiralık mülklerden elde edilen net gelir",
+        "dividends": "Temettü geliri",
+        "dividendsDesc": "İngiltere ve yabancı şirketlerden alınan temettüler",
+        "savingsInterest": "Tasarruf faizi",
+        "savingsInterestDesc": "Banka hesapları ve yatırımlardan elde edilen faiz"
+      },
+      "deadlineTitle": "Bireysel Beyanname Son Tarihleri",
+      "deadlineInfo": "Bireysel Beyanname için önemli son tarihler:",
+      "deadlinePaper": "Kağıt beyannameler: Vergi yılının bitiminden sonra 31 Ekim",
+      "deadlineOnline": "Çevrimiçi beyannameler: Vergi yılının bitiminden sonra 31 Ocak",
+      "deadlinePayment": "Vergi ödemesi: Vergi yılının bitiminden sonra 31 Ocak",
+      "paymentOnAccountTitle": "Peşin Ödemeler",
+      "paymentOnAccountInfo": "Vergi faturanız £1.000 veya daha fazlaysa, gelecek yılın faturasına yönelik avans ödemeleri yapmanız gerekebilir. Bunlara 'peşin ödemeler' denir ve 31 Ocak ve 31 Temmuz'da vadesi gelir.",
+      "hmrcSaGuide": "HMRC Bireysel Beyanname Kılavuzu",
+      "hmrcSaContact": "HMRC Bireysel Beyanname Yardım Hattı ile İletişim"
+    }
+  }
+}
