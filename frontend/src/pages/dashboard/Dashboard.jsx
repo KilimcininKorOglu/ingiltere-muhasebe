@@ -28,10 +28,14 @@ const Dashboard = () => {
         dashboardService.getAlerts().catch(() => ({ data: { data: [] } })),
       ]);
 
+      const summaryData = summaryRes.data?.data || summaryRes.data || null;
+      const activityData = activityRes.data?.data || activityRes.data;
+      const alertsData = alertsRes.data?.data || alertsRes.data;
+
       setData({
-        summary: summaryRes.data?.data || summaryRes.data,
-        recentActivity: activityRes.data?.data || activityRes.data || [],
-        alerts: alertsRes.data?.data || alertsRes.data || [],
+        summary: summaryData,
+        recentActivity: Array.isArray(activityData) ? activityData : [],
+        alerts: Array.isArray(alertsData) ? alertsData : [],
       });
       setError(null);
     } catch (err) {
@@ -111,7 +115,7 @@ const Dashboard = () => {
             <h2>{t('dashboard.alerts')}</h2>
           </div>
           <div className="section-content">
-            {data.alerts.length === 0 ? (
+            {(!data.alerts || data.alerts.length === 0) ? (
               <p className="empty-state">{t('dashboard.noAlerts')}</p>
             ) : (
               <ul className="alert-list">
@@ -136,7 +140,7 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="section-content">
-            {data.recentActivity.length === 0 ? (
+            {(!data.recentActivity || data.recentActivity.length === 0) ? (
               <p className="empty-state">{t('dashboard.noTransactions')}</p>
             ) : (
               <ul className="activity-list">

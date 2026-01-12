@@ -19,9 +19,11 @@ const CustomerList = () => {
     try {
       setLoading(true);
       const response = await customerService.getAll();
-      setCustomers(response.data?.data || response.data || []);
+      const data = response.data?.data?.customers || response.data?.data || response.data;
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch customers:', err);
+      setCustomers([]);
     } finally {
       setLoading(false);
     }

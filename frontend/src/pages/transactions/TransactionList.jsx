@@ -31,9 +31,11 @@ const TransactionList = () => {
   const fetchCategories = async () => {
     try {
       const response = await categoryService.getAll();
-      setCategories(response.data?.data || response.data || []);
+      const data = response.data?.data?.categories || response.data?.data || response.data;
+      setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch categories:', err);
+      setCategories([]);
     }
   };
 
@@ -49,7 +51,8 @@ const TransactionList = () => {
       };
       const response = await transactionService.getAll(params);
       const data = response.data?.data || response.data;
-      setTransactions(data.transactions || data || []);
+      const txList = data?.transactions || data;
+      setTransactions(Array.isArray(txList) ? txList : []);
       setPagination((prev) => ({
         ...prev,
         total: data.total || 0,
@@ -119,7 +122,7 @@ const TransactionList = () => {
             <option value="">{t('transactions.allCategories')}</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {cat.nameEn}
+                {cat.name || cat.nameEn}
               </option>
             ))}
           </select>
@@ -188,7 +191,7 @@ const TransactionList = () => {
                   <tr key={tx.id}>
                     <td>{formatDate(tx.date)}</td>
                     <td>{tx.description}</td>
-                    <td>{tx.category?.nameEn || '-'}</td>
+                    <td>{tx.category?.name || tx.category?.nameEn || '-'}</td>
                     <td>
                       <span className={`badge ${tx.type}`}>
                         {t(`transactions.${tx.type}`)}

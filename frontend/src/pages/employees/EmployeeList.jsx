@@ -20,9 +20,11 @@ const EmployeeList = () => {
     try {
       setLoading(true);
       const response = await employeeService.getAll();
-      setEmployees(response.data?.data || response.data || []);
+      const data = response.data?.data?.employees || response.data?.data || response.data;
+      setEmployees(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch employees:', err);
+      setEmployees([]);
     } finally {
       setLoading(false);
     }

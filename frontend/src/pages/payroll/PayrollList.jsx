@@ -30,9 +30,11 @@ const PayrollList = () => {
   const fetchData = async () => {
     try {
       const empRes = await employeeService.getAll();
-      setEmployees(empRes.data?.data || empRes.data || []);
+      const empData = empRes.data?.data?.employees || empRes.data?.data || empRes.data;
+      setEmployees(Array.isArray(empData) ? empData : []);
     } catch (err) {
       console.error('Failed to fetch employees:', err);
+      setEmployees([]);
     }
   };
 
@@ -43,9 +45,11 @@ const PayrollList = () => {
         Object.entries(filters).filter(([_, v]) => v !== '')
       );
       const response = await payrollService.getAll(params);
-      setPayrolls(response.data?.data || response.data || []);
+      const data = response.data?.data?.payrolls || response.data?.data || response.data;
+      setPayrolls(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch payrolls:', err);
+      setPayrolls([]);
     } finally {
       setLoading(false);
     }

@@ -45,9 +45,13 @@ const TransactionForm = () => {
         supplierService.getAll().catch(() => ({ data: { data: [] } })),
       ]);
 
-      setCategories(catRes.data?.data || catRes.data || []);
-      setCustomers(custRes.data?.data || custRes.data || []);
-      setSuppliers(suppRes.data?.data || suppRes.data || []);
+      const catData = catRes.data?.data?.categories || catRes.data?.data || catRes.data;
+      const custData = custRes.data?.data?.customers || custRes.data?.data || custRes.data;
+      const suppData = suppRes.data?.data?.suppliers || suppRes.data?.data || suppRes.data;
+
+      setCategories(Array.isArray(catData) ? catData : []);
+      setCustomers(Array.isArray(custData) ? custData : []);
+      setSuppliers(Array.isArray(suppData) ? suppData : []);
 
       if (isEdit) {
         const txRes = await transactionService.getById(id);
@@ -85,13 +89,24 @@ const TransactionForm = () => {
 
     try {
       const payload = {
-        ...formData,
+        type: formData.type,
+        categoryId: parseInt(formData.categoryId),
+        transactionDate: formData.date,
+        description: formData.description,
         amount: parseFloat(formData.amount),
         vatRate: parseFloat(formData.vatRate),
-        categoryId: parseInt(formData.categoryId),
-        customerId: formData.customerId ? parseInt(formData.customerId) : null,
-        supplierId: formData.supplierId ? parseInt(formData.supplierId) : null,
+        paymentMethod: formData.paymentMethod,
+        reference: formData.reference || null,
+        payee: formData.supplierId ? null : null,
+        notes: null,
       };
+
+      if (formData.customerId) {
+        payload.customerId = parseInt(formData.customerId);
+      }
+      if (formData.supplierId) {
+        payload.supplierId = parseInt(formData.supplierId);
+      }
 
       if (isEdit) {
         await transactionService.update(id, payload);
@@ -161,7 +176,7 @@ const TransactionForm = () => {
                 <option value="">{t('common.select')}</option>
                 {filteredCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.code} - {cat.nameEn}
+                    {cat.code} - {cat.name || cat.nameEn}
                   </option>
                 ))}
               </select>

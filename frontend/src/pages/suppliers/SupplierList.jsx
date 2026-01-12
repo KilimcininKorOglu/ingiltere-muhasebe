@@ -19,9 +19,11 @@ const SupplierList = () => {
     try {
       setLoading(true);
       const response = await supplierService.getAll();
-      setSuppliers(response.data?.data || response.data || []);
+      const data = response.data?.data?.suppliers || response.data?.data || response.data;
+      setSuppliers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch suppliers:', err);
+      setSuppliers([]);
     } finally {
       setLoading(false);
     }

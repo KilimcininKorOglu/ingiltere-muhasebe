@@ -35,7 +35,8 @@ const InvoiceList = () => {
       };
       const response = await invoiceService.getAll(params);
       const data = response.data?.data || response.data;
-      setInvoices(data.invoices || data || []);
+      const invList = data?.invoices || data;
+      setInvoices(Array.isArray(invList) ? invList : []);
       setPagination((prev) => ({
         ...prev,
         total: data.total || 0,
