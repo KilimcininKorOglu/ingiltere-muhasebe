@@ -17,11 +17,14 @@ const { localization } = require('./middleware/localization');
 const taxRatesRoutes = require('./routes/taxRates');
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
+const settingsRoutes = require('./routes/settings');
 const employeesRoutes = require('./routes/employees');
 const suppliersRoutes = require('./routes/suppliers');
 const invoicesRoutes = require('./routes/invoices');
 const categoriesRoutes = require('./routes/categories');
 const transactionsRoutes = require('./routes/transactions');
+const payrollRoutes = require('./routes/payroll');
+const reportsRoutes = require('./routes/reports');
 
 // Initialize Express app
 const app = express();
@@ -84,6 +87,8 @@ app.get('/api', (req, res) => {
       suppliers: '/api/suppliers',
       invoices: '/api/invoices',
       transactions: '/api/transactions',
+      payroll: '/api/payroll',
+      reports: '/api/reports',
       health: '/health'
     },
     documentation: {
@@ -168,6 +173,24 @@ app.get('/api', (req, res) => {
         update: 'PUT /api/transactions/:id',
         updateStatus: 'PATCH /api/transactions/:id/status',
         delete: 'DELETE /api/transactions/:id'
+      },
+      payroll: {
+        calculate: 'POST /api/payroll/calculate',
+        summary: 'GET /api/payroll/summary?startDate=:date&endDate=:date',
+        counts: 'GET /api/payroll/counts',
+        list: 'GET /api/payroll',
+        getById: 'GET /api/payroll/:id',
+        getByEmployee: 'GET /api/payroll/employee/:employeeId',
+        create: 'POST /api/payroll',
+        update: 'PUT /api/payroll/:id',
+        updateStatus: 'PATCH /api/payroll/:id/status',
+        delete: 'DELETE /api/payroll/:id'
+      },
+      reports: {
+        payeSummary: 'GET /api/reports/paye-summary?startDate=:date&endDate=:date',
+        payeSummaryByTaxYear: 'GET /api/reports/paye-summary/tax-year/:taxYear',
+        payeSummaryByMonth: 'GET /api/reports/paye-summary/monthly/:year/:month',
+        paymentDeadline: 'GET /api/reports/paye-summary/deadline/:year/:month'
       }
     }
   });
@@ -187,6 +210,8 @@ app.use('/api/employees', employeesRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/invoices', invoicesRoutes);
 app.use('/api/transactions', transactionsRoutes);
+app.use('/api/payroll', payrollRoutes);
+app.use('/api/reports', reportsRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
