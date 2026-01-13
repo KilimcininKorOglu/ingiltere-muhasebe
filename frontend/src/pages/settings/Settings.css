@@ -231,3 +231,81 @@
   color: #1e40af;
   font-size: 0.875rem;
 }
+
+@media (max-width: 768px) {
+  .settings-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .settings-sidebar {
+    padding: 0.5rem;
+  }
+
+  .settings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .settings-tabs li {
+    flex: 1 1 auto;
+    min-width: fit-content;
+  }
+
+  .settings-tab {
+    width: auto;
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .settings-content {
+    padding: 1rem;
+  }
+
+  .settings-section h2 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+  }
+
+  .tax-category h3 {
+    font-size: 0.9rem;
+  }
+
+  .tax-rates-table {
+    font-size: 0.75rem;
+  }
+
+  .tax-rates-table th,
+  .tax-rates-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .info-note {
+    font-size: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .scheme-options {
+    gap: 0.75rem;
+  }
+
+  .scheme-option {
+    padding: 0.75rem;
+  }
+
+  .scheme-option-title {
+    font-size: 0.875rem;
+  }
+
+  .scheme-option-desc {
+    font-size: 0.75rem;
+  }
+}
