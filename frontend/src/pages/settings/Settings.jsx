@@ -54,8 +54,12 @@ const Settings = () => {
     const fetchTaxRates = async () => {
       try {
         const yearsRes = await taxRatesService.getYears();
+        // Support both old format (availableYears array of objects) and new format (taxYears array of strings)
+        const taxYearsData = yearsRes.data?.data?.taxYears || [];
         const availableYears = yearsRes.data?.data?.availableYears || [];
-        const years = availableYears.map((y) => y.year);
+        const years = taxYearsData.length > 0 
+          ? taxYearsData 
+          : availableYears.map((y) => typeof y === 'string' ? y : y.year);
         setTaxYears(years);
         if (years.length > 0 && !selectedTaxYear) {
           setSelectedTaxYear(years[0]);
@@ -72,14 +76,93 @@ const Settings = () => {
       if (!selectedTaxYear) return;
       try {
         const ratesRes = await taxRatesService.getAll({ taxYear: selectedTaxYear });
-        const taxRatesData = ratesRes.data?.data?.taxRates?.[selectedTaxYear] || {};
-        setTaxRates(taxRatesData);
+        
+        // Check for old format (config-based nested structure)
+        const oldFormatData = ratesRes.data?.data?.taxRates?.[selectedTaxYear];
+        if (oldFormatData) {
+          setTaxRates(oldFormatData);
+          return;
+        }
+        
+        // New format: flat array from database - transform to category-based structure
+        const ratesArray = ratesRes.data?.data?.rates || [];
+        const transformed = transformRatesToCategories(ratesArray);
+        setTaxRates(transformed);
       } catch (error) {
         console.error('Failed to fetch tax rates:', error);
       }
     };
     fetchRatesForYear();
   }, [selectedTaxYear]);
+
+  // Transform flat rates array to category-based structure for UI
+  const transformRatesToCategories = (rates) => {
+    const result = {
+      vat: { thresholds: {}, rates: {} },
+      incomeTax: { personalAllowance: {}, bands: [] },
+      nationalInsurance: { class1: { employee: { thresholds: {}, rates: {} }, employer: { rates: {} } } },
+      corporationTax: { rates: {} }
+    };
+
+    rates.forEach(rate => {
+      // Convert value from pence to pounds for thresholds, basis points to decimal for rates
+      const displayValue = rate.rateType === 'threshold' 
+        ? rate.value / 100 
+        : rate.value / 10000;
+
+      switch (rate.category) {
+        case 'vat':
+          if (rate.rateType === 'threshold') {
+            result.vat.thresholds[rate.name] = { amount: displayValue };
+          } else {
+            result.vat.rates[rate.name] = { rate: displayValue };
+          }
+          break;
+        case 'income_tax':
+          if (rate.name === 'personal_allowance') {
+            result.incomeTax.personalAllowance = { amount: displayValue };
+          } else if (rate.rateType === 'rate') {
+            result.incomeTax.bands.push({
+              name: rate.name,
+              rate: displayValue,
+              description: { en: rate.description, tr: rate.description }
+            });
+          }
+          break;
+        case 'national_insurance':
+          if (rate.rateType === 'threshold') {
+            if (rate.name === 'primary_threshold') {
+              result.nationalInsurance.class1.employee.thresholds.primaryThreshold = { annual: displayValue };
+            } else if (rate.name === 'upper_earnings_limit') {
+              result.nationalInsurance.class1.employee.thresholds.upperEarningsLimit = { annual: displayValue };
+            }
+          } else if (rate.rateType === 'rate') {
+            if (rate.name === 'employee_main') {
+              result.nationalInsurance.class1.employee.rates.mainRate = displayValue;
+            } else if (rate.name === 'employer') {
+              result.nationalInsurance.class1.employer.rates.mainRate = displayValue;
+            }
+          }
+          break;
+        case 'corporation_tax':
+          if (rate.rateType === 'rate') {
+            if (rate.name === 'small_profits') {
+              result.corporationTax.rates.small = { rate: displayValue };
+            } else if (rate.name === 'main') {
+              result.corporationTax.rates.main = { rate: displayValue };
+            }
+          } else if (rate.rateType === 'threshold') {
+            if (rate.name === 'small_profits_limit') {
+              if (!result.corporationTax.rates.small) result.corporationTax.rates.small = {};
+              result.corporationTax.rates.small.profitsThreshold = displayValue;
+            }
+          }
+          break;
+      }
+    });
+
+    return result;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
