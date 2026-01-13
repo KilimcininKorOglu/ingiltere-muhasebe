@@ -336,7 +336,8 @@
     "box6Desc": "KDV hariç toplam satış değeri",
     "box7Desc": "KDV hariç toplam alım değeri",
     "box8Desc": "AB ülkelerine mal teslimatları",
-    "box9Desc": "AB ülkelerinden mal alımları"
+    "box9Desc": "AB ülkelerinden mal alımları",
+    "pdfExportError": "PDF dışa aktarılamadı. Beyanname taslak durumunda olabilir."
   },
   "reports": {
     "title": "Raporlar",

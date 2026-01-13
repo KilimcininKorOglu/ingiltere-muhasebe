@@ -336,7 +336,8 @@
     "box6Desc": "Total value of sales excluding VAT",
     "box7Desc": "Total value of purchases excluding VAT",
     "box8Desc": "Total value of goods supplied to EU",
-    "box9Desc": "Total value of goods acquired from EU"
+    "box9Desc": "Total value of goods acquired from EU",
+    "pdfExportError": "Failed to export PDF. The return may be in draft status."
   },
   "reports": {
     "title": "Reports",

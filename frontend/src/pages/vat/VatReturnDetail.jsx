@@ -12,6 +12,7 @@ const VatReturnDetail = () => {
   const [vatReturn, setVatReturn] = useState(null);
   const [error, setError] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
 
   useEffect(() => {
     fetchVatReturn();
@@ -38,6 +39,7 @@ const VatReturnDetail = () => {
   const handleExportPdf = async () => {
     try {
       setExporting(true);
+      setPdfError(null);
       const response = await vatService.exportReturnPdf(id);
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -48,6 +50,12 @@ const VatReturnDetail = () => {
       link.remove();
     } catch (err) {
       console.error('Failed to export PDF:', err);
+      const errorMessage = err.response?.data?.error?.message;
+      setPdfError(
+        typeof errorMessage === 'object' 
+          ? (errorMessage.tr || errorMessage.en || t('vat.pdfExportError'))
+          : (errorMessage || t('vat.pdfExportError'))
+      );
     } finally {
       setExporting(false);
     }
@@ -157,6 +165,20 @@ const VatReturnDetail = () => {
           </button>
         </div>
       </div>
+
+      {/* PDF Error */}
+      {pdfError && (
+        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+          <span className="text-red-400">{pdfError}</span>
+          <button
+            onClick={() => setPdfError(null)}
+            className="ml-auto text-red-400 hover:text-red-300"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Period Info */}
       <div className="bg-zinc-800/50 rounded-xl border border-zinc-700 p-6">
