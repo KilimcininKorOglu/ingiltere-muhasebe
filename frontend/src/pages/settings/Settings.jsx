@@ -224,9 +224,9 @@ const Settings = () => {
     return rawTaxRates.find(r => r.category === category && r.name === name && r.rateType === rateType);
   };
 
-  // Render editable cell
-  const renderEditableCell = (rate, prefix = '£', suffix = '') => {
-    if (!rate) return <td>-</td>;
+  // Render editable cell with data-label
+  const renderEditableCell = (rate, prefix = '£', suffix = '', dataLabel = '') => {
+    if (!rate) return <td data-label={dataLabel}>-</td>;
     
     const displayValue = rate.rateType === 'threshold' 
       ? rate.value / 100 
@@ -234,7 +234,7 @@ const Settings = () => {
 
     if (editingRate === rate.id) {
       return (
-        <td className="editing-cell">
+        <td className="editing-cell" data-label={dataLabel}>
           <input
             type="number"
             value={editValue}
@@ -252,7 +252,7 @@ const Settings = () => {
     }
 
     return (
-      <td className="editable-cell" onClick={() => startEditRate(rate)}>
+      <td className="editable-cell" data-label={dataLabel} onClick={() => startEditRate(rate)}>
         {prefix}{displayValue.toLocaleString()}{suffix}
         <span className="edit-icon">&#9998;</span>
       </td>
@@ -632,23 +632,23 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         {renderRateName(t('settings.rateRegistration'), 'vat', 'registration')}
-                        {renderEditableCell(getRawRate('vat', 'registration', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('vat', 'registration', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateDeregistration'), 'vat', 'deregistration')}
-                        {renderEditableCell(getRawRate('vat', 'deregistration', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('vat', 'deregistration', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateStandard'), 'vat', 'standard')}
-                        {renderEditableCell(getRawRate('vat', 'standard', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('vat', 'standard', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateReduced'), 'vat', 'reduced')}
-                        {renderEditableCell(getRawRate('vat', 'reduced', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('vat', 'reduced', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateZero'), 'vat', 'zero')}
-                        {renderEditableCell(getRawRate('vat', 'zero', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('vat', 'zero', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                     </tbody>
                   </table>
@@ -668,19 +668,19 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         {renderRateName(t('settings.ratePersonalAllowance'), 'income_tax', 'personal_allowance')}
-                        {renderEditableCell(getRawRate('income_tax', 'personal_allowance', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('income_tax', 'personal_allowance', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateBasic'), 'income_tax', 'basic')}
-                        {renderEditableCell(getRawRate('income_tax', 'basic', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('income_tax', 'basic', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateHigher'), 'income_tax', 'higher')}
-                        {renderEditableCell(getRawRate('income_tax', 'higher', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('income_tax', 'higher', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateAdditional'), 'income_tax', 'additional')}
-                        {renderEditableCell(getRawRate('income_tax', 'additional', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('income_tax', 'additional', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                     </tbody>
                   </table>
@@ -700,19 +700,19 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         {renderRateName(t('settings.ratePrimaryThreshold'), 'national_insurance', 'primary_threshold')}
-                        {renderEditableCell(getRawRate('national_insurance', 'primary_threshold', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('national_insurance', 'primary_threshold', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateUpperEarnings'), 'national_insurance', 'upper_earnings_limit')}
-                        {renderEditableCell(getRawRate('national_insurance', 'upper_earnings_limit', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('national_insurance', 'upper_earnings_limit', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateEmployeeMain'), 'national_insurance', 'employee_main')}
-                        {renderEditableCell(getRawRate('national_insurance', 'employee_main', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('national_insurance', 'employee_main', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateEmployer'), 'national_insurance', 'employer')}
-                        {renderEditableCell(getRawRate('national_insurance', 'employer', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('national_insurance', 'employer', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                     </tbody>
                   </table>
@@ -732,15 +732,15 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         {renderRateName(t('settings.rateSmallProfits'), 'corporation_tax', 'small_profits')}
-                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateSmallProfitsLimit'), 'corporation_tax', 'small_profits_limit')}
-                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits_limit', 'threshold'), '£', '')}
+                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits_limit', 'threshold'), '£', '', t('settings.rateValue'))}
                       </tr>
                       <tr>
                         {renderRateName(t('settings.rateMain'), 'corporation_tax', 'main')}
-                        {renderEditableCell(getRawRate('corporation_tax', 'main', 'rate'), '', '%')}
+                        {renderEditableCell(getRawRate('corporation_tax', 'main', 'rate'), '', '%', t('settings.rateValue'))}
                       </tr>
                     </tbody>
                   </table>
