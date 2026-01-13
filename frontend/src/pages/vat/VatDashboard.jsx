@@ -58,6 +58,12 @@ const VatDashboard = () => {
   const threshold = data.thresholdStatus;
   const summary = data.dashboardSummary;
 
+  // Extract values from API response
+  const currentTurnover = threshold?.turnover?.rolling12Month || 0;
+  const thresholdAmount = threshold?.threshold?.registrationAmount || 90000;
+  const remainingAmount = threshold?.warning?.remainingUntilThreshold || thresholdAmount;
+  const isExceeded = threshold?.warning?.level === 'exceeded';
+
   return (
     <div className="page-container">
       <Header title={t('vat.title')}>
@@ -75,19 +81,19 @@ const VatDashboard = () => {
                 <div
                   className="progress-fill"
                   style={{
-                    width: `${Math.min((threshold?.currentTurnover / threshold?.threshold) * 100 || 0, 100)}%`,
+                    width: `${Math.min((currentTurnover / thresholdAmount) * 100, 100)}%`,
                   }}
                 />
               </div>
               <div className="threshold-values">
-                <span>{formatCurrency(threshold?.currentTurnover)}</span>
-                <span>{formatCurrency(threshold?.threshold)}</span>
+                <span>{formatCurrency(currentTurnover / 100)}</span>
+                <span>{formatCurrency(thresholdAmount / 100)}</span>
               </div>
             </div>
             <p className="threshold-status">
-              {threshold?.isExceeded 
+              {isExceeded 
                 ? t('vat.thresholdExceeded')
-                : t('vat.thresholdRemaining', { amount: formatCurrency(threshold?.remaining) })}
+                : t('vat.thresholdRemaining', { amount: formatCurrency(remainingAmount / 100) })}
             </p>
           </div>
 
