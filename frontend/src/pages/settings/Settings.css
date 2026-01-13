@@ -1,6 +1,6 @@
 .settings-container {
-  display: grid;
-  grid-template-columns: 220px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   min-height: calc(100vh - 200px);
 }
@@ -8,39 +8,42 @@
 .settings-sidebar {
   background: #fff;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  height: fit-content;
 }
 
 .settings-tabs {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .settings-tab {
-  width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 1.25rem;
   background: transparent;
-  border: none;
-  border-radius: 6px;
-  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
   font-size: 0.875rem;
+  font-weight: 500;
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s;
-  margin-bottom: 0.25rem;
 }
 
 .settings-tab:hover {
   background: #f8fafc;
   color: #1e293b;
+  border-color: #cbd5e1;
 }
 
 .settings-tab.active {
   background: #3b82f6;
   color: #fff;
+  border-color: #3b82f6;
 }
 
 .settings-content {
@@ -233,33 +236,13 @@
 }
 
 @media (max-width: 768px) {
-  .settings-container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .settings-sidebar {
     padding: 0.5rem;
   }
 
-  .settings-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .settings-tabs li {
-    flex: 1 1 auto;
-    min-width: fit-content;
-  }
-
   .settings-tab {
-    width: auto;
-    text-align: center;
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
-    margin-bottom: 0;
-    white-space: nowrap;
   }
 
   .settings-content {
