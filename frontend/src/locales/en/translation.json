@@ -341,6 +341,7 @@
   },
   "reports": {
     "title": "Reports",
+    "subtitle": "View your financial reports",
     "viewReports": "View Reports",
     "profitLoss": "Profit & Loss",
     "payeSummary": "PAYE Summary",
@@ -363,6 +364,7 @@
   },
   "bank": {
     "title": "Bank Accounts",
+    "subtitle": "Manage your bank accounts",
     "addAccount": "Add Account",
     "totalBalance": "Total Balance",
     "accounts": "accounts",
@@ -371,7 +373,8 @@
     "viewTransactions": "Transactions",
     "reconcile": "Reconcile",
     "current": "Current",
-    "savings": "Savings"
+    "savings": "Savings",
+    "balance": "Balance"
   },
   "settings": {
     "title": "Settings",

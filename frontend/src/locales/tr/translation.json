@@ -341,6 +341,7 @@
   },
   "reports": {
     "title": "Raporlar",
+    "subtitle": "Finansal raporlarınızı görüntüleyin",
     "viewReports": "Raporları Gör",
     "profitLoss": "Kâr ve Zarar",
     "payeSummary": "PAYE Özeti",
@@ -363,6 +364,7 @@
   },
   "bank": {
     "title": "Banka Hesapları",
+    "subtitle": "Banka hesaplarınızı yönetin",
     "addAccount": "Hesap Ekle",
     "totalBalance": "Toplam Bakiye",
     "accounts": "hesap",
@@ -371,7 +373,8 @@
     "viewTransactions": "İşlemler",
     "reconcile": "Mutabakat",
     "current": "Vadesiz",
-    "savings": "Tasarruf"
+    "savings": "Tasarruf",
+    "balance": "Bakiye"
   },
   "settings": {
     "title": "Ayarlar",
