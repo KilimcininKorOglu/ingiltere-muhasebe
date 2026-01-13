@@ -22,8 +22,11 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [taxRates, setTaxRates] = useState({});
+  const [rawTaxRates, setRawTaxRates] = useState([]);
   const [taxYears, setTaxYears] = useState([]);
   const [selectedTaxYear, setSelectedTaxYear] = useState('');
+  const [editingRate, setEditingRate] = useState(null);
+  const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -81,11 +84,13 @@ const Settings = () => {
         const oldFormatData = ratesRes.data?.data?.taxRates?.[selectedTaxYear];
         if (oldFormatData) {
           setTaxRates(oldFormatData);
+          setRawTaxRates([]);
           return;
         }
         
         // New format: flat array from database - transform to category-based structure
         const ratesArray = ratesRes.data?.data?.rates || [];
+        setRawTaxRates(ratesArray);
         const transformed = transformRatesToCategories(ratesArray);
         setTaxRates(transformed);
       } catch (error) {
@@ -162,6 +167,93 @@ const Settings = () => {
     });
 
     return result;
+  };
+
+  // Start editing a tax rate
+  const startEditRate = (rate) => {
+    setEditingRate(rate.id);
+    // Convert from storage format to display format
+    const displayValue = rate.rateType === 'threshold' 
+      ? rate.value / 100  // pence to pounds
+      : rate.value / 100; // basis points to percentage
+    setEditValue(displayValue.toString());
+  };
+
+  // Cancel editing
+  const cancelEditRate = () => {
+    setEditingRate(null);
+    setEditValue('');
+  };
+
+  // Save edited rate
+  const saveEditRate = async (rate) => {
+    try {
+      const numValue = parseFloat(editValue);
+      if (isNaN(numValue)) {
+        alert('Geçerli bir sayı giriniz');
+        return;
+      }
+
+      // Convert from display format to storage format
+      const storageValue = rate.rateType === 'threshold'
+        ? Math.round(numValue * 100)  // pounds to pence
+        : Math.round(numValue * 100); // percentage to basis points
+
+      await taxRatesService.update(rate.id, { value: storageValue });
+
+      // Update local state
+      const updatedRates = rawTaxRates.map(r => 
+        r.id === rate.id ? { ...r, value: storageValue } : r
+      );
+      setRawTaxRates(updatedRates);
+      setTaxRates(transformRatesToCategories(updatedRates));
+      
+      setEditingRate(null);
+      setEditValue('');
+    } catch (error) {
+      console.error('Failed to update tax rate:', error);
+      alert('Güncelleme başarısız: ' + (error.response?.data?.error?.message || error.message));
+    }
+  };
+
+  // Get raw rate by category and name
+  const getRawRate = (category, name, rateType = 'threshold') => {
+    return rawTaxRates.find(r => r.category === category && r.name === name && r.rateType === rateType);
+  };
+
+  // Render editable cell
+  const renderEditableCell = (rate, prefix = '£', suffix = '') => {
+    if (!rate) return <td>-</td>;
+    
+    const displayValue = rate.rateType === 'threshold' 
+      ? rate.value / 100 
+      : rate.value / 100;
+
+    if (editingRate === rate.id) {
+      return (
+        <td className="editing-cell">
+          <input
+            type="number"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveEditRate(rate);
+              if (e.key === 'Escape') cancelEditRate();
+            }}
+            autoFocus
+          />
+          <button className="btn-save-small" onClick={() => saveEditRate(rate)}>&#10003;</button>
+          <button className="btn-cancel-small" onClick={cancelEditRate}>&#10005;</button>
+        </td>
+      );
+    }
+
+    return (
+      <td className="editable-cell" onClick={() => startEditRate(rate)}>
+        {prefix}{displayValue.toLocaleString()}{suffix}
+        <span className="edit-icon">&#9998;</span>
+      </td>
+    );
   };
 
   const handleChange = (e) => {
@@ -374,23 +466,23 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         <td>{t('settings.rateRegistration')}</td>
-                        <td>£{taxRates.vat.thresholds?.registration?.amount?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('vat', 'registration', 'threshold'), '£', '')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateDeregistration')}</td>
-                        <td>£{taxRates.vat.thresholds?.deregistration?.amount?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('vat', 'deregistration', 'threshold'), '£', '')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateStandard')}</td>
-                        <td>{(taxRates.vat.rates?.standard?.rate * 100)}%</td>
+                        {renderEditableCell(getRawRate('vat', 'standard', 'rate'), '', '%')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateReduced')}</td>
-                        <td>{(taxRates.vat.rates?.reduced?.rate * 100)}%</td>
+                        {renderEditableCell(getRawRate('vat', 'reduced', 'rate'), '', '%')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateZero')}</td>
-                        <td>{(taxRates.vat.rates?.zero?.rate * 100)}%</td>
+                        {renderEditableCell(getRawRate('vat', 'zero', 'rate'), '', '%')}
                       </tr>
                     </tbody>
                   </table>
@@ -410,14 +502,20 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         <td>{t('settings.ratePersonalAllowance')}</td>
-                        <td>£{taxRates.incomeTax.personalAllowance?.amount?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('income_tax', 'personal_allowance', 'threshold'), '£', '')}
                       </tr>
-                      {taxRates.incomeTax.bands?.map((band, idx) => (
-                        <tr key={idx}>
-                          <td>{band.description?.[i18n.language] || band.name}</td>
-                          <td>{(band.rate * 100)}%</td>
-                        </tr>
-                      ))}
+                      <tr>
+                        <td>{t('settings.rateBasic')}</td>
+                        {renderEditableCell(getRawRate('income_tax', 'basic', 'rate'), '', '%')}
+                      </tr>
+                      <tr>
+                        <td>{t('settings.rateHigher')}</td>
+                        {renderEditableCell(getRawRate('income_tax', 'higher', 'rate'), '', '%')}
+                      </tr>
+                      <tr>
+                        <td>{t('settings.rateAdditional')}</td>
+                        {renderEditableCell(getRawRate('income_tax', 'additional', 'rate'), '', '%')}
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -436,19 +534,19 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         <td>{t('settings.ratePrimaryThreshold')}</td>
-                        <td>£{taxRates.nationalInsurance.class1?.employee?.thresholds?.primaryThreshold?.annual?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('national_insurance', 'primary_threshold', 'threshold'), '£', '')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateUpperEarnings')}</td>
-                        <td>£{taxRates.nationalInsurance.class1?.employee?.thresholds?.upperEarningsLimit?.annual?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('national_insurance', 'upper_earnings_limit', 'threshold'), '£', '')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateEmployeeMain')}</td>
-                        <td>{(taxRates.nationalInsurance.class1?.employee?.rates?.mainRate * 100)}%</td>
+                        {renderEditableCell(getRawRate('national_insurance', 'employee_main', 'rate'), '', '%')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateEmployer')}</td>
-                        <td>{(taxRates.nationalInsurance.class1?.employer?.rates?.mainRate * 100)}%</td>
+                        {renderEditableCell(getRawRate('national_insurance', 'employer', 'rate'), '', '%')}
                       </tr>
                     </tbody>
                   </table>
@@ -468,15 +566,15 @@ const Settings = () => {
                     <tbody>
                       <tr>
                         <td>{t('settings.rateSmallProfits')}</td>
-                        <td>{(taxRates.corporationTax.rates?.small?.rate * 100)}%</td>
+                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits', 'rate'), '', '%')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateSmallProfitsLimit')}</td>
-                        <td>£{taxRates.corporationTax.rates?.small?.profitsThreshold?.toLocaleString()}</td>
+                        {renderEditableCell(getRawRate('corporation_tax', 'small_profits_limit', 'threshold'), '£', '')}
                       </tr>
                       <tr>
                         <td>{t('settings.rateMain')}</td>
-                        <td>{(taxRates.corporationTax.rates?.main?.rate * 100)}%</td>
+                        {renderEditableCell(getRawRate('corporation_tax', 'main', 'rate'), '', '%')}
                       </tr>
                     </tbody>
                   </table>
