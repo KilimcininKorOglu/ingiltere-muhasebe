@@ -322,7 +322,21 @@
     "createFirstReturn": "İlk beyannamenizi oluşturun",
     "statusSubmitted": "Gönderildi",
     "statusDraft": "Taslak",
-    "statusOverdue": "Gecikmiş"
+    "statusOverdue": "Gecikmiş",
+    "returnNotFound": "KDV beyannamesi bulunamadı",
+    "periodStart": "Dönem Başlangıcı",
+    "periodEnd": "Dönem Bitişi",
+    "dueDate": "Son Tarih",
+    "boxDetails": "Kutu Detayları",
+    "box1Desc": "Satışlardaki KDV ve diğer çıktılar",
+    "box2Desc": "AB alımlarındaki KDV",
+    "box3Desc": "Toplam KDV borcu (Box 1 + Box 2)",
+    "box4Desc": "Geri talep edilen KDV",
+    "box5Desc": "Net KDV (Box 3 - Box 4)",
+    "box6Desc": "KDV hariç toplam satış değeri",
+    "box7Desc": "KDV hariç toplam alım değeri",
+    "box8Desc": "AB ülkelerine mal teslimatları",
+    "box9Desc": "AB ülkelerinden mal alımları"
   },
   "reports": {
     "title": "Raporlar",

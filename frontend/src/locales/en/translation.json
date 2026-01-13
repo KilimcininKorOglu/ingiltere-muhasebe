@@ -322,7 +322,21 @@
     "createFirstReturn": "Create your first return",
     "statusSubmitted": "Submitted",
     "statusDraft": "Draft",
-    "statusOverdue": "Overdue"
+    "statusOverdue": "Overdue",
+    "returnNotFound": "VAT return not found",
+    "periodStart": "Period Start",
+    "periodEnd": "Period End",
+    "dueDate": "Due Date",
+    "boxDetails": "Box Details",
+    "box1Desc": "VAT due on sales and other outputs",
+    "box2Desc": "VAT due on EU acquisitions",
+    "box3Desc": "Total VAT due (Box 1 + Box 2)",
+    "box4Desc": "VAT reclaimed",
+    "box5Desc": "Net VAT (Box 3 - Box 4)",
+    "box6Desc": "Total value of sales excluding VAT",
+    "box7Desc": "Total value of purchases excluding VAT",
+    "box8Desc": "Total value of goods supplied to EU",
+    "box9Desc": "Total value of goods acquired from EU"
   },
   "reports": {
     "title": "Reports",
