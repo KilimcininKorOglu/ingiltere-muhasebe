@@ -40,7 +40,8 @@
     "refresh": "Refresh",
     "filters": "Filters",
     "showing": "Showing",
-    "of": "of"
+    "of": "of",
+    "results": "results"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -134,8 +135,11 @@
   },
   "invoices": {
     "title": "Invoices",
+    "subtitle": "Manage your invoices and payments",
     "createInvoice": "Create Invoice",
+    "createSubtitle": "Create a new invoice",
     "editInvoice": "Edit Invoice",
+    "editSubtitle": "Update invoice details",
     "invoiceNumber": "Invoice Number",
     "customer": "Customer",
     "issueDate": "Issue Date",
@@ -163,13 +167,18 @@
     "subtotal": "Subtotal",
     "totalVat": "Total VAT",
     "grandTotal": "Grand Total",
+    "summary": "Summary",
     "notes": "Notes",
     "notesPlaceholder": "Additional notes or payment terms"
   },
   "customers": {
     "title": "Customers",
+    "subtitle": "Manage your customer records",
     "addCustomer": "Add Customer",
     "editCustomer": "Edit Customer",
+    "createSubtitle": "Add a new customer record",
+    "editSubtitle": "Update customer information",
+    "basicInfo": "Basic Information",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",

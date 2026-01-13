@@ -100,7 +100,7 @@ const InvoiceList = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">{t('invoices.title')}</h1>
-          <p className="text-zinc-400 text-sm mt-1">{t('invoices.subtitle') || 'Fatura yonetimi'}</p>
+          <p className="text-zinc-400 text-sm mt-1">{t('invoices.subtitle')}</p>
         </div>
         <Link
           to="/invoices/new"

@@ -40,7 +40,8 @@
     "refresh": "Yenile",
     "filters": "Filtreler",
     "showing": "Gösterilen",
-    "of": "/"
+    "of": "/",
+    "results": "sonuç"
   },
   "nav": {
     "dashboard": "Panel",
@@ -134,8 +135,11 @@
   },
   "invoices": {
     "title": "Faturalar",
+    "subtitle": "Fatura ve ödemelerinizi yönetin",
     "createInvoice": "Fatura Oluştur",
+    "createSubtitle": "Yeni fatura oluşturun",
     "editInvoice": "Fatura Düzenle",
+    "editSubtitle": "Fatura bilgilerini güncelleyin",
     "invoiceNumber": "Fatura Numarası",
     "customer": "Müşteri",
     "issueDate": "Düzenleme Tarihi",
@@ -163,13 +167,18 @@
     "subtotal": "Ara Toplam",
     "totalVat": "Toplam KDV",
     "grandTotal": "Genel Toplam",
+    "summary": "Özet",
     "notes": "Notlar",
     "notesPlaceholder": "Ek notlar veya ödeme koşulları"
   },
   "customers": {
     "title": "Müşteriler",
+    "subtitle": "Müşteri kayıtlarınızı yönetin",
     "addCustomer": "Müşteri Ekle",
     "editCustomer": "Müşteri Düzenle",
+    "createSubtitle": "Yeni müşteri kaydı oluşturun",
+    "editSubtitle": "Müşteri bilgilerini güncelleyin",
+    "basicInfo": "Temel Bilgiler",
     "name": "Ad",
     "email": "E-posta",
     "phone": "Telefon",
