@@ -274,7 +274,16 @@
     "vatRates": "UK VAT Rates",
     "standardRate": "Standard Rate",
     "reducedRate": "Reduced Rate",
-    "zeroRated": "Zero Rated"
+    "zeroRated": "Zero Rated",
+    "returns": "VAT Returns",
+    "newReturn": "New Return",
+    "period": "Period",
+    "netVat": "Net VAT",
+    "noReturns": "No VAT returns found",
+    "createFirstReturn": "Create your first return",
+    "statusSubmitted": "Submitted",
+    "statusDraft": "Draft",
+    "statusOverdue": "Overdue"
   },
   "reports": {
     "title": "Reports",

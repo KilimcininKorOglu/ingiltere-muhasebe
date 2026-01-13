@@ -274,7 +274,16 @@
     "vatRates": "İngiltere KDV Oranları",
     "standardRate": "Standart Oran",
     "reducedRate": "İndirimli Oran",
-    "zeroRated": "Sıfır Oranlı"
+    "zeroRated": "Sıfır Oranlı",
+    "returns": "KDV Beyannameleri",
+    "newReturn": "Yeni Beyanname",
+    "period": "Dönem",
+    "netVat": "Net KDV",
+    "noReturns": "KDV beyannamesi bulunamadı",
+    "createFirstReturn": "İlk beyannamenizi oluşturun",
+    "statusSubmitted": "Gönderildi",
+    "statusDraft": "Taslak",
+    "statusOverdue": "Gecikmiş"
   },
   "reports": {
     "title": "Raporlar",

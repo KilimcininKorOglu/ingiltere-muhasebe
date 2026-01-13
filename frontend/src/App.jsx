@@ -20,6 +20,8 @@ import EmployeeForm from './pages/employees/EmployeeForm';
 import PayrollList from './pages/payroll/PayrollList';
 import PayrollForm from './pages/payroll/PayrollForm';
 import VatDashboard from './pages/vat/VatDashboard';
+import VatReturnNew from './pages/vat/VatReturnNew';
+import VatReturns from './pages/vat/VatReturns';
 import ReportsDashboard from './pages/reports/ReportsDashboard';
 import BankDashboard from './pages/bank/BankDashboard';
 import Settings from './pages/settings/Settings';
@@ -76,8 +78,8 @@ const App = () => {
               <Route path="payroll/:id" element={<PayrollForm />} />
               
               <Route path="vat" element={<VatDashboard />} />
-              <Route path="vat/return/new" element={<VatDashboard />} />
-              <Route path="vat/returns" element={<VatDashboard />} />
+              <Route path="vat/return/new" element={<VatReturnNew />} />
+              <Route path="vat/returns" element={<VatReturns />} />
               
               <Route path="reports" element={<ReportsDashboard />} />
               
