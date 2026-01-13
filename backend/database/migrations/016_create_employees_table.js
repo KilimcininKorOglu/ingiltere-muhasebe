@@ -81,8 +81,8 @@ const createTableSql = `
     pensionOptIn INTEGER DEFAULT 0 NOT NULL,
     pensionContribution INTEGER DEFAULT 0,
     notes TEXT,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE(userId, employeeNumber)
   );

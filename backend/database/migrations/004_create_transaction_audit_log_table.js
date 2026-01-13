@@ -51,7 +51,7 @@ const createTableSql = `
     changedFields TEXT,
     ipAddress TEXT,
     userAgent TEXT,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
   );
 `;

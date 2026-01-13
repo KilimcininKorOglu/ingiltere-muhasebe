@@ -316,7 +316,7 @@ describe('Dashboard API', () => {
       for (let i = 0; i < 4; i++) {
         execute(`
           INSERT INTO invoices (userId, invoiceNumber, status, issueDate, dueDate, customerName, customerEmail, totalAmount, createdAt, updatedAt)
-          VALUES (?, 'OD-00${i}', 'pending', '2020-01-01', '2020-02-01', 'Customer ${i}', 'cust${i}@test.com', 50000, datetime('now'), datetime('now'))
+          VALUES (?, 'OD-00${i}', 'pending', '2020-01-01', '2020-02-01', 'Customer ${i}', 'cust${i}@test.com', 50000, strftime('%s', 'now'), strftime('%s', 'now'))
         `, [testUserId]);
       }
       

@@ -21,8 +21,8 @@ function up(db) {
       effectiveFrom TEXT NOT NULL,
       effectiveTo TEXT,
       isActive INTEGER DEFAULT 1,
-      createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-      updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+      createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+      updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
       UNIQUE(taxYear, rateType, category, name)
     );
 

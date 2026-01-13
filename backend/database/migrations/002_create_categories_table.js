@@ -60,8 +60,8 @@ const createTableSql = `
     displayOrder INTEGER DEFAULT 0,
     vatApplicable INTEGER DEFAULT 0 NOT NULL,
     defaultVatRate INTEGER DEFAULT 0,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (parentId) REFERENCES categories(id) ON DELETE SET NULL
   );
 `;

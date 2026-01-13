@@ -620,7 +620,7 @@ function updateVatReturn(id, vatReturnData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update
@@ -695,12 +695,12 @@ function updateStatus(id, status) {
     // If marking as submitted, set submittedAt timestamp
     if (status === 'submitted' && !existingVatReturn.submittedAt) {
       execute(
-        `UPDATE vat_returns SET status = @status, submittedAt = datetime('now'), updatedAt = datetime('now') WHERE id = @id`,
+        `UPDATE vat_returns SET status = @status, submittedAt = strftime('%s', 'now'), updatedAt = strftime('%s', 'now') WHERE id = @id`,
         updateParams
       );
     } else {
       execute(
-        `UPDATE vat_returns SET status = @status, updatedAt = datetime('now') WHERE id = @id`,
+        `UPDATE vat_returns SET status = @status, updatedAt = strftime('%s', 'now') WHERE id = @id`,
         updateParams
       );
     }

@@ -46,8 +46,8 @@ const createTableSql = `
     vatAmount INTEGER DEFAULT 0 NOT NULL,
     lineTotal INTEGER DEFAULT 0 NOT NULL,
     sortOrder INTEGER DEFAULT 0 NOT NULL,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (invoiceId) REFERENCES invoices(id) ON DELETE CASCADE
   );
 `;

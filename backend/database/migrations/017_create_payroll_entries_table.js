@@ -91,8 +91,8 @@ const createTableSql = `
     cumulativeTaxableIncome INTEGER DEFAULT 0 NOT NULL,
     cumulativeTaxPaid INTEGER DEFAULT 0 NOT NULL,
     notes TEXT,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (employeeId) REFERENCES employees(id) ON DELETE CASCADE,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
   );

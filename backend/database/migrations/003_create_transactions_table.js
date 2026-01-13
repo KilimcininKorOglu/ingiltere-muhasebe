@@ -88,8 +88,8 @@ const createTableSql = `
     isRecurring INTEGER DEFAULT 0 NOT NULL,
     recurringFrequency TEXT CHECK(recurringFrequency IS NULL OR recurringFrequency IN ('weekly', 'monthly', 'yearly')),
     linkedTransactionId INTEGER,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE SET NULL,
     FOREIGN KEY (linkedTransactionId) REFERENCES transactions(id) ON DELETE SET NULL

@@ -21,7 +21,7 @@ const createMigrationsTableSql = `
   CREATE TABLE IF NOT EXISTS migrations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
-    appliedAt TEXT DEFAULT (datetime('now')) NOT NULL
+    appliedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL
   );
 `;
 

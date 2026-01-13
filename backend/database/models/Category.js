@@ -642,7 +642,7 @@ function updateCategory(id, categoryData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update
@@ -711,7 +711,7 @@ function toggleActive(id) {
   try {
     const newStatus = existingCategory.isActive ? 0 : 1;
     execute(
-      `UPDATE categories SET isActive = @isActive, updatedAt = datetime('now') WHERE id = @id`,
+      `UPDATE categories SET isActive = @isActive, updatedAt = strftime('%s', 'now') WHERE id = @id`,
       { id, isActive: newStatus }
     );
 

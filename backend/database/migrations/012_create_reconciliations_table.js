@@ -69,8 +69,8 @@ const createTableSql = `
     reconciledBy INTEGER,
     reconciledAt TEXT,
     notes TEXT,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (bankTransactionId) REFERENCES bank_transactions(id) ON DELETE CASCADE,
     FOREIGN KEY (transactionId) REFERENCES transactions(id) ON DELETE CASCADE,
     FOREIGN KEY (reconciledBy) REFERENCES users(id) ON DELETE SET NULL
@@ -146,12 +146,12 @@ const createReconciliationConfirmTriggerSql = `
     UPDATE bank_transactions 
     SET reconciliationStatus = 'matched',
         isReconciled = 1,
-        updatedAt = datetime('now')
+        updatedAt = strftime('%s', 'now')
     WHERE id = NEW.bankTransactionId;
     
     UPDATE transactions
     SET status = 'reconciled',
-        updatedAt = datetime('now')
+        updatedAt = strftime('%s', 'now')
     WHERE id = NEW.transactionId;
   END;
 `;
@@ -176,7 +176,7 @@ const createReconciliationRejectTriggerSql = `
       THEN 0 
       ELSE 1 
     END,
-    updatedAt = datetime('now')
+    updatedAt = strftime('%s', 'now')
     WHERE id = NEW.bankTransactionId;
   END;
 `;
@@ -193,12 +193,12 @@ const createReconciliationInsertTriggerSql = `
     UPDATE bank_transactions 
     SET reconciliationStatus = 'matched',
         isReconciled = 1,
-        updatedAt = datetime('now')
+        updatedAt = strftime('%s', 'now')
     WHERE id = NEW.bankTransactionId;
     
     UPDATE transactions
     SET status = 'reconciled',
-        updatedAt = datetime('now')
+        updatedAt = strftime('%s', 'now')
     WHERE id = NEW.transactionId;
   END;
 `;

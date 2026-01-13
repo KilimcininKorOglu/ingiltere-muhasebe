@@ -126,8 +126,8 @@ function down(db) {
           preferredLanguage TEXT DEFAULT 'en' NOT NULL CHECK(preferredLanguage IN ('en', 'tr')),
           invoicePrefix TEXT DEFAULT 'INV' NOT NULL,
           nextInvoiceNumber INTEGER DEFAULT 1 NOT NULL,
-          createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-          updatedAt TEXT DEFAULT (datetime('now')) NOT NULL
+          createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+          updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL
         );
       `);
       

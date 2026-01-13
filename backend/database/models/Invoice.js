@@ -623,7 +623,7 @@ function updateInvoice(id, invoiceData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update
@@ -689,12 +689,12 @@ function updateStatus(id, status) {
     // If marking as paid, set paidAt timestamp
     if (status === 'paid') {
       execute(
-        `UPDATE invoices SET status = @status, paidAt = datetime('now'), updatedAt = datetime('now') WHERE id = @id`,
+        `UPDATE invoices SET status = @status, paidAt = strftime('%s', 'now'), updatedAt = strftime('%s', 'now') WHERE id = @id`,
         updateParams
       );
     } else {
       execute(
-        `UPDATE invoices SET status = @status, updatedAt = datetime('now') WHERE id = @id`,
+        `UPDATE invoices SET status = @status, updatedAt = strftime('%s', 'now') WHERE id = @id`,
         updateParams
       );
     }
@@ -732,7 +732,7 @@ function recalculateTotals(invoiceId) {
 
     execute(`
       UPDATE invoices 
-      SET subtotal = @subtotal, vatAmount = @vatAmount, totalAmount = @totalAmount, updatedAt = datetime('now')
+      SET subtotal = @subtotal, vatAmount = @vatAmount, totalAmount = @totalAmount, updatedAt = strftime('%s', 'now')
       WHERE id = @id
     `, {
       id: invoiceId,

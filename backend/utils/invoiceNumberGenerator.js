@@ -71,7 +71,7 @@ function generateNextInvoiceNumber(userId, options = {}) {
 
       // Increment the next invoice number atomically
       db.prepare(
-        'UPDATE users SET nextInvoiceNumber = nextInvoiceNumber + 1, updatedAt = datetime(\'now\') WHERE id = ?'
+        'UPDATE users SET nextInvoiceNumber = nextInvoiceNumber + 1, updatedAt = strftime(\'%s\', \'now\') WHERE id = ?'
       ).run(userId);
 
       return invoiceNumber;
@@ -148,7 +148,7 @@ function updateInvoicePrefix(userId, prefix) {
 
   try {
     const result = execute(
-      'UPDATE users SET invoicePrefix = @prefix, updatedAt = datetime(\'now\') WHERE id = @userId',
+      'UPDATE users SET invoicePrefix = @prefix, updatedAt = strftime(\'%s\', \'now\') WHERE id = @userId',
       { userId, prefix: cleanedPrefix }
     );
 
@@ -182,7 +182,7 @@ function updateNextInvoiceNumber(userId, nextNumber) {
 
   try {
     const result = execute(
-      'UPDATE users SET nextInvoiceNumber = @nextNumber, updatedAt = datetime(\'now\') WHERE id = @userId',
+      'UPDATE users SET nextInvoiceNumber = @nextNumber, updatedAt = strftime(\'%s\', \'now\') WHERE id = @userId',
       { userId, nextNumber }
     );
 

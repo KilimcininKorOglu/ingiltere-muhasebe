@@ -84,14 +84,14 @@ const createTableSql = `
     runningBalance INTEGER,
     importSource TEXT DEFAULT 'manual' NOT NULL CHECK(importSource IN ('manual', 'csv_import', 'open_banking', 'statement_upload')),
     importBatchId TEXT,
-    importedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    importedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     rawData TEXT,
     fitId TEXT,
     reconciliationStatus TEXT DEFAULT 'unmatched' NOT NULL CHECK(reconciliationStatus IN ('unmatched', 'matched', 'excluded', 'reviewed')),
     reconciliationNotes TEXT,
     isReconciled INTEGER DEFAULT 0 NOT NULL,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (bankAccountId) REFERENCES bank_accounts(id) ON DELETE CASCADE
   );
 `;

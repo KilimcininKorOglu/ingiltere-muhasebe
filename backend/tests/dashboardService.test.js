@@ -43,7 +43,7 @@ beforeAll(() => {
   // Create test user
   execute(`
     INSERT OR IGNORE INTO users (id, email, passwordHash, name, isVatRegistered, createdAt, updatedAt)
-    VALUES (?, 'dashboard-test@example.com', 'hashedpassword', 'Dashboard Test User', 0, datetime('now'), datetime('now'))
+    VALUES (?, 'dashboard-test@example.com', 'hashedpassword', 'Dashboard Test User', 0, strftime('%s', 'now'), strftime('%s', 'now'))
   `, [testUserId]);
   
   // Create test categories
@@ -219,12 +219,12 @@ describe('Dashboard Service', () => {
       // Create outstanding invoices (using the correct schema - no customerId)
       execute(`
         INSERT INTO invoices (userId, invoiceNumber, status, issueDate, dueDate, customerName, customerEmail, totalAmount, createdAt, updatedAt)
-        VALUES (?, 'INV-001', 'pending', '2025-01-01', '2025-02-01', 'Customer 1', 'cust1@test.com', 100000, datetime('now'), datetime('now'))
+        VALUES (?, 'INV-001', 'pending', '2025-01-01', '2025-02-01', 'Customer 1', 'cust1@test.com', 100000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       execute(`
         INSERT INTO invoices (userId, invoiceNumber, status, issueDate, dueDate, customerName, customerEmail, totalAmount, createdAt, updatedAt)
-        VALUES (?, 'INV-002', 'draft', '2025-01-01', '2025-02-01', 'Customer 2', 'cust2@test.com', 50000, datetime('now'), datetime('now'))
+        VALUES (?, 'INV-002', 'draft', '2025-01-01', '2025-02-01', 'Customer 2', 'cust2@test.com', 50000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       const summary = dashboardService.getInvoiceSummary(testUserId);
@@ -236,7 +236,7 @@ describe('Dashboard Service', () => {
     test('should count draft invoices correctly', () => {
       execute(`
         INSERT INTO invoices (userId, invoiceNumber, status, issueDate, dueDate, customerName, customerEmail, totalAmount, createdAt, updatedAt)
-        VALUES (?, 'INV-001', 'draft', '2025-01-01', '2025-02-01', 'Customer 1', 'cust1@test.com', 100000, datetime('now'), datetime('now'))
+        VALUES (?, 'INV-001', 'draft', '2025-01-01', '2025-02-01', 'Customer 1', 'cust1@test.com', 100000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       const summary = dashboardService.getInvoiceSummary(testUserId);
@@ -327,12 +327,12 @@ describe('Dashboard Service', () => {
     test('should calculate total balance across active accounts', () => {
       execute(`
         INSERT INTO bank_accounts (userId, accountName, bankName, accountType, accountNumber, sortCode, isActive, currentBalance, createdAt, updatedAt)
-        VALUES (?, 'Account 1', 'Barclays', 'current', '12345678', '123456', 1, 500000, datetime('now'), datetime('now'))
+        VALUES (?, 'Account 1', 'Barclays', 'current', '12345678', '123456', 1, 500000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       execute(`
         INSERT INTO bank_accounts (userId, accountName, bankName, accountType, accountNumber, sortCode, isActive, currentBalance, createdAt, updatedAt)
-        VALUES (?, 'Account 2', 'HSBC', 'current', '87654321', '654321', 1, 300000, datetime('now'), datetime('now'))
+        VALUES (?, 'Account 2', 'HSBC', 'current', '87654321', '654321', 1, 300000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       const summary = dashboardService.getAccountBalanceSummary(testUserId);
@@ -344,12 +344,12 @@ describe('Dashboard Service', () => {
     test('should exclude inactive accounts', () => {
       execute(`
         INSERT INTO bank_accounts (userId, accountName, bankName, accountType, accountNumber, sortCode, isActive, currentBalance, createdAt, updatedAt)
-        VALUES (?, 'Active Account', 'Barclays', 'current', '12345678', '123456', 1, 500000, datetime('now'), datetime('now'))
+        VALUES (?, 'Active Account', 'Barclays', 'current', '12345678', '123456', 1, 500000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       execute(`
         INSERT INTO bank_accounts (userId, accountName, bankName, accountType, accountNumber, sortCode, isActive, currentBalance, createdAt, updatedAt)
-        VALUES (?, 'Inactive Account', 'HSBC', 'current', '87654321', '654321', 0, 300000, datetime('now'), datetime('now'))
+        VALUES (?, 'Inactive Account', 'HSBC', 'current', '87654321', '654321', 0, 300000, strftime('%s', 'now'), strftime('%s', 'now'))
       `, [testUserId]);
       
       const summary = dashboardService.getAccountBalanceSummary(testUserId);

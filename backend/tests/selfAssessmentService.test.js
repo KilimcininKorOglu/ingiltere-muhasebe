@@ -70,11 +70,11 @@ beforeEach(() => {
   // Insert test users for foreign key constraints
   execute(`
     INSERT OR IGNORE INTO users (id, email, passwordHash, name, createdAt, updatedAt)
-    VALUES (1, 'test1@example.com', 'hashedpassword', 'Test User 1', datetime('now'), datetime('now'))
+    VALUES (1, 'test1@example.com', 'hashedpassword', 'Test User 1', strftime('%s', 'now'), strftime('%s', 'now'))
   `);
   execute(`
     INSERT OR IGNORE INTO users (id, email, passwordHash, name, createdAt, updatedAt)
-    VALUES (2, 'test2@example.com', 'hashedpassword', 'Test User 2', datetime('now'), datetime('now'))
+    VALUES (2, 'test2@example.com', 'hashedpassword', 'Test User 2', strftime('%s', 'now'), strftime('%s', 'now'))
   `);
   
   // Insert test categories

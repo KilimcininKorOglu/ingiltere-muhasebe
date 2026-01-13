@@ -583,7 +583,7 @@ async function updateUser(id, userData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update

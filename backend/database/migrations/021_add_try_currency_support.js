@@ -28,8 +28,8 @@ function up(db) {
       isDefault INTEGER DEFAULT 0 NOT NULL,
       isActive INTEGER DEFAULT 1 NOT NULL,
       notes TEXT,
-      createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-      updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+      createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+      updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
       FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     );
 
@@ -99,8 +99,8 @@ function down(db) {
       isDefault INTEGER DEFAULT 0 NOT NULL,
       isActive INTEGER DEFAULT 1 NOT NULL,
       notes TEXT,
-      createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-      updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+      createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+      updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
       FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     );
 

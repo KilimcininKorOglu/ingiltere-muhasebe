@@ -804,7 +804,7 @@ function updateEmployee(id, employeeData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update
@@ -866,7 +866,7 @@ function updateStatus(id, status) {
 
   try {
     execute(
-      `UPDATE employees SET status = @status, updatedAt = datetime('now') WHERE id = @id`,
+      `UPDATE employees SET status = @status, updatedAt = strftime('%s', 'now') WHERE id = @id`,
       { id, status }
     );
 

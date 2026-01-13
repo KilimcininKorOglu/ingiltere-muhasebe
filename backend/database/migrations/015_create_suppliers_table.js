@@ -94,8 +94,8 @@ const createTableSql = `
     defaultExpenseCategory TEXT,
     status TEXT DEFAULT 'active' NOT NULL CHECK(status IN ('active', 'inactive', 'blocked')),
     notes TEXT,
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL,
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE(userId, name)
   );

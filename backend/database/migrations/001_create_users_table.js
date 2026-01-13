@@ -48,8 +48,8 @@ const createTableSql = `
     companyNumber TEXT,
     taxYearStart TEXT DEFAULT '04-06' NOT NULL,
     preferredLanguage TEXT DEFAULT 'en' NOT NULL CHECK(preferredLanguage IN ('en', 'tr')),
-    createdAt TEXT DEFAULT (datetime('now')) NOT NULL,
-    updatedAt TEXT DEFAULT (datetime('now')) NOT NULL
+    createdAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL,
+    updatedAt INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL
   );
 `;
 

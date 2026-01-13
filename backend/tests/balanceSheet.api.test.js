@@ -100,7 +100,7 @@ beforeEach(() => {
   // Insert test users
   execute(`
     INSERT OR IGNORE INTO users (id, email, passwordHash, name, createdAt, updatedAt)
-    VALUES (1, 'test@example.com', 'hashedpassword', 'Test User', datetime('now'), datetime('now'))
+    VALUES (1, 'test@example.com', 'hashedpassword', 'Test User', strftime('%s', 'now'), strftime('%s', 'now'))
   `);
   
   // Insert test categories

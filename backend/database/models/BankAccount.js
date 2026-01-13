@@ -662,7 +662,7 @@ function updateBankAccount(id, bankAccountData) {
     }
 
     // Always update the updatedAt timestamp
-    updateFields.push("updatedAt = datetime('now')");
+    updateFields.push("updatedAt = strftime('%s', 'now')");
 
     if (updateFields.length === 1) {
       // Only updatedAt field, nothing to update
@@ -728,7 +728,7 @@ function setAsDefault(id) {
 
   try {
     execute(
-      `UPDATE bank_accounts SET isDefault = 1, updatedAt = datetime('now') WHERE id = ?`,
+      `UPDATE bank_accounts SET isDefault = 1, updatedAt = strftime('%s', 'now') WHERE id = ?`,
       [id]
     );
 
@@ -755,7 +755,7 @@ function deactivateBankAccount(id) {
   try {
     // If this was the default account, we need to unset it
     execute(
-      `UPDATE bank_accounts SET isActive = 0, isDefault = 0, updatedAt = datetime('now') WHERE id = ?`,
+      `UPDATE bank_accounts SET isActive = 0, isDefault = 0, updatedAt = strftime('%s', 'now') WHERE id = ?`,
       [id]
     );
 
@@ -781,7 +781,7 @@ function reactivateBankAccount(id) {
 
   try {
     execute(
-      `UPDATE bank_accounts SET isActive = 1, updatedAt = datetime('now') WHERE id = ?`,
+      `UPDATE bank_accounts SET isActive = 1, updatedAt = strftime('%s', 'now') WHERE id = ?`,
       [id]
     );
 
@@ -812,7 +812,7 @@ function updateBalance(id, newBalance) {
 
   try {
     execute(
-      `UPDATE bank_accounts SET currentBalance = ?, updatedAt = datetime('now') WHERE id = ?`,
+      `UPDATE bank_accounts SET currentBalance = ?, updatedAt = strftime('%s', 'now') WHERE id = ?`,
       [newBalance, id]
     );
 
@@ -845,7 +845,7 @@ function adjustBalance(id, amount) {
   try {
     const newBalance = existingBankAccount.currentBalance + amount;
     execute(
-      `UPDATE bank_accounts SET currentBalance = ?, updatedAt = datetime('now') WHERE id = ?`,
+      `UPDATE bank_accounts SET currentBalance = ?, updatedAt = strftime('%s', 'now') WHERE id = ?`,
       [newBalance, id]
     );
 

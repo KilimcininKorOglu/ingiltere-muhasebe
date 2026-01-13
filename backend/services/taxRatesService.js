@@ -139,7 +139,7 @@ function updateTaxRate(id, data) {
     params.push(isActive ? 1 : 0);
   }
 
-  updates.push("updatedAt = datetime('now')");
+  updates.push("updatedAt = strftime('%s', 'now')");
   params.push(id);
 
   execute(
@@ -174,7 +174,7 @@ function createTaxRate(data) {
  */
 function deleteTaxRate(id) {
   execute(
-    `UPDATE tax_rates SET isActive = 0, updatedAt = datetime('now') WHERE id = ?`,
+    `UPDATE tax_rates SET isActive = 0, updatedAt = strftime('%s', 'now') WHERE id = ?`,
     [id]
   );
   return true;

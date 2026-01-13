@@ -373,7 +373,7 @@ describe('Customer Transaction History API', () => {
       // Create test invoices
       execute(`
         INSERT INTO invoices (userId, invoiceNumber, status, issueDate, dueDate, customerName, totalAmount, vatAmount, subtotal, paidAt)
-        VALUES (?, 'INV-2026-0001', 'paid', '2026-01-01', '2026-01-31', 'History Test Customer', 12000, 2000, 10000, datetime('now'))
+        VALUES (?, 'INV-2026-0001', 'paid', '2026-01-01', '2026-01-31', 'History Test Customer', 12000, 2000, 10000, strftime('%s', 'now'))
       `, [testUser.id]);
       
       execute(`
