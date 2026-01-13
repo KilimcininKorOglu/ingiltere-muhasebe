@@ -329,8 +329,11 @@
     "vatNumber": "KDV Numarasi",
     "vatScheme": "KDV Sistemi",
     "standardScheme": "Standart Muhasebe",
+    "standardSchemeDesc": "Odeme tarihinden bagimsiz olarak, musterilere fatura kestiginizde ve fatura aldiginizda KDV kaydedin.",
     "flatRateScheme": "Sabit Oran Sistemi",
+    "flatRateSchemeDesc": "Cironuzun sabit bir yuzdesini odeyin. Daha basit ancak daha fazla KDV odemenize neden olabilir.",
     "cashScheme": "Nakit Muhasebesi",
+    "cashSchemeDesc": "KDV'yi yalnizca musteriler size odeme yaptiginda odeyin. Nakit akisi yonetimi icin faydalidir.",
     "saved": "Ayarlar basariyla kaydedildi"
   },
   "navigation": {

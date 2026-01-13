@@ -329,8 +329,11 @@
     "vatNumber": "VAT Number",
     "vatScheme": "VAT Scheme",
     "standardScheme": "Standard Accounting",
+    "standardSchemeDesc": "Record VAT when you invoice customers and receive bills, regardless of payment date.",
     "flatRateScheme": "Flat Rate Scheme",
+    "flatRateSchemeDesc": "Pay a fixed percentage of turnover. Simpler but may result in paying more VAT.",
     "cashScheme": "Cash Accounting",
+    "cashSchemeDesc": "Only pay VAT when customers pay you. Helpful for cash flow management.",
     "saved": "Settings saved successfully"
   },
   "navigation": {

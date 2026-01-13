@@ -150,11 +150,38 @@ const Settings = () => {
 
               <div className="form-group">
                 <label>{t('settings.vatScheme')}</label>
-                <select name="vatScheme" value={settings.vatScheme} onChange={handleChange}>
-                  <option value="standard">{t('settings.standardScheme')}</option>
-                  <option value="flat_rate">{t('settings.flatRateScheme')}</option>
-                  <option value="cash">{t('settings.cashScheme')}</option>
-                </select>
+                <div className="scheme-options">
+                  <div
+                    className={`scheme-option ${settings.vatScheme === 'standard' ? 'active' : ''}`}
+                    onClick={() => setSettings((prev) => ({ ...prev, vatScheme: 'standard' }))}
+                  >
+                    <div className="scheme-option-header">
+                      <span className="scheme-option-title">{t('settings.standardScheme')}</span>
+                      {settings.vatScheme === 'standard' && <span className="scheme-check">✓</span>}
+                    </div>
+                    <p className="scheme-option-desc">{t('settings.standardSchemeDesc')}</p>
+                  </div>
+                  <div
+                    className={`scheme-option ${settings.vatScheme === 'flat_rate' ? 'active' : ''}`}
+                    onClick={() => setSettings((prev) => ({ ...prev, vatScheme: 'flat_rate' }))}
+                  >
+                    <div className="scheme-option-header">
+                      <span className="scheme-option-title">{t('settings.flatRateScheme')}</span>
+                      {settings.vatScheme === 'flat_rate' && <span className="scheme-check">✓</span>}
+                    </div>
+                    <p className="scheme-option-desc">{t('settings.flatRateSchemeDesc')}</p>
+                  </div>
+                  <div
+                    className={`scheme-option ${settings.vatScheme === 'cash' ? 'active' : ''}`}
+                    onClick={() => setSettings((prev) => ({ ...prev, vatScheme: 'cash' }))}
+                  >
+                    <div className="scheme-option-header">
+                      <span className="scheme-option-title">{t('settings.cashScheme')}</span>
+                      {settings.vatScheme === 'cash' && <span className="scheme-check">✓</span>}
+                    </div>
+                    <p className="scheme-option-desc">{t('settings.cashSchemeDesc')}</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
