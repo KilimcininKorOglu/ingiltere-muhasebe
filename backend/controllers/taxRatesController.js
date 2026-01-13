@@ -1,567 +1,241 @@
 /**
  * Tax Rates Controller
- * 
- * Handles HTTP requests for UK tax rates information.
- * Provides endpoints for retrieving tax rates by year, type, and calculations.
+ * Handles HTTP requests for tax rates management
  */
 
-const {
-  taxRates,
-  getTaxRatesForYear,
-  getCurrentTaxRates,
-  getTaxTypeRates,
-  getAvailableTaxYears,
-  getAvailableTaxTypes,
-  calculateIncomeTax
-} = require('../config/taxRates');
+const taxRatesService = require('../services/taxRatesService');
 
 /**
- * Get all tax rates configuration
- * GET /api/tax-rates
+ * Get all tax rates for a tax year
  */
-const getAllTaxRates = (req, res) => {
+async function getTaxRates(req, res) {
   try {
-    const { lang = 'en' } = req.query;
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        currentTaxYear: taxRates.currentTaxYear,
-        availableYears: getAvailableTaxYears(),
-        taxRates: taxRates.taxYears
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve tax rates',
-          tr: 'Vergi oranları alınamadı'
-        },
-        details: error.message
-      }
-    });
-  }
-};
+    const { taxYear } = req.query;
+    const year = taxYear || taxRatesService.getCurrentTaxYear();
+    const rates = taxRatesService.getTaxRatesByYear(year);
 
-/**
- * Get tax rates for a specific tax year
- * GET /api/tax-rates/year/:taxYear
- */
-const getTaxRatesByYear = (req, res) => {
-  try {
-    const { taxYear } = req.params;
-    const { lang = 'en' } = req.query;
-    
-    const rates = getTaxRatesForYear(taxYear);
-    
-    if (!rates) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `Tax rates for year ${taxYear} not found`,
-            tr: `${taxYear} yılı için vergi oranları bulunamadı`
-          },
-          availableYears: getAvailableTaxYears()
-        }
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        taxYear,
-        rates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve tax rates for specified year',
-          tr: 'Belirtilen yıl için vergi oranları alınamadı'
-        },
-        details: error.message
-      }
-    });
-  }
-};
-
-/**
- * Get current tax year rates
- * GET /api/tax-rates/current
- */
-const getCurrentYearTaxRates = (req, res) => {
-  try {
-    const { lang = 'en' } = req.query;
-    
-    const rates = getCurrentTaxRates();
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        taxYear: taxRates.currentTaxYear,
-        rates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve current tax rates',
-          tr: 'Güncel vergi oranları alınamadı'
-        },
-        details: error.message
-      }
-    });
-  }
-};
-
-/**
- * Get specific tax type rates
- * GET /api/tax-rates/type/:taxType
- */
-const getTaxRatesByType = (req, res) => {
-  try {
-    const { taxType } = req.params;
-    const { taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const rates = getTaxTypeRates(taxType, year);
-    
-    if (!rates) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `Tax type '${taxType}' not found for year ${year}`,
-            tr: `${year} yılı için '${taxType}' vergi türü bulunamadı`
-          },
-          availableTypes: getAvailableTaxTypes(year)
-        }
-      });
-    }
-    
-    res.status(200).json({
+    res.json({
       success: true,
       data: {
         taxYear: year,
-        taxType,
         rates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
       }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve tax type rates',
-          tr: 'Vergi türü oranları alınamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
 
 /**
- * Get available tax types for a year
- * GET /api/tax-rates/types
+ * Get tax rates grouped by category
  */
-const getAvailableTypes = (req, res) => {
+async function getTaxRatesGrouped(req, res) {
   try {
-    const { taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const types = getAvailableTaxTypes(year);
-    
-    res.status(200).json({
+    const { taxYear } = req.query;
+    const grouped = taxRatesService.getTaxRatesGrouped(taxYear);
+
+    res.json({
       success: true,
-      data: {
-        taxYear: year,
-        availableTypes: types.map(type => ({
-          key: type,
-          description: getTaxTypeRates(type, year)?.description || {}
-        }))
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
+      data: grouped
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve available tax types',
-          tr: 'Mevcut vergi türleri alınamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
+
+/**
+ * Get VAT thresholds
+ */
+async function getVatThresholds(req, res) {
+  try {
+    const { taxYear } = req.query;
+    const thresholds = taxRatesService.getVatThresholds(taxYear);
+
+    res.json({
+      success: true,
+      data: thresholds
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: { message: error.message }
+    });
+  }
+}
 
 /**
  * Get available tax years
- * GET /api/tax-rates/years
  */
-const getYears = (req, res) => {
+async function getAvailableTaxYears(req, res) {
   try {
-    const { lang = 'en' } = req.query;
-    
-    const years = getAvailableTaxYears();
-    
-    res.status(200).json({
+    const years = taxRatesService.getAvailableTaxYears();
+
+    res.json({
       success: true,
-      data: {
-        currentTaxYear: taxRates.currentTaxYear,
-        availableYears: years.map(year => ({
-          year,
-          startDate: taxRates.taxYears[year].startDate,
-          endDate: taxRates.taxYears[year].endDate
-        }))
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
+      data: { taxYears: years }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve available tax years',
-          tr: 'Mevcut vergi yılları alınamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
 
 /**
- * Calculate income tax
- * POST /api/tax-rates/calculate/income-tax
- * Body: { annualIncome: number, region?: 'england'|'scotland', taxYear?: string }
+ * Update a tax rate
  */
-const calculateIncomeTaxAmount = (req, res) => {
+async function updateTaxRate(req, res) {
   try {
-    const { lang = 'en' } = req.query;
-    const { annualIncome, region = 'england', taxYear } = req.body;
-    
-    // Validate input
-    if (annualIncome === undefined || annualIncome === null) {
+    const { id } = req.params;
+    const { value, description, isActive } = req.body;
+
+    if (value !== undefined && (typeof value !== 'number' || value < 0)) {
       return res.status(400).json({
         success: false,
-        error: {
-          message: {
-            en: 'Annual income is required',
-            tr: 'Yıllık gelir gereklidir'
-          }
-        }
+        error: { message: 'Value must be a non-negative number' }
       });
     }
-    
-    if (typeof annualIncome !== 'number' || annualIncome < 0) {
+
+    const updated = taxRatesService.updateTaxRate(parseInt(id), {
+      value,
+      description,
+      isActive
+    });
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Tax rate not found' }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updated
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: { message: error.message }
+    });
+  }
+}
+
+/**
+ * Create a new tax rate
+ */
+async function createTaxRate(req, res) {
+  try {
+    const { taxYear, rateType, category, name, value, currency, description, effectiveFrom, effectiveTo } = req.body;
+
+    // Validation
+    if (!taxYear || !rateType || !category || !name || value === undefined || !effectiveFrom) {
       return res.status(400).json({
         success: false,
-        error: {
-          message: {
-            en: 'Annual income must be a positive number',
-            tr: 'Yıllık gelir pozitif bir sayı olmalıdır'
-          }
-        }
+        error: { message: 'Missing required fields: taxYear, rateType, category, name, value, effectiveFrom' }
       });
     }
-    
-    if (region && !['england', 'scotland'].includes(region)) {
+
+    if (!['rate', 'threshold'].includes(rateType)) {
       return res.status(400).json({
         success: false,
-        error: {
-          message: {
-            en: 'Region must be "england" or "scotland"',
-            tr: 'Bölge "england" veya "scotland" olmalıdır'
-          }
-        }
+        error: { message: 'rateType must be "rate" or "threshold"' }
       });
     }
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const calculation = calculateIncomeTax(annualIncome, region, year);
-    
-    res.status(200).json({
+
+    const created = taxRatesService.createTaxRate({
+      taxYear,
+      rateType,
+      category,
+      name,
+      value,
+      currency,
+      description,
+      effectiveFrom,
+      effectiveTo
+    });
+
+    res.status(201).json({
       success: true,
-      data: {
-        taxYear: year,
-        region,
-        calculation,
-        summary: {
-          en: `Income tax on £${annualIncome.toLocaleString()} is £${calculation.totalTax.toLocaleString()} (effective rate: ${calculation.effectiveRate}%)`,
-          tr: `${annualIncome.toLocaleString()} £ gelir üzerinden vergi ${calculation.totalTax.toLocaleString()} £ (etkin oran: %${calculation.effectiveRate})`
-        }
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
+      data: created
     });
   } catch (error) {
+    if (error.message.includes('UNIQUE constraint')) {
+      return res.status(409).json({
+        success: false,
+        error: { message: 'A tax rate with this combination already exists' }
+      });
+    }
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to calculate income tax',
-          tr: 'Gelir vergisi hesaplanamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
 
 /**
- * Get income tax bands
- * GET /api/tax-rates/income-tax/bands
+ * Delete a tax rate (soft delete)
  */
-const getIncomeTaxBands = (req, res) => {
+async function deleteTaxRate(req, res) {
   try {
-    const { region = 'england', taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const yearRates = getTaxRatesForYear(year);
-    
-    if (!yearRates) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `Tax year ${year} not found`,
-            tr: `${year} vergi yılı bulunamadı`
-          }
-        }
-      });
-    }
-    
-    const taxConfig = region === 'scotland' 
-      ? yearRates.scottishIncomeTax 
-      : yearRates.incomeTax;
-    
-    if (!taxConfig) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `Income tax configuration for region ${region} not found`,
-            tr: `${region} bölgesi için gelir vergisi yapılandırması bulunamadı`
-          }
-        }
-      });
-    }
-    
-    res.status(200).json({
+    const { id } = req.params;
+    taxRatesService.deleteTaxRate(parseInt(id));
+
+    res.json({
       success: true,
-      data: {
-        taxYear: year,
-        region,
-        personalAllowance: taxConfig.personalAllowance,
-        bands: taxConfig.bands
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
+      message: 'Tax rate deleted'
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve income tax bands',
-          tr: 'Gelir vergisi dilimleri alınamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
 
 /**
- * Get VAT rates
- * GET /api/tax-rates/vat
+ * Copy tax rates from one year to another
  */
-const getVatRates = (req, res) => {
+async function copyTaxYear(req, res) {
   try {
-    const { taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const vatRates = getTaxTypeRates('vat', year);
-    
-    if (!vatRates) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `VAT rates for year ${year} not found`,
-            tr: `${year} yılı için KDV oranları bulunamadı`
-          }
-        }
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        taxYear: year,
-        vat: vatRates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve VAT rates',
-          tr: 'KDV oranları alınamadı'
-        },
-        details: error.message
-      }
-    });
-  }
-};
+    const { fromYear, toYear, effectiveFrom, effectiveTo } = req.body;
 
-/**
- * Get Corporation Tax rates
- * GET /api/tax-rates/corporation-tax
- */
-const getCorporationTaxRates = (req, res) => {
-  try {
-    const { taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const corpTaxRates = getTaxTypeRates('corporationTax', year);
-    
-    if (!corpTaxRates) {
-      return res.status(404).json({
+    if (!fromYear || !toYear || !effectiveFrom) {
+      return res.status(400).json({
         success: false,
-        error: {
-          message: {
-            en: `Corporation tax rates for year ${year} not found`,
-            tr: `${year} yılı için kurumlar vergisi oranları bulunamadı`
-          }
-        }
+        error: { message: 'Missing required fields: fromYear, toYear, effectiveFrom' }
       });
     }
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        taxYear: year,
-        corporationTax: corpTaxRates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve corporation tax rates',
-          tr: 'Kurumlar vergisi oranları alınamadı'
-        },
-        details: error.message
-      }
-    });
-  }
-};
 
-/**
- * Get National Insurance rates
- * GET /api/tax-rates/national-insurance
- */
-const getNationalInsuranceRates = (req, res) => {
-  try {
-    const { taxYear, lang = 'en' } = req.query;
-    
-    const year = taxYear || taxRates.currentTaxYear;
-    const niRates = getTaxTypeRates('nationalInsurance', year);
-    
-    if (!niRates) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: {
-            en: `National Insurance rates for year ${year} not found`,
-            tr: `${year} yılı için ulusal sigorta oranları bulunamadı`
-          }
-        }
-      });
-    }
-    
-    res.status(200).json({
+    const copied = taxRatesService.copyTaxYear(fromYear, toYear, effectiveFrom, effectiveTo);
+
+    res.json({
       success: true,
-      data: {
-        taxYear: year,
-        nationalInsurance: niRates
-      },
-      meta: {
-        language: lang,
-        timestamp: new Date().toISOString()
-      }
+      data: { copied },
+      message: `Copied ${copied} tax rates from ${fromYear} to ${toYear}`
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: {
-        message: {
-          en: 'Failed to retrieve National Insurance rates',
-          tr: 'Ulusal sigorta oranları alınamadı'
-        },
-        details: error.message
-      }
+      error: { message: error.message }
     });
   }
-};
+}
 
 module.exports = {
-  getAllTaxRates,
-  getTaxRatesByYear,
-  getCurrentYearTaxRates,
-  getTaxRatesByType,
-  getAvailableTypes,
-  getYears,
-  calculateIncomeTaxAmount,
-  getIncomeTaxBands,
-  getVatRates,
-  getCorporationTaxRates,
-  getNationalInsuranceRates
+  getTaxRates,
+  getTaxRatesGrouped,
+  getVatThresholds,
+  getAvailableTaxYears,
+  updateTaxRate,
+  createTaxRate,
+  deleteTaxRate,
+  copyTaxYear
 };

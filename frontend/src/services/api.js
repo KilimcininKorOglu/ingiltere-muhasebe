@@ -152,4 +152,15 @@ export const bankTransactionService = {
   reconcile: (id, transactionId) => api.post(`/bank-transactions/${id}/reconcile`, { transactionId }),
 };
 
+export const taxRatesService = {
+  getAll: (params) => api.get('/tax-rates', { params }),
+  getGrouped: (params) => api.get('/tax-rates/grouped', { params }),
+  getVatThresholds: (params) => api.get('/tax-rates/vat-thresholds', { params }),
+  getYears: () => api.get('/tax-rates/years'),
+  create: (data) => api.post('/tax-rates', data),
+  update: (id, data) => api.put(`/tax-rates/${id}`, data),
+  delete: (id) => api.delete(`/tax-rates/${id}`),
+  copyYear: (data) => api.post('/tax-rates/copy', data),
+};
+
 export default api;

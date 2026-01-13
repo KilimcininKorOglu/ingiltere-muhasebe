@@ -14,6 +14,7 @@
 
 const { query, queryOne } = require('../database/index');
 const { getCurrentTaxRates } = require('../config/taxRates');
+const taxRatesService = require('./taxRatesService');
 
 /**
  * Warning level identifiers for VAT threshold status
@@ -171,6 +172,7 @@ function calculateProjected30DayTurnover(userId, asOfDate = new Date()) {
 
 /**
  * Gets the VAT threshold configuration from tax rates.
+ * First tries to read from database, falls back to config file.
  * 
  * @param {string} [taxYear] - Tax year to get threshold for (defaults to current)
  * @returns {{
@@ -180,6 +182,25 @@ function calculateProjected30DayTurnover(userId, asOfDate = new Date()) {
  * }} VAT threshold configuration
  */
 function getVatThresholdConfig(taxYear) {
+  // Try to get from database first
+  try {
+    const dbThresholds = taxRatesService.getVatThresholds(taxYear);
+    if (dbThresholds && dbThresholds.registrationThreshold) {
+      return {
+        registrationThreshold: dbThresholds.registrationThreshold / 100, // Convert pence to pounds
+        deregistrationThreshold: dbThresholds.deregistrationThreshold / 100,
+        warningLevels: {
+          approaching: { percentage: 0.75 },
+          imminent: { percentage: 0.90 },
+          exceeded: { percentage: 1.00 }
+        }
+      };
+    }
+  } catch {
+    // Fall back to config file
+  }
+
+  // Fallback to config file
   const taxRates = getCurrentTaxRates();
   const vatConfig = taxRates?.vat || {};
   

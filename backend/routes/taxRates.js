@@ -1,123 +1,70 @@
 /**
  * Tax Rates Routes
- * 
- * API routes for UK tax rates information.
- * All routes are prefixed with /api/tax-rates
+ * API endpoints for tax rates management
  */
 
 const express = require('express');
 const router = express.Router();
+const taxRatesController = require('../controllers/taxRatesController');
+const { requireAuth } = require('../middleware/auth');
 
-const {
-  getAllTaxRates,
-  getTaxRatesByYear,
-  getCurrentYearTaxRates,
-  getTaxRatesByType,
-  getAvailableTypes,
-  getYears,
-  calculateIncomeTaxAmount,
-  getIncomeTaxBands,
-  getVatRates,
-  getCorporationTaxRates,
-  getNationalInsuranceRates
-} = require('../controllers/taxRatesController');
+// All routes require authentication
+router.use(requireAuth);
 
 /**
- * @route   GET /api/tax-rates
- * @desc    Get all tax rates configuration
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route GET /api/tax-rates
+ * @desc Get all tax rates for a tax year
+ * @query taxYear - Optional tax year (defaults to current)
  */
-router.get('/', getAllTaxRates);
+router.get('/', taxRatesController.getTaxRates);
 
 /**
- * @route   GET /api/tax-rates/current
- * @desc    Get current tax year rates
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route GET /api/tax-rates/grouped
+ * @desc Get tax rates grouped by category
+ * @query taxYear - Optional tax year
  */
-router.get('/current', getCurrentYearTaxRates);
+router.get('/grouped', taxRatesController.getTaxRatesGrouped);
 
 /**
- * @route   GET /api/tax-rates/years
- * @desc    Get all available tax years
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route GET /api/tax-rates/vat-thresholds
+ * @desc Get VAT thresholds for a tax year
+ * @query taxYear - Optional tax year
  */
-router.get('/years', getYears);
+router.get('/vat-thresholds', taxRatesController.getVatThresholds);
 
 /**
- * @route   GET /api/tax-rates/types
- * @desc    Get available tax types for a year
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route GET /api/tax-rates/years
+ * @desc Get all available tax years
  */
-router.get('/types', getAvailableTypes);
+router.get('/years', taxRatesController.getAvailableTaxYears);
 
 /**
- * @route   GET /api/tax-rates/year/:taxYear
- * @desc    Get tax rates for a specific tax year
- * @param   taxYear - Tax year in format 'YYYY-YY' (e.g., '2025-26')
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route POST /api/tax-rates
+ * @desc Create a new tax rate
+ * @body taxYear, rateType, category, name, value, currency, description, effectiveFrom, effectiveTo
  */
-router.get('/year/:taxYear', getTaxRatesByYear);
+router.post('/', taxRatesController.createTaxRate);
 
 /**
- * @route   GET /api/tax-rates/type/:taxType
- * @desc    Get specific tax type rates
- * @param   taxType - Type of tax (e.g., 'incomeTax', 'vat', 'corporationTax')
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route PUT /api/tax-rates/:id
+ * @desc Update a tax rate
+ * @param id - Tax rate ID
+ * @body value, description, isActive
  */
-router.get('/type/:taxType', getTaxRatesByType);
+router.put('/:id', taxRatesController.updateTaxRate);
 
 /**
- * @route   GET /api/tax-rates/income-tax/bands
- * @desc    Get income tax bands
- * @query   region - 'england' or 'scotland' (default: 'england')
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route DELETE /api/tax-rates/:id
+ * @desc Delete a tax rate (soft delete)
+ * @param id - Tax rate ID
  */
-router.get('/income-tax/bands', getIncomeTaxBands);
+router.delete('/:id', taxRatesController.deleteTaxRate);
 
 /**
- * @route   POST /api/tax-rates/calculate/income-tax
- * @desc    Calculate income tax for a given annual income
- * @body    { annualIncome: number, region?: 'england'|'scotland', taxYear?: string }
- * @query   lang - Language preference (en/tr)
- * @access  Public
+ * @route POST /api/tax-rates/copy
+ * @desc Copy tax rates from one year to another
+ * @body fromYear, toYear, effectiveFrom, effectiveTo
  */
-router.post('/calculate/income-tax', calculateIncomeTaxAmount);
-
-/**
- * @route   GET /api/tax-rates/vat
- * @desc    Get VAT rates and thresholds
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
- */
-router.get('/vat', getVatRates);
-
-/**
- * @route   GET /api/tax-rates/corporation-tax
- * @desc    Get Corporation Tax rates
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
- */
-router.get('/corporation-tax', getCorporationTaxRates);
-
-/**
- * @route   GET /api/tax-rates/national-insurance
- * @desc    Get National Insurance rates and thresholds
- * @query   taxYear - Tax year (optional, defaults to current)
- * @query   lang - Language preference (en/tr)
- * @access  Public
- */
-router.get('/national-insurance', getNationalInsuranceRates);
+router.post('/copy', taxRatesController.copyTaxYear);
 
 module.exports = router;
