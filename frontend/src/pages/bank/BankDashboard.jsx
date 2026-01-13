@@ -40,10 +40,10 @@ const BankDashboard = () => {
     }
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount, currency = 'GBP') => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'GBP',
+      currency: currency,
     }).format(amount || 0);
   };
 
@@ -153,9 +153,9 @@ const BankDashboard = () => {
 
                 {/* Balance */}
                 <div className="mb-4 p-3 bg-zinc-900/50 rounded-lg">
-                  <p className="text-xs text-zinc-500 mb-1">{t('bank.balance')}</p>
+                  <p className="text-xs text-zinc-500 mb-1">{t('bank.balance')} ({account.currency || 'GBP'})</p>
                   <p className={`text-xl font-bold ${account.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {formatCurrency(account.balance)}
+                    {formatCurrency(account.balance, account.currency || 'GBP')}
                   </p>
                 </div>
 

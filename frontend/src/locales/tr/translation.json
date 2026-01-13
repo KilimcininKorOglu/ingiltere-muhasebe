@@ -383,7 +383,8 @@
     "accountType": "Hesap Türü",
     "openingBalance": "Açılış Bakiyesi",
     "addAccountSubtitle": "Yeni banka hesabı ekleyin",
-    "fillRequired": "Lütfen tüm zorunlu alanları doldurun"
+    "fillRequired": "Lütfen tüm zorunlu alanları doldurun",
+    "currency": "Para Birimi"
   },
   "settings": {
     "title": "Ayarlar",

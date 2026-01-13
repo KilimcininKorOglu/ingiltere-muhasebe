@@ -16,8 +16,16 @@ const BankAccountForm = () => {
     accountNumber: '',
     sortCode: '',
     accountType: 'current',
+    currency: 'GBP',
     balance: '0',
   });
+
+  const currencies = [
+    { code: 'GBP', symbol: '£', name: 'British Pound' },
+    { code: 'EUR', symbol: '€', name: 'Euro' },
+    { code: 'USD', symbol: '$', name: 'US Dollar' },
+    { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,6 +48,7 @@ const BankAccountForm = () => {
       await bankAccountService.create({
         ...formData,
         balance: Math.round(parseFloat(formData.balance || 0) * 100),
+        currency: formData.currency,
       });
       navigate('/bank');
     } catch (err) {
@@ -179,21 +188,38 @@ const BankAccountForm = () => {
         <div className="bg-zinc-800/50 rounded-xl border border-zinc-700 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-              <span className="text-emerald-400 font-bold">£</span>
+              <span className="text-emerald-400 font-bold">{currencies.find(c => c.code === formData.currency)?.symbol || '£'}</span>
             </div>
             <h2 className="text-lg font-semibold text-white">{t('bank.openingBalance')}</h2>
           </div>
 
-          <div>
-            <label className={labelClass}>{t('bank.balance')} (GBP)</label>
-            <input
-              type="number"
-              name="balance"
-              value={formData.balance}
-              onChange={handleChange}
-              step="0.01"
-              className={inputClass}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>{t('bank.currency')}</label>
+              <select
+                name="currency"
+                value={formData.currency}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                {currencies.map((curr) => (
+                  <option key={curr.code} value={curr.code}>
+                    {curr.symbol} {curr.code} - {curr.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>{t('bank.balance')} ({formData.currency})</label>
+              <input
+                type="number"
+                name="balance"
+                value={formData.balance}
+                onChange={handleChange}
+                step="0.01"
+                className={inputClass}
+              />
+            </div>
           </div>
         </div>
 

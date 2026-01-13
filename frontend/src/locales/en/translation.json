@@ -383,7 +383,8 @@
     "accountType": "Account Type",
     "openingBalance": "Opening Balance",
     "addAccountSubtitle": "Add a new bank account",
-    "fillRequired": "Please fill in all required fields"
+    "fillRequired": "Please fill in all required fields",
+    "currency": "Currency"
   },
   "settings": {
     "title": "Settings",
