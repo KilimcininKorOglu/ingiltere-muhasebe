@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { invoiceService, customerService } from '../../services/api';
-import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Calculator, Search, ChevronDown, Check } from 'lucide-react';
 
 const InvoiceForm = () => {
   const { t } = useTranslation();
@@ -14,6 +14,9 @@ const InvoiceForm = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [customers, setCustomers] = useState([]);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
+  const customerDropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     customerId: '',
@@ -33,6 +36,30 @@ const InvoiceForm = () => {
     fetchFormData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (customerDropdownRef.current && !customerDropdownRef.current.contains(event.target)) {
+        setCustomerDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredCustomers = customers.filter((c) =>
+    c.name?.toLowerCase().includes(customerSearch.toLowerCase()) ||
+    c.email?.toLowerCase().includes(customerSearch.toLowerCase())
+  );
+
+  const selectedCustomer = customers.find((c) => c.id.toString() === formData.customerId);
+
+  const handleCustomerSelect = (customer) => {
+    setFormData((prev) => ({ ...prev, customerId: customer.id.toString() }));
+    setCustomerSearch('');
+    setCustomerDropdownOpen(false);
+    setError('');
+  };
 
   const fetchFormData = async () => {
     setLoading(true);
@@ -182,22 +209,67 @@ const InvoiceForm = () => {
         {/* Customer & Dates */}
         <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
+            <div ref={customerDropdownRef} className="relative">
               <label className="block text-sm font-medium text-zinc-300 mb-2">
                 {t('invoices.customer')}
               </label>
-              <select
-                name="customerId"
-                value={formData.customerId}
-                onChange={handleChange}
-                required
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              <button
+                type="button"
+                onClick={() => setCustomerDropdownOpen(!customerDropdownOpen)}
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-left text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 flex items-center justify-between"
               >
-                <option value="">{t('common.select')}</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+                <span className={selectedCustomer ? 'text-white' : 'text-zinc-500'}>
+                  {selectedCustomer ? selectedCustomer.name : t('common.select')}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${customerDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {customerDropdownOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl overflow-hidden">
+                  <div className="p-2 border-b border-zinc-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                      <input
+                        type="text"
+                        value={customerSearch}
+                        onChange={(e) => setCustomerSearch(e.target.value)}
+                        placeholder={t('customers.searchPlaceholder') || 'Musteri ara...'}
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {filteredCustomers.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-zinc-500 text-center">
+                        {t('customers.noResults') || 'Sonuc bulunamadi'}
+                      </div>
+                    ) : (
+                      filteredCustomers.map((customer) => (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() => handleCustomerSelect(customer)}
+                          className={`w-full px-4 py-3 text-left hover:bg-zinc-800 transition-colors flex items-center justify-between ${
+                            formData.customerId === customer.id.toString() ? 'bg-zinc-800' : ''
+                          }`}
+                        >
+                          <div>
+                            <div className="text-white font-medium">{customer.name}</div>
+                            {customer.email && (
+                              <div className="text-zinc-500 text-sm">{customer.email}</div>
+                            )}
+                          </div>
+                          {formData.customerId === customer.id.toString() && (
+                            <Check className="w-4 h-4 text-emerald-400" />
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+              <input type="hidden" name="customerId" value={formData.customerId} required />
             </div>
 
             <div>
