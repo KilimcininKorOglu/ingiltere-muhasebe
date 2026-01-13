@@ -73,7 +73,7 @@ const createTableSql = `
     categoryId INTEGER,
     type TEXT NOT NULL CHECK(type IN ('income', 'expense', 'transfer')),
     status TEXT DEFAULT 'pending' NOT NULL CHECK(status IN ('pending', 'cleared', 'reconciled', 'void')),
-    transactionDate TEXT NOT NULL,
+    transactionDate INTEGER NOT NULL,
     description TEXT NOT NULL,
     reference TEXT,
     amount INTEGER DEFAULT 0 NOT NULL,

@@ -15,6 +15,7 @@ const {
   VALID_IMPORT_SOURCES, 
   VALID_RECONCILIATION_STATUSES 
 } = require('../migrations/011_create_bank_transactions_table');
+const { dateToTimestamp, timestampToDate, isValidDateString } = require('../../utils/dateUtils');
 
 /**
  * Valid bank transaction types.
@@ -59,7 +60,7 @@ const fieldDefinitions = {
     type: 'string',
     required: true,
     validate: (value) => {
-      if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (!isValidDateString(value)) {
         return 'Invalid transactionDate format (YYYY-MM-DD)';
       }
       return null;
@@ -69,7 +70,7 @@ const fieldDefinitions = {
     type: 'string',
     required: false,
     validate: (value) => {
-      if (value && !validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (value && !isValidDateString(value)) {
         return 'Invalid postingDate format (YYYY-MM-DD)';
       }
       return null;
@@ -277,6 +278,9 @@ function sanitizeBankTransaction(bankTransaction) {
   return {
     ...bankTransaction,
     isReconciled: Boolean(bankTransaction.isReconciled),
+    // Convert timestamps to date strings
+    transactionDate: timestampToDate(bankTransaction.transactionDate),
+    postingDate: bankTransaction.postingDate ? timestampToDate(bankTransaction.postingDate) : null,
     // Parse rawData JSON if present
     rawDataParsed: bankTransaction.rawData ? tryParseJson(bankTransaction.rawData) : null
   };
@@ -313,8 +317,8 @@ function createBankTransaction(bankTransactionData) {
     // Prepare the insert data
     const insertData = {
       bankAccountId: bankTransactionData.bankAccountId,
-      transactionDate: bankTransactionData.transactionDate,
-      postingDate: bankTransactionData.postingDate || null,
+      transactionDate: dateToTimestamp(bankTransactionData.transactionDate),
+      postingDate: bankTransactionData.postingDate ? dateToTimestamp(bankTransactionData.postingDate) : null,
       description: bankTransactionData.description.trim(),
       reference: bankTransactionData.reference?.trim() || null,
       transactionType: bankTransactionData.transactionType,
@@ -460,12 +464,13 @@ function getBankTransactionsByAccountId(bankAccountId, {
   
   if (startDate) {
     whereClause += ' AND transactionDate >= ?';
-    params.push(startDate);
+    params.push(dateToTimestamp(startDate));
   }
   
   if (endDate) {
+    const endTs = dateToTimestamp(endDate);
     whereClause += ' AND transactionDate <= ?';
-    params.push(endDate);
+    params.push(endTs ? endTs + 86399 : endDate);
   }
   
   if (transactionType && TRANSACTION_TYPES.includes(transactionType)) {
@@ -575,12 +580,12 @@ function updateBankTransaction(id, bankTransactionData) {
 
     if (bankTransactionData.transactionDate !== undefined) {
       updateFields.push('transactionDate = @transactionDate');
-      updateParams.transactionDate = bankTransactionData.transactionDate;
+      updateParams.transactionDate = dateToTimestamp(bankTransactionData.transactionDate);
     }
 
     if (bankTransactionData.postingDate !== undefined) {
       updateFields.push('postingDate = @postingDate');
-      updateParams.postingDate = bankTransactionData.postingDate || null;
+      updateParams.postingDate = bankTransactionData.postingDate ? dateToTimestamp(bankTransactionData.postingDate) : null;
     }
 
     if (bankTransactionData.description !== undefined) {
@@ -752,12 +757,13 @@ function getSummary(bankAccountId, startDate = null, endDate = null) {
   
   if (startDate) {
     whereClause += ' AND transactionDate >= ?';
-    params.push(startDate);
+    params.push(dateToTimestamp(startDate));
   }
   
   if (endDate) {
+    const endTs = dateToTimestamp(endDate);
     whereClause += ' AND transactionDate <= ?';
-    params.push(endDate);
+    params.push(endTs ? endTs + 86399 : endDate);
   }
 
   const result = queryOne(`

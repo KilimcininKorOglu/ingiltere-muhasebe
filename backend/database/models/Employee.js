@@ -8,6 +8,7 @@
 const validator = require('validator');
 const { query, queryOne, execute } = require('../index');
 const { VALID_STATUSES } = require('../migrations/016_create_employees_table');
+const { dateToTimestamp, timestampToDate, isValidDateString } = require('../../utils/dateUtils');
 
 /**
  * Valid employee status values.
@@ -177,7 +178,7 @@ const fieldDefinitions = {
     required: false,
     validate: (value) => {
       if (value && value.trim()) {
-        if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+        if (!isValidDateString(value)) {
           return 'Invalid dateOfBirth format (YYYY-MM-DD)';
         }
         // Validate reasonable age range (16-100)
@@ -195,7 +196,7 @@ const fieldDefinitions = {
     type: 'string',
     required: true,
     validate: (value) => {
-      if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (!isValidDateString(value)) {
         return 'Invalid startDate format (YYYY-MM-DD)';
       }
       return null;
@@ -206,7 +207,7 @@ const fieldDefinitions = {
     required: false,
     validate: (value) => {
       if (value && value.trim()) {
-        if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+        if (!isValidDateString(value)) {
           return 'Invalid endDate format (YYYY-MM-DD)';
         }
       }
@@ -531,9 +532,9 @@ function createEmployee(employeeData) {
       email: employeeData.email?.toLowerCase().trim() || null,
       niNumber: employeeData.niNumber?.replace(/\s/g, '').toUpperCase() || null,
       taxCode: (employeeData.taxCode || '1257L').replace(/\s/g, '').toUpperCase(),
-      dateOfBirth: employeeData.dateOfBirth || null,
-      startDate: employeeData.startDate,
-      endDate: employeeData.endDate || null,
+      dateOfBirth: employeeData.dateOfBirth ? dateToTimestamp(employeeData.dateOfBirth) : null,
+      startDate: dateToTimestamp(employeeData.startDate),
+      endDate: employeeData.endDate ? dateToTimestamp(employeeData.endDate) : null,
       status: employeeData.status || 'active',
       payFrequency: employeeData.payFrequency || 'monthly',
       annualSalary: employeeData.annualSalary || 0,

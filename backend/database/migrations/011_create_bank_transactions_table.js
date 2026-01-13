@@ -75,8 +75,8 @@ const createTableSql = `
   CREATE TABLE IF NOT EXISTS bank_transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bankAccountId INTEGER NOT NULL,
-    transactionDate TEXT NOT NULL,
-    postingDate TEXT,
+    transactionDate INTEGER NOT NULL,
+    postingDate INTEGER,
     description TEXT NOT NULL,
     reference TEXT,
     transactionType TEXT NOT NULL CHECK(transactionType IN ('credit', 'debit')),

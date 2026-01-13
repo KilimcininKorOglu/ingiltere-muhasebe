@@ -15,6 +15,7 @@
 const { query, queryOne } = require('../database/index');
 const { getCurrentTaxRates } = require('../config/taxRates');
 const taxRatesService = require('./taxRatesService');
+const { dateToTimestamp, timestampToDate } = require('../utils/dateUtils');
 
 /**
  * Warning level identifiers for VAT threshold status
@@ -72,6 +73,10 @@ function getRolling12MonthRange(asOfDate = new Date()) {
 function calculateRolling12MonthTurnover(userId, asOfDate = new Date()) {
   const dateRange = getRolling12MonthRange(asOfDate);
   
+  // Convert date strings to Unix timestamps for database queries
+  const startTs = dateToTimestamp(dateRange.startDate);
+  const endTs = dateToTimestamp(dateRange.endDate) + 86399; // End of day
+  
   // Get total turnover from income transactions
   // Note: We use the 'amount' field (net before VAT) as this is the taxable turnover
   const totalResult = queryOne(`
@@ -84,12 +89,12 @@ function calculateRolling12MonthTurnover(userId, asOfDate = new Date()) {
       AND status != 'void'
       AND transactionDate >= ?
       AND transactionDate <= ?
-  `, [userId, dateRange.startDate, dateRange.endDate]);
+  `, [userId, startTs, endTs]);
   
   // Get monthly breakdown for detailed analysis
   const monthlyBreakdown = query(`
     SELECT 
-      strftime('%Y-%m', transactionDate) as month,
+      strftime('%Y-%m', transactionDate, 'unixepoch') as month,
       COALESCE(SUM(amount), 0) as amount
     FROM transactions
     WHERE userId = ?
@@ -97,9 +102,9 @@ function calculateRolling12MonthTurnover(userId, asOfDate = new Date()) {
       AND status != 'void'
       AND transactionDate >= ?
       AND transactionDate <= ?
-    GROUP BY strftime('%Y-%m', transactionDate)
+    GROUP BY strftime('%Y-%m', transactionDate, 'unixepoch')
     ORDER BY month ASC
-  `, [userId, dateRange.startDate, dateRange.endDate]);
+  `, [userId, startTs, endTs]);
   
   return {
     turnover: totalResult?.totalAmount || 0,
@@ -137,6 +142,10 @@ function calculateProjected30DayTurnover(userId, asOfDate = new Date()) {
     return `${year}-${month}-${day}`;
   };
   
+  // Convert to Unix timestamps
+  const startTs = dateToTimestamp(formatDate(startDate));
+  const endTs = dateToTimestamp(formatDate(endDate)) + 86399; // End of day
+  
   const result = queryOne(`
     SELECT 
       COALESCE(SUM(amount), 0) as totalAmount,
@@ -148,7 +157,7 @@ function calculateProjected30DayTurnover(userId, asOfDate = new Date()) {
       AND status != 'void'
       AND transactionDate >= ?
       AND transactionDate <= ?
-  `, [userId, formatDate(startDate), formatDate(endDate)]);
+  `, [userId, startTs, endTs]);
   
   const totalAmount = result?.totalAmount || 0;
   

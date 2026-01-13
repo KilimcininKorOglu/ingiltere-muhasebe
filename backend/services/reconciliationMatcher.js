@@ -68,15 +68,28 @@ function calculateStringSimilarity(str1, str2) {
 }
 
 /**
- * Calculates the number of days between two dates.
+ * Calculates the number of days between two dates/timestamps.
  * 
- * @param {string} date1 - First date (YYYY-MM-DD)
- * @param {string} date2 - Second date (YYYY-MM-DD)
+ * @param {string|number} date1 - First date (YYYY-MM-DD or Unix timestamp)
+ * @param {string|number} date2 - Second date (YYYY-MM-DD or Unix timestamp)
  * @returns {number} Absolute difference in days
  */
 function getDaysDifference(date1, date2) {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
+  let d1, d2;
+  
+  // Handle Unix timestamps (numbers)
+  if (typeof date1 === 'number') {
+    d1 = new Date(date1 * 1000);
+  } else {
+    d1 = new Date(date1);
+  }
+  
+  if (typeof date2 === 'number') {
+    d2 = new Date(date2 * 1000);
+  } else {
+    d2 = new Date(date2);
+  }
+  
   const diffTime = Math.abs(d2.getTime() - d1.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
@@ -236,11 +249,14 @@ function findPotentialMatches(bankTransactionId, options = {}) {
     const userId = bankAccount.userId;
     
     // Determine the date range for searching
-    const bankDate = new Date(bankTransaction.transactionDate);
-    const startDate = new Date(bankDate);
-    startDate.setDate(startDate.getDate() - MATCHING_CONFIG.maxDateDifferenceInDays);
-    const endDate = new Date(bankDate);
-    endDate.setDate(endDate.getDate() + MATCHING_CONFIG.maxDateDifferenceInDays);
+    // bankTransaction.transactionDate is a Unix timestamp
+    const bankDateTs = typeof bankTransaction.transactionDate === 'number' 
+      ? bankTransaction.transactionDate 
+      : new Date(bankTransaction.transactionDate).getTime() / 1000;
+    
+    const dayInSeconds = 24 * 60 * 60;
+    const startDateTs = bankDateTs - (MATCHING_CONFIG.maxDateDifferenceInDays * dayInSeconds);
+    const endDateTs = bankDateTs + (MATCHING_CONFIG.maxDateDifferenceInDays * dayInSeconds) + 86399;
     
     // Get app transactions within the date range that are not already reconciled
     const appTransactions = query(`
@@ -253,8 +269,8 @@ function findPotentialMatches(bankTransactionId, options = {}) {
       ORDER BY transactionDate DESC
     `, [
       userId,
-      startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
+      startDateTs,
+      endDateTs
     ]);
     
     // Calculate match scores for each app transaction

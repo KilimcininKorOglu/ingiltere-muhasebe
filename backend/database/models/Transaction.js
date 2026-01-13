@@ -8,6 +8,7 @@
 const validator = require('validator');
 const { query, queryOne, execute, transaction, openDatabase } = require('../index');
 const { VALID_TRANSACTION_TYPES, VALID_TRANSACTION_STATUSES, VALID_PAYMENT_METHODS } = require('../migrations/003_create_transactions_table');
+const { dateToTimestamp, timestampToDate, isValidDateString } = require('../../utils/dateUtils');
 
 /**
  * Valid transaction type values.
@@ -93,7 +94,7 @@ const fieldDefinitions = {
     type: 'string',
     required: true,
     validate: (value) => {
-      if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (!isValidDateString(value)) {
         return 'Invalid transactionDate format (YYYY-MM-DD)';
       }
       return null;
@@ -343,6 +344,11 @@ function sanitizeTransaction(transactionData) {
     sanitized.isRecurring = Boolean(sanitized.isRecurring);
   }
   
+  // Convert timestamp to date string for output
+  if (sanitized.transactionDate !== undefined && sanitized.transactionDate !== null) {
+    sanitized.transactionDate = timestampToDate(sanitized.transactionDate);
+  }
+  
   return sanitized;
 }
 
@@ -389,7 +395,7 @@ function createTransaction(transactionData) {
       categoryId: transactionData.categoryId || null,
       type: transactionData.type,
       status: transactionData.status || 'pending',
-      transactionDate: transactionData.transactionDate,
+      transactionDate: dateToTimestamp(transactionData.transactionDate),
       description: transactionData.description.trim(),
       reference: transactionData.reference?.trim() || null,
       amount: transactionData.amount || 0,
@@ -511,12 +517,14 @@ function getTransactionsByUserId(userId, {
   
   if (startDate) {
     whereClause += ' AND transactionDate >= ?';
-    params.push(startDate);
+    params.push(dateToTimestamp(startDate));
   }
   
   if (endDate) {
+    // Add 1 day to include the entire end date
+    const endTimestamp = dateToTimestamp(endDate);
     whereClause += ' AND transactionDate <= ?';
-    params.push(endDate);
+    params.push(endTimestamp ? endTimestamp + 86399 : endDate);
   }
   
   const transactions = query(
@@ -649,7 +657,7 @@ function updateTransaction(id, transactionData) {
 
     if (transactionData.transactionDate !== undefined) {
       updateFields.push('transactionDate = @transactionDate');
-      updateParams.transactionDate = transactionData.transactionDate;
+      updateParams.transactionDate = dateToTimestamp(transactionData.transactionDate);
     }
 
     if (transactionData.description !== undefined) {
@@ -816,6 +824,10 @@ function voidTransaction(id) {
  * @returns {{income: number, expense: number, netAmount: number, vatCollected: number, vatPaid: number}}
  */
 function getSummary(userId, startDate, endDate) {
+  const startTs = dateToTimestamp(startDate);
+  const endTs = dateToTimestamp(endDate);
+  const endTsWithTime = endTs ? endTs + 86399 : endTs;
+  
   const result = queryOne(`
     SELECT 
       COALESCE(SUM(CASE WHEN type = 'income' AND status != 'void' THEN totalAmount ELSE 0 END), 0) as income,
@@ -824,7 +836,7 @@ function getSummary(userId, startDate, endDate) {
       COALESCE(SUM(CASE WHEN type = 'expense' AND status != 'void' THEN vatAmount ELSE 0 END), 0) as vatPaid
     FROM transactions
     WHERE userId = ? AND transactionDate >= ? AND transactionDate <= ?
-  `, [userId, startDate, endDate]);
+  `, [userId, startTs, endTsWithTime]);
 
   return {
     income: result.income || 0,
@@ -844,6 +856,10 @@ function getSummary(userId, startDate, endDate) {
  * @returns {{outputVat: number, inputVat: number, netVat: number, totalSales: number, totalPurchases: number}}
  */
 function getVatSummary(userId, startDate, endDate) {
+  const startTs = dateToTimestamp(startDate);
+  const endTs = dateToTimestamp(endDate);
+  const endTsWithTime = endTs ? endTs + 86399 : endTs;
+  
   const result = queryOne(`
     SELECT 
       COALESCE(SUM(CASE WHEN type = 'income' AND status != 'void' THEN vatAmount ELSE 0 END), 0) as outputVat,
@@ -852,7 +868,7 @@ function getVatSummary(userId, startDate, endDate) {
       COALESCE(SUM(CASE WHEN type = 'expense' AND status != 'void' THEN totalAmount ELSE 0 END), 0) as totalPurchases
     FROM transactions
     WHERE userId = ? AND transactionDate >= ? AND transactionDate <= ?
-  `, [userId, startDate, endDate]);
+  `, [userId, startTs, endTsWithTime]);
 
   return {
     outputVat: result.outputVat || 0,

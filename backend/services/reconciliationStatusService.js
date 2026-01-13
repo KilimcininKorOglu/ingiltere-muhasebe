@@ -12,6 +12,7 @@ const { query, queryOne } = require('../database/index');
 const BankTransaction = require('../database/models/BankTransaction');
 const Reconciliation = require('../database/models/Reconciliation');
 const BankAccount = require('../database/models/BankAccount');
+const { timestampToDate, dateToTimestamp } = require('../utils/dateUtils');
 
 /**
  * Reconciliation status summary object
@@ -61,12 +62,13 @@ function getReconciliationStatusSummary(bankAccountId, options = {}) {
     
     if (startDate) {
       dateFilter += ' AND transactionDate >= ?';
-      params.push(startDate);
+      params.push(dateToTimestamp(startDate));
     }
     
     if (endDate) {
+      const endTs = dateToTimestamp(endDate);
       dateFilter += ' AND transactionDate <= ?';
-      params.push(endDate);
+      params.push(endTs ? endTs + 86399 : endDate);
     }
 
     // Get transaction counts by reconciliation status
@@ -148,12 +150,13 @@ function calculateBalances(bankAccountId, options = {}) {
     
     if (startDate) {
       dateFilter += ' AND transactionDate >= ?';
-      params.push(startDate);
+      params.push(dateToTimestamp(startDate));
     }
     
     if (endDate) {
+      const endTs = dateToTimestamp(endDate);
       dateFilter += ' AND transactionDate <= ?';
-      params.push(endDate);
+      params.push(endTs ? endTs + 86399 : endDate);
     }
 
     // Calculate bank balance from bank transactions (credits - debits)
@@ -243,12 +246,13 @@ function getUnreconciledTotals(bankAccountId, options = {}) {
     
     if (startDate) {
       dateFilter += ' AND transactionDate >= ?';
-      params.push(startDate);
+      params.push(dateToTimestamp(startDate));
     }
     
     if (endDate) {
+      const endTs = dateToTimestamp(endDate);
       dateFilter += ' AND transactionDate <= ?';
-      params.push(endDate);
+      params.push(endTs ? endTs + 86399 : endDate);
     }
 
     // Get unreconciled transaction totals
@@ -274,13 +278,13 @@ function getUnreconciledTotals(bankAccountId, options = {}) {
     // Get unreconciled transactions grouped by month (for trend analysis)
     const unreconciledByMonth = query(`
       SELECT 
-        strftime('%Y-%m', transactionDate) as month,
+        strftime('%Y-%m', transactionDate, 'unixepoch') as month,
         COUNT(*) as count,
         COALESCE(SUM(CASE WHEN transactionType = 'credit' THEN amount ELSE 0 END), 0) as credits,
         COALESCE(SUM(CASE WHEN transactionType = 'debit' THEN amount ELSE 0 END), 0) as debits
       FROM bank_transactions
       WHERE bankAccountId = ? AND isReconciled = 0 AND reconciliationStatus != 'excluded'${dateFilter}
-      GROUP BY strftime('%Y-%m', transactionDate)
+      GROUP BY strftime('%Y-%m', transactionDate, 'unixepoch')
       ORDER BY month DESC
       LIMIT 12
     `, params);
@@ -296,7 +300,9 @@ function getUnreconciledTotals(bankAccountId, options = {}) {
           unreconciledCount: unreconciledTotals?.unreconciledCount || 0,
           totalUnreconciledAmount: unreconciledTotals?.totalUnreconciledAmount || 0,
           netUnreconciledAmount,
-          oldestUnreconciledDate: oldestUnreconciled?.oldestDate || null
+          oldestUnreconciledDate: oldestUnreconciled?.oldestDate 
+            ? timestampToDate(oldestUnreconciled.oldestDate) 
+            : null
         },
         credits: {
           count: unreconciledTotals?.unreconciledCreditsCount || 0,
@@ -379,7 +385,9 @@ function getLastReconciliationDate(bankAccountId) {
       success: true,
       data: {
         lastReconciliationDate: lastReconciliation?.lastReconciliationDate || null,
-        lastReconciledTransactionDate: lastReconciledTransactionDate?.lastReconciledTransactionDate || null,
+        lastReconciledTransactionDate: lastReconciledTransactionDate?.lastReconciledTransactionDate 
+          ? timestampToDate(lastReconciledTransactionDate.lastReconciledTransactionDate) 
+          : null,
         lastReconciledBy: lastReconciledByUser,
         reconciliationsToday: todayReconciliations?.todayCount || 0
       }

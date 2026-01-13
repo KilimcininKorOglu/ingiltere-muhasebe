@@ -8,6 +8,7 @@
 const validator = require('validator');
 const { query, queryOne, execute, transaction, openDatabase } = require('../index');
 const { VALID_STATUSES } = require('../migrations/005_create_invoices_table');
+const { dateToTimestamp, timestampToDate, isValidDateString } = require('../../utils/dateUtils');
 
 /**
  * Valid invoice status values.
@@ -73,8 +74,7 @@ const fieldDefinitions = {
     type: 'string',
     required: true,
     validate: (value) => {
-      // Format: YYYY-MM-DD
-      if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (!isValidDateString(value)) {
         return 'Invalid issueDate format (YYYY-MM-DD)';
       }
       return null;
@@ -84,8 +84,7 @@ const fieldDefinitions = {
     type: 'string',
     required: true,
     validate: (value) => {
-      // Format: YYYY-MM-DD
-      if (!validator.isDate(value, { format: 'YYYY-MM-DD', strictMode: true })) {
+      if (!isValidDateString(value)) {
         return 'Invalid dueDate format (YYYY-MM-DD)';
       }
       return null;
@@ -297,6 +296,31 @@ function validateInvoiceData(invoiceData, isUpdate = false) {
 }
 
 /**
+ * Sanitizes invoice data for output by converting timestamps to date strings.
+ * 
+ * @param {InvoiceData} invoiceData - Invoice data from database
+ * @returns {InvoiceData} Sanitized invoice data
+ */
+function sanitizeInvoice(invoiceData) {
+  if (!invoiceData) return null;
+  
+  const sanitized = { ...invoiceData };
+  
+  // Convert timestamps to date strings
+  if (sanitized.issueDate !== undefined && sanitized.issueDate !== null) {
+    sanitized.issueDate = timestampToDate(sanitized.issueDate);
+  }
+  if (sanitized.dueDate !== undefined && sanitized.dueDate !== null) {
+    sanitized.dueDate = timestampToDate(sanitized.dueDate);
+  }
+  if (sanitized.paidAt !== undefined && sanitized.paidAt !== null) {
+    sanitized.paidAt = timestampToDate(sanitized.paidAt);
+  }
+  
+  return sanitized;
+}
+
+/**
  * Generates a new invoice number.
  * Format: INV-YYYY-NNNN (e.g., INV-2026-0001)
  * 
@@ -355,8 +379,8 @@ function createInvoice(invoiceData) {
       userId: invoiceData.userId,
       invoiceNumber: invoiceData.invoiceNumber.trim().toUpperCase(),
       status: invoiceData.status || 'draft',
-      issueDate: invoiceData.issueDate,
-      dueDate: invoiceData.dueDate,
+      issueDate: dateToTimestamp(invoiceData.issueDate),
+      dueDate: dateToTimestamp(invoiceData.dueDate),
       customerName: invoiceData.customerName.trim(),
       customerAddress: invoiceData.customerAddress?.trim() || null,
       customerEmail: invoiceData.customerEmail?.toLowerCase().trim() || null,
@@ -366,7 +390,7 @@ function createInvoice(invoiceData) {
       totalAmount: invoiceData.totalAmount || 0,
       currency: (invoiceData.currency || 'GBP').toUpperCase(),
       notes: invoiceData.notes?.trim() || null,
-      paidAt: invoiceData.paidAt || null
+      paidAt: invoiceData.paidAt ? dateToTimestamp(invoiceData.paidAt) : null
     };
 
     const result = execute(`
@@ -461,12 +485,13 @@ function getInvoicesByUserId(userId, { page = 1, limit = 10, status, customerId,
   // Filter by date range
   if (dateFrom) {
     whereClause += ' AND issueDate >= ?';
-    params.push(dateFrom);
+    params.push(dateToTimestamp(dateFrom));
   }
   
   if (dateTo) {
+    const endTs = dateToTimestamp(dateTo);
     whereClause += ' AND issueDate <= ?';
-    params.push(dateTo);
+    params.push(endTs ? endTs + 86399 : dateTo);
   }
   
   // Search by invoice number or customer name
@@ -489,10 +514,14 @@ function getInvoicesByUserId(userId, { page = 1, limit = 10, status, customerId,
   
   // Add isOverdue flag to each invoice
   const today = new Date().toISOString().split('T')[0];
-  const invoicesWithOverdue = invoices.map(invoice => ({
-    ...invoice,
-    isOverdue: isInvoiceOverdue(invoice, today)
-  }));
+  const todayTs = dateToTimestamp(today);
+  const invoicesWithOverdue = invoices.map(invoice => {
+    const sanitized = sanitizeInvoice(invoice);
+    return {
+      ...sanitized,
+      isOverdue: isInvoiceOverdue(sanitized, today)
+    };
+  });
 
   return {
     invoices: invoicesWithOverdue,
