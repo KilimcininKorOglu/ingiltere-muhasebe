@@ -6,7 +6,7 @@ import Header from '../../components/layout/Header';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState({
@@ -32,10 +32,24 @@ const Dashboard = () => {
       const activityData = activityRes.data?.data || activityRes.data;
       const alertsData = alertsRes.data?.data || alertsRes.data;
 
+      // Map API response to expected format
+      const mappedSummary = summaryData ? {
+        totalIncome: summaryData.overview?.currentMonth?.income || 0,
+        totalExpenses: summaryData.overview?.currentMonth?.expenses || 0,
+        netProfit: summaryData.overview?.currentMonth?.netCashFlow || 0,
+        vatOwed: summaryData.vatStatus?.vatOwed || 0,
+      } : null;
+
+      // Get recent transactions from recentActivity
+      const recentTransactions = summaryData?.recentActivity?.transactions || [];
+
+      // Get alerts from summaryData or alertsData
+      const alertsList = summaryData?.alerts || (Array.isArray(alertsData) ? alertsData : []);
+
       setData({
-        summary: summaryData,
-        recentActivity: Array.isArray(activityData) ? activityData : [],
-        alerts: Array.isArray(alertsData) ? alertsData : [],
+        summary: mappedSummary,
+        recentActivity: recentTransactions,
+        alerts: alertsList,
       });
       setError(null);
     } catch (err) {
@@ -124,7 +138,11 @@ const Dashboard = () => {
                     <span className="alert-icon">
                       {alert.type === 'warning' ? '⚠️' : alert.type === 'error' ? '❌' : 'ℹ️'}
                     </span>
-                    <span className="alert-message">{alert.message}</span>
+                    <span className="alert-message">
+                      {typeof alert.message === 'object' 
+                        ? (alert.message[i18n.language] || alert.message.en || '') 
+                        : alert.message}
+                    </span>
                   </li>
                 ))}
               </ul>
