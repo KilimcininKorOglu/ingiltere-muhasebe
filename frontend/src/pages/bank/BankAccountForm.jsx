@@ -53,7 +53,7 @@ const BankAccountForm = () => {
   const labelClass = "block text-sm font-medium text-zinc-300 mb-1.5";
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
