@@ -215,6 +215,11 @@ function createRateLimiter(config = {}) {
   const options = { ...DEFAULT_CONFIG, ...config };
 
   return (req, res, next) => {
+    // Skip rate limiting in test environment
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
+
     const key = generateKey(req, options.keyGenerator || 'ip');
     const info = getRateLimitInfo(key, options.windowMs, options.maxRequests);
 

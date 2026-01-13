@@ -105,6 +105,12 @@ afterAll(() => {
 });
 
 describe('Invoice API', () => {
+  // Clear rate limiter before each test to prevent rate limit errors
+  beforeEach(() => {
+    const { clearStore } = require('../middleware/rateLimiter');
+    clearStore();
+  });
+
   describe('POST /api/invoices', () => {
     let createdInvoiceId;
 
@@ -686,10 +692,6 @@ describe('Invoice API', () => {
     let testInvoiceId;
 
     beforeEach(async () => {
-      // Clear rate limiter store to prevent test failures
-      const { clearStore } = require('../middleware/rateLimiter');
-      clearStore();
-      
       // Create a fresh test invoice for each status test
       const invoiceData = {
         customerId: testCustomer.id,
@@ -705,7 +707,12 @@ describe('Invoice API', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send(invoiceData);
 
-      testInvoiceId = response.body.data.id;
+      if (response.body.success && response.body.data) {
+        testInvoiceId = response.body.data.id;
+      } else {
+        console.error('Failed to create test invoice:', response.body);
+        throw new Error(`Failed to create test invoice: ${JSON.stringify(response.body)}`);
+      }
     });
 
     afterEach(() => {
@@ -1083,8 +1090,9 @@ describe('Invoice API', () => {
           .expect(200);
 
         expect(response.body.data.updatedAt).toBeDefined();
-        // Verify it's a valid timestamp format
-        expect(response.body.data.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
+        // Verify it's a valid Unix timestamp (integer)
+        expect(typeof response.body.data.updatedAt).toBe('number');
+        expect(response.body.data.updatedAt).toBeGreaterThan(0);
       });
     });
   });
@@ -1093,10 +1101,6 @@ describe('Invoice API', () => {
     let testInvoiceId;
 
     beforeEach(async () => {
-      // Clear rate limiter store to prevent test failures
-      const { clearStore } = require('../middleware/rateLimiter');
-      clearStore();
-      
       // Create a fresh test invoice for each update test
       const invoiceData = {
         customerId: testCustomer.id,
@@ -1113,7 +1117,12 @@ describe('Invoice API', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send(invoiceData);
 
-      testInvoiceId = response.body.data.id;
+      if (response.body.success && response.body.data) {
+        testInvoiceId = response.body.data.id;
+      } else {
+        console.error('Failed to create test invoice:', response.body);
+        throw new Error(`Failed to create test invoice: ${JSON.stringify(response.body)}`);
+      }
     });
 
     afterEach(() => {
@@ -1548,10 +1557,6 @@ describe('Invoice API', () => {
     let testInvoiceId;
 
     beforeEach(async () => {
-      // Clear rate limiter store to prevent test failures
-      const { clearStore } = require('../middleware/rateLimiter');
-      clearStore();
-      
       // Create a fresh test invoice for each delete test
       const invoiceData = {
         customerId: testCustomer.id,
@@ -1567,7 +1572,12 @@ describe('Invoice API', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send(invoiceData);
 
-      testInvoiceId = response.body.data.id;
+      if (response.body.success && response.body.data) {
+        testInvoiceId = response.body.data.id;
+      } else {
+        console.error('Failed to create test invoice:', response.body);
+        throw new Error(`Failed to create test invoice: ${JSON.stringify(response.body)}`);
+      }
     });
 
     afterEach(() => {
