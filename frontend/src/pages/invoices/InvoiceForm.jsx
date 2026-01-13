@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { invoiceService, customerService } from '../../services/api';
-import Header from '../../components/layout/Header';
+import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 
 const InvoiceForm = () => {
   const { t } = useTranslation();
@@ -145,157 +145,306 @@ const InvoiceForm = () => {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <Header title={isEdit ? t('invoices.editInvoice') : t('invoices.createInvoice')} />
-        <div className="loading-state">
-          <div className="loading-spinner" />
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <Header title={isEdit ? t('invoices.editInvoice') : t('invoices.createInvoice')} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link
+          to="/invoices"
+          className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            {isEdit ? t('invoices.editInvoice') : t('invoices.createInvoice')}
+          </h1>
+          <p className="text-zinc-400 text-sm mt-1">
+            {isEdit ? t('invoices.editSubtitle') || 'Fatura bilgilerini duzenle' : t('invoices.createSubtitle') || 'Yeni fatura olustur'}
+          </p>
+        </div>
+      </div>
 
-      <div className="form-container invoice-form-container">
-        <form onSubmit={handleSubmit} className="form">
-          {error && <div className="form-error">{error}</div>}
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 text-red-400">
+            {error}
+          </div>
+        )}
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('invoices.customer')}</label>
-              <select name="customerId" value={formData.customerId} onChange={handleChange} required>
+        {/* Customer & Dates */}
+        <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                {t('invoices.customer')}
+              </label>
+              <select
+                name="customerId"
+                value={formData.customerId}
+                onChange={handleChange}
+                required
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+              >
                 <option value="">{t('common.select')}</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
-          </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('invoices.issueDate')}</label>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                {t('invoices.issueDate')}
+              </label>
               <input
                 type="date"
                 name="issueDate"
                 value={formData.issueDate}
                 onChange={handleChange}
                 required
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
               />
             </div>
 
-            <div className="form-group">
-              <label>{t('invoices.dueDate')}</label>
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                {t('invoices.dueDate')}
+              </label>
               <input
                 type="date"
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleChange}
                 required
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
               />
             </div>
           </div>
+        </div>
 
-          <div className="invoice-items-section">
-            <h3>{t('invoices.items')}</h3>
-            
-            <div className="invoice-items-header">
-              <span>{t('invoices.description')}</span>
-              <span>{t('invoices.quantity')}</span>
-              <span>{t('invoices.unitPrice')}</span>
-              <span>{t('invoices.vatRate')}</span>
-              <span>{t('invoices.lineTotal')}</span>
-              <span></span>
-            </div>
+        {/* Invoice Items */}
+        <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">{t('invoices.items')}</h3>
 
+          {/* Desktop Header */}
+          <div className="hidden md:grid grid-cols-12 gap-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3 px-2">
+            <div className="col-span-5">{t('invoices.description')}</div>
+            <div className="col-span-2">{t('invoices.quantity')}</div>
+            <div className="col-span-2">{t('invoices.unitPrice')}</div>
+            <div className="col-span-1">{t('invoices.vatRate')}</div>
+            <div className="col-span-1 text-right">{t('invoices.lineTotal')}</div>
+            <div className="col-span-1"></div>
+          </div>
+
+          {/* Items */}
+          <div className="space-y-3">
             {formData.items.map((item, index) => (
-              <div key={index} className="invoice-item-row">
-                <input
-                  type="text"
-                  value={item.description}
-                  onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                  placeholder={t('invoices.itemDescription')}
-                  required
-                />
-                <input
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                  min="1"
-                  step="1"
-                  required
-                />
-                <input
-                  type="number"
-                  value={item.unitPrice}
-                  onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                  min="0"
-                  step="0.01"
-                  required
-                />
-                <select
-                  value={item.vatRate}
-                  onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
-                >
-                  <option value="0">0%</option>
-                  <option value="5">5%</option>
-                  <option value="20">20%</option>
-                </select>
-                <span className="item-total">£{calculateItemTotal(item).toFixed(2)}</span>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-danger"
-                  onClick={() => removeItem(index)}
-                  disabled={formData.items.length === 1}
-                >
-                  X
-                </button>
+              <div key={index} className="bg-zinc-900/50 border border-zinc-700/50 rounded-lg p-4">
+                {/* Mobile Layout */}
+                <div className="md:hidden space-y-3">
+                  <input
+                    type="text"
+                    value={item.description}
+                    onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                    placeholder={t('invoices.itemDescription')}
+                    required
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  />
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">{t('invoices.quantity')}</label>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                        min="1"
+                        step="1"
+                        required
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-center font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">{t('invoices.unitPrice')}</label>
+                      <input
+                        type="number"
+                        value={item.unitPrice}
+                        onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
+                        min="0"
+                        step="0.01"
+                        required
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-center font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">{t('invoices.vatRate')}</label>
+                      <select
+                        value={item.vatRate}
+                        onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      >
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="20">20%</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-700/50">
+                    <span className="text-emerald-400 font-mono font-semibold">
+                      £{calculateItemTotal(item).toFixed(2)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      disabled={formData.items.length === 1}
+                      className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden md:grid grid-cols-12 gap-4 items-center">
+                  <div className="col-span-5">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                      placeholder={t('invoices.itemDescription')}
+                      required
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2.5 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                      min="1"
+                      step="1"
+                      required
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-center font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">£</span>
+                      <input
+                        type="number"
+                        value={item.unitPrice}
+                        onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
+                        min="0"
+                        step="0.01"
+                        required
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2.5 text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      />
+                    </div>
+                  </div>
+                  <div className="col-span-1">
+                    <select
+                      value={item.vatRate}
+                      onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    >
+                      <option value="0">0%</option>
+                      <option value="5">5%</option>
+                      <option value="20">20%</option>
+                    </select>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <span className="text-emerald-400 font-mono font-semibold">
+                      £{calculateItemTotal(item).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="col-span-1 text-right">
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      disabled={formData.items.length === 1}
+                      className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
-
-            <button type="button" className="btn btn-secondary" onClick={addItem}>
-              + {t('invoices.addItem')}
-            </button>
           </div>
 
-          <div className="invoice-totals">
-            <div className="total-row">
-              <span>{t('invoices.subtotal')}:</span>
-              <span>£{subtotal.toFixed(2)}</span>
+          <button
+            type="button"
+            onClick={addItem}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('invoices.addItem')}
+          </button>
+        </div>
+
+        {/* Totals */}
+        <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Calculator className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-lg font-semibold text-white">{t('invoices.summary') || 'Ozet'}</h3>
+          </div>
+          <div className="space-y-3 max-w-xs ml-auto">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-zinc-400">{t('invoices.subtotal')}</span>
+              <span className="text-white font-mono">£{subtotal.toFixed(2)}</span>
             </div>
-            <div className="total-row">
-              <span>{t('invoices.totalVat')}:</span>
-              <span>£{totalVat.toFixed(2)}</span>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-zinc-400">{t('invoices.totalVat')}</span>
+              <span className="text-white font-mono">£{totalVat.toFixed(2)}</span>
             </div>
-            <div className="total-row grand-total">
-              <span>{t('invoices.grandTotal')}:</span>
-              <span>£{grandTotal.toFixed(2)}</span>
+            <div className="flex items-center justify-between pt-3 border-t border-zinc-700">
+              <span className="text-lg font-semibold text-white">{t('invoices.grandTotal')}</span>
+              <span className="text-xl font-bold text-emerald-400 font-mono">£{grandTotal.toFixed(2)}</span>
             </div>
           </div>
+        </div>
 
-          <div className="form-group">
-            <label>{t('invoices.notes')}</label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              rows={3}
-              placeholder={t('invoices.notesPlaceholder')}
-            />
-          </div>
+        {/* Notes */}
+        <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-xl p-6">
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            {t('invoices.notes')}
+          </label>
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows={3}
+            placeholder={t('invoices.notesPlaceholder')}
+            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 resize-none"
+          />
+        </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/invoices')}>
-              {t('common.cancel')}
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? t('common.saving') : t('common.save')}
-            </button>
-          </div>
-        </form>
-      </div>
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-4">
+          <button
+            type="button"
+            onClick={() => navigate('/invoices')}
+            className="px-6 py-2.5 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            {saving ? t('common.saving') : t('common.save')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
