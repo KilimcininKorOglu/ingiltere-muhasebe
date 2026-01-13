@@ -51,14 +51,23 @@ function createMockResponse() {
   return res;
 }
 
+// Store original NODE_ENV
+const originalNodeEnv = process.env.NODE_ENV;
+
+// Set NODE_ENV to something other than 'test' for rate limiter tests
+beforeAll(() => {
+  process.env.NODE_ENV = 'rate-limiter-test';
+});
+
 // Clean store before each test
 beforeEach(() => {
   clearStore();
 });
 
-// Clean store after all tests
+// Clean store and restore NODE_ENV after all tests
 afterAll(() => {
   clearStore();
+  process.env.NODE_ENV = originalNodeEnv;
 });
 
 describe('Rate Limiter Middleware', () => {

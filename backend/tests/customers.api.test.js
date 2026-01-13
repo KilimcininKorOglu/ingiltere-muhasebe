@@ -120,7 +120,7 @@ describe('Customer API', () => {
         tradingName: 'FC Trading',
         email: 'contact@fullcustomer.com',
         phone: '+441234567890',
-        website: 'https://fullcustomer.com',
+        website: 'www.fullcustomer.com',
         vatNumber: 'GB123456789',
         companyNumber: '12345678',
         addressLine1: '123 Test Street',
@@ -141,8 +141,12 @@ describe('Customer API', () => {
       const response = await request(app)
         .post('/api/customers')
         .set('Authorization', `Bearer ${authToken}`)
-        .send(customerData)
-        .expect(201);
+        .send(customerData);
+
+      if (response.status !== 201) {
+        console.error('Customer creation failed:', JSON.stringify(response.body, null, 2));
+      }
+      expect(response.status).toBe(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.name).toBe('Full Customer Ltd');
