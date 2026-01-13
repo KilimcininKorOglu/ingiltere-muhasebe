@@ -158,13 +158,13 @@ const PayrollList = () => {
             <tbody>
               {payrolls.map((pr) => (
                 <tr key={pr.id}>
-                  <td>{pr.employee?.firstName} {pr.employee?.lastName}</td>
-                  <td>{formatDate(pr.payPeriodStart)} - {formatDate(pr.payPeriodEnd)}</td>
-                  <td>{formatCurrency(pr.grossPay)}</td>
-                  <td className="text-danger">{formatCurrency(pr.incomeTax)}</td>
-                  <td className="text-danger">{formatCurrency(pr.nationalInsurance)}</td>
-                  <td className="text-success">{formatCurrency(pr.netPay)}</td>
-                  <td>
+                  <td data-label={t('payroll.employee')}>{pr.employee?.firstName} {pr.employee?.lastName}</td>
+                  <td data-label={t('payroll.payPeriod')}>{formatDate(pr.payPeriodStart)} - {formatDate(pr.payPeriodEnd)}</td>
+                  <td data-label={t('payroll.grossPay')}>{formatCurrency(pr.grossPay)}</td>
+                  <td data-label={t('payroll.incomeTax')} className="text-danger">{formatCurrency(pr.incomeTax)}</td>
+                  <td data-label={t('payroll.nationalInsurance')} className="text-danger">{formatCurrency(pr.nationalInsurance)}</td>
+                  <td data-label={t('payroll.netPay')} className="text-success">{formatCurrency(pr.netPay)}</td>
+                  <td data-label={t('payroll.status')}>
                     <span className={`badge ${pr.status}`}>
                       {t(`payroll.${pr.status}`)}
                     </span>

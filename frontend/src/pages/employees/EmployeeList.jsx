@@ -110,12 +110,12 @@ const EmployeeList = () => {
             <tbody>
               {filteredEmployees.map((emp) => (
                 <tr key={emp.id}>
-                  <td>{`${emp.firstName} ${emp.lastName}`}</td>
-                  <td>{emp.email || '-'}</td>
-                  <td>{emp.niNumber || '-'}</td>
-                  <td>{emp.taxCode || '-'}</td>
-                  <td>{formatCurrency(emp.salary)}</td>
-                  <td>
+                  <td data-label={t('employees.name')}>{`${emp.firstName} ${emp.lastName}`}</td>
+                  <td data-label={t('employees.email')}>{emp.email || '-'}</td>
+                  <td data-label={t('employees.niNumber')}>{emp.niNumber || '-'}</td>
+                  <td data-label={t('employees.taxCode')}>{emp.taxCode || '-'}</td>
+                  <td data-label={t('employees.salary')}>{formatCurrency(emp.salary)}</td>
+                  <td data-label={t('employees.status')}>
                     <span className={`badge ${emp.status || 'active'}`}>
                       {t(`employees.${emp.status || 'active'}`)}
                     </span>

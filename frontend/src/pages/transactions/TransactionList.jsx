@@ -189,17 +189,17 @@ const TransactionList = () => {
               <tbody>
                 {transactions.map((tx) => (
                   <tr key={tx.id}>
-                    <td>{formatDate(tx.transactionDate || tx.date)}</td>
-                    <td>{tx.description}</td>
-                    <td>{tx.category?.name || tx.category?.nameEn || '-'}</td>
-                    <td>
+                    <td data-label={t('common.date')}>{formatDate(tx.transactionDate || tx.date)}</td>
+                    <td data-label={t('transactions.description')}>{tx.description}</td>
+                    <td data-label={t('transactions.category')}>{tx.category?.name || tx.category?.nameEn || '-'}</td>
+                    <td data-label={t('transactions.type')}>
                       <span className={`badge ${tx.type}`}>
                         {t(`transactions.${tx.type}`)}
                       </span>
                     </td>
-                    <td>{formatCurrency(tx.amount)}</td>
-                    <td>{tx.vatRate}%</td>
-                    <td className={tx.type === 'income' ? 'text-success' : 'text-danger'}>
+                    <td data-label={t('transactions.amount')}>{formatCurrency(tx.amount)}</td>
+                    <td data-label={t('transactions.vat')}>{tx.vatRate}%</td>
+                    <td data-label={t('transactions.total')} className={tx.type === 'income' ? 'text-success' : 'text-danger'}>
                       {formatCurrency(tx.totalAmount)}
                     </td>
                     <td>

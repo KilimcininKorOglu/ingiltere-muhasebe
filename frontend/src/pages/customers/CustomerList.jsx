@@ -91,11 +91,11 @@ const CustomerList = () => {
             <tbody>
               {filteredCustomers.map((customer) => (
                 <tr key={customer.id}>
-                  <td>{customer.name}</td>
-                  <td>{customer.email || '-'}</td>
-                  <td>{customer.phone || '-'}</td>
-                  <td>{customer.vatNumber || '-'}</td>
-                  <td>{customer.address ? `${customer.address.city || ''}, ${customer.address.postcode || ''}` : '-'}</td>
+                  <td data-label={t('customers.name')}>{customer.name}</td>
+                  <td data-label={t('customers.email')}>{customer.email || '-'}</td>
+                  <td data-label={t('customers.phone')}>{customer.phone || '-'}</td>
+                  <td data-label={t('customers.vatNumber')}>{customer.vatNumber || '-'}</td>
+                  <td data-label={t('customers.address')}>{customer.address ? `${customer.address.city || ''}, ${customer.address.postcode || ''}` : '-'}</td>
                   <td>
                     <div className="action-buttons">
                       <Link to={`/customers/${customer.id}/edit`} className="btn btn-sm">

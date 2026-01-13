@@ -163,20 +163,20 @@ const InvoiceList = () => {
               <tbody>
                 {invoices.map((inv) => (
                   <tr key={inv.id}>
-                    <td>
+                    <td data-label={t('invoices.invoiceNumber')}>
                       <Link to={`/invoices/${inv.id}`} className="invoice-link">
                         {inv.invoiceNumber}
                       </Link>
                     </td>
-                    <td>{inv.customer?.name || '-'}</td>
-                    <td>{formatDate(inv.issueDate)}</td>
-                    <td>{formatDate(inv.dueDate)}</td>
-                    <td>
+                    <td data-label={t('invoices.customer')}>{inv.customer?.name || '-'}</td>
+                    <td data-label={t('invoices.issueDate')}>{formatDate(inv.issueDate)}</td>
+                    <td data-label={t('invoices.dueDate')}>{formatDate(inv.dueDate)}</td>
+                    <td data-label={t('invoices.status')}>
                       <span className={`badge ${inv.status}`}>
                         {t(`invoices.${inv.status}`)}
                       </span>
                     </td>
-                    <td>{formatCurrency(inv.totalAmount)}</td>
+                    <td data-label={t('invoices.amount')}>{formatCurrency(inv.totalAmount)}</td>
                     <td>
                       <div className="action-buttons">
                         {inv.status === 'draft' && (

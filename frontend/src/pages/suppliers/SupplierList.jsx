@@ -91,11 +91,11 @@ const SupplierList = () => {
             <tbody>
               {filteredSuppliers.map((supplier) => (
                 <tr key={supplier.id}>
-                  <td>{supplier.name}</td>
-                  <td>{supplier.email || '-'}</td>
-                  <td>{supplier.phone || '-'}</td>
-                  <td>{supplier.vatNumber || '-'}</td>
-                  <td>
+                  <td data-label={t('suppliers.name')}>{supplier.name}</td>
+                  <td data-label={t('suppliers.email')}>{supplier.email || '-'}</td>
+                  <td data-label={t('suppliers.phone')}>{supplier.phone || '-'}</td>
+                  <td data-label={t('suppliers.vatNumber')}>{supplier.vatNumber || '-'}</td>
+                  <td data-label={t('suppliers.status')}>
                     <span className={`badge ${supplier.status || 'active'}`}>
                       {t(`suppliers.${supplier.status || 'active'}`)}
                     </span>
