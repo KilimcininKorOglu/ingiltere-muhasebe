@@ -41,7 +41,8 @@
     "filters": "Filters",
     "showing": "Showing",
     "of": "of",
-    "results": "results"
+    "results": "results",
+    "status": "Status"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -289,6 +290,7 @@
   },
   "vat": {
     "title": "VAT",
+    "subtitle": "Track your VAT returns and status",
     "vatReturn": "VAT Return",
     "startReturn": "Start VAT Return",
     "prepareReturn": "Prepare Return",
@@ -311,7 +313,9 @@
     "reducedRate": "Reduced Rate",
     "zeroRated": "Zero Rated",
     "returns": "VAT Returns",
+    "returnsSubtitle": "Your past and current VAT returns",
     "newReturn": "New Return",
+    "newReturnSubtitle": "Create your VAT return step by step",
     "period": "Period",
     "netVat": "Net VAT",
     "noReturns": "No VAT returns found",

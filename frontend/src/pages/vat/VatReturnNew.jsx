@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { vatService, transactionService } from '../../services/api';
 import VatReturnWizard from '../../components/vat/VatReturnWizard';
-import Header from '../../components/layout/Header';
+import { ArrowLeft } from 'lucide-react';
 
 const VatReturnNew = () => {
   const { t } = useTranslation();
@@ -30,14 +30,26 @@ const VatReturnNew = () => {
   const transactionsApi = {
     getTransactions: async (params) => {
       const response = await transactionService.getAll(params);
-      // API returns { data: { transactions: [] } }, extract the array
       return { data: response.data?.data?.transactions || response.data?.transactions || [] };
     },
   };
 
   return (
-    <div className="page-container">
-      <Header title={t('vat.newReturn')} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link
+          to="/vat"
+          className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-zinc-400" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white">{t('vat.newReturn')}</h1>
+          <p className="text-zinc-400 text-sm mt-1">{t('vat.newReturnSubtitle')}</p>
+        </div>
+      </div>
+
       <VatReturnWizard
         onComplete={handleComplete}
         onCancel={handleCancel}

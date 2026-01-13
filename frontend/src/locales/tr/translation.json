@@ -41,7 +41,8 @@
     "filters": "Filtreler",
     "showing": "Gösterilen",
     "of": "/",
-    "results": "sonuç"
+    "results": "sonuç",
+    "status": "Durum"
   },
   "nav": {
     "dashboard": "Panel",
@@ -289,6 +290,7 @@
   },
   "vat": {
     "title": "KDV",
+    "subtitle": "KDV beyannamelerinizi ve durumunuzu takip edin",
     "vatReturn": "KDV Beyannamesi",
     "startReturn": "KDV Beyannamesi Başlat",
     "prepareReturn": "Beyanname Hazırla",
@@ -311,7 +313,9 @@
     "reducedRate": "İndirimli Oran",
     "zeroRated": "Sıfır Oranlı",
     "returns": "KDV Beyannameleri",
+    "returnsSubtitle": "Geçmiş ve güncel KDV beyannameleriniz",
     "newReturn": "Yeni Beyanname",
+    "newReturnSubtitle": "KDV beyannamenizi adım adım oluşturun",
     "period": "Dönem",
     "netVat": "Net KDV",
     "noReturns": "KDV beyannamesi bulunamadı",
