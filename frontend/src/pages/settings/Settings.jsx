@@ -12,8 +12,8 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({
     language: i18n.language || 'en',
-    currency: 'GBP',
-    dateFormat: 'DD/MM/YYYY',
+    currency: localStorage.getItem('currency') || 'GBP',
+    dateFormat: localStorage.getItem('dateFormat') || 'DD/MM/YYYY',
     vatScheme: 'standard',
     vatNumber: '',
     businessName: '',
@@ -59,6 +59,11 @@ const Settings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Save general settings to localStorage
+      localStorage.setItem('currency', settings.currency);
+      localStorage.setItem('dateFormat', settings.dateFormat);
+
+      // Save business settings to API
       await api.put('/users/me', {
         businessName: settings.businessName,
         businessAddress: settings.businessAddress,
