@@ -402,8 +402,8 @@ const Settings = () => {
 
               <p className="info-note">
                 {i18n.language === 'tr' 
-                  ? 'Vergi oranları resmi HMRC kaynaklarından alınmaktadır. Değişiklik yapmak için backend config dosyasını düzenleyiniz.'
-                  : 'Tax rates are sourced from official HMRC data. To make changes, edit the backend config file.'}
+                  ? 'Vergi oranları veritabanında saklanmaktadır. HMRC güncellemelerini uygulamak için veritabanındaki değerleri güncelleyiniz.'
+                  : 'Tax rates are stored in the database. Update database values to apply HMRC changes.'}
               </p>
             </div>
           )}

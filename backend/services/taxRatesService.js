@@ -21,7 +21,7 @@ function getTaxRatesByYear(taxYear) {
  * Get current tax year based on date
  * UK tax year runs from 6 April to 5 April
  * @param {Date} date - Date to check (defaults to now)
- * @returns {string} Tax year in format 'YYYY/YY'
+ * @returns {string} Tax year in format 'YYYY-YY'
  */
 function getCurrentTaxYear(date = new Date()) {
   const year = date.getFullYear();
@@ -30,9 +30,9 @@ function getCurrentTaxYear(date = new Date()) {
 
   // Before 6 April, we're in the previous tax year
   if (month < 4 || (month === 4 && day < 6)) {
-    return `${year - 1}/${String(year).slice(2)}`;
+    return `${year - 1}-${String(year).slice(2)}`;
   }
-  return `${year}/${String(year + 1).slice(2)}`;
+  return `${year}-${String(year + 1).slice(2)}`;
 }
 
 /**
