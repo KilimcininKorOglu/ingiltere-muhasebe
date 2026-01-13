@@ -122,7 +122,7 @@ const Settings = () => {
                     className={`lang-btn ${settings.language === 'tr' ? 'active' : ''}`}
                     onClick={() => handleLanguageChange('tr')}
                   >
-                    Turkce
+                    Türkçe
                   </button>
                 </div>
               </div>
