@@ -38,8 +38,10 @@
 
 .bank-accounts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .bank-account-card {
@@ -117,4 +119,50 @@
 .account-actions .btn {
   flex: 1;
   min-width: 80px;
+}
+
+/* ===================================
+   RESPONSIVE - ALL SCREENS FIT
+   =================================== */
+
+@media (max-width: 768px) {
+  .bank-total-card {
+    padding: 1.5rem;
+  }
+
+  .bank-total-card .balance {
+    font-size: 2rem;
+  }
+
+  .bank-accounts-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .bank-account-card {
+    padding: 1rem;
+  }
+
+  .account-balance {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bank-total-card {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .bank-total-card .balance {
+    font-size: 1.5rem;
+  }
+
+  .account-actions {
+    flex-direction: column;
+  }
+
+  .account-actions .btn {
+    width: 100%;
+  }
 }

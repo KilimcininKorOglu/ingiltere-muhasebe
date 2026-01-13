@@ -18,7 +18,8 @@
 }
 
 .invoice-form-container {
-  max-width: 1000px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .invoice-items-section {
@@ -36,26 +37,23 @@
 }
 
 .invoice-items-header {
-  display: grid;
-  grid-template-columns: 2fr 80px 100px 80px 100px 40px;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
+  display: none;
 }
 
 .invoice-item-row {
-  display: grid;
-  grid-template-columns: 2fr 80px 100px 80px 100px 40px;
-  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
   margin-bottom: 0.75rem;
-  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
 }
 
 .invoice-item-row input,
 .invoice-item-row select {
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
