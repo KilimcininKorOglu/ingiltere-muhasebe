@@ -374,7 +374,16 @@
     "reconcile": "Reconcile",
     "current": "Current",
     "savings": "Savings",
-    "balance": "Balance"
+    "balance": "Balance",
+    "bankDetails": "Bank Details",
+    "bankName": "Bank Name",
+    "accountName": "Account Name",
+    "sortCode": "Sort Code",
+    "accountNumber": "Account Number",
+    "accountType": "Account Type",
+    "openingBalance": "Opening Balance",
+    "addAccountSubtitle": "Add a new bank account",
+    "fillRequired": "Please fill in all required fields"
   },
   "settings": {
     "title": "Settings",
@@ -432,7 +441,16 @@
     "rateSmallProfits": "Small Profits Rate",
     "rateMain": "Main Rate",
     "rateSmallProfitsLimit": "Small Profits Limit",
-    "rateMarginalRelief": "Marginal Relief Limit"
+    "rateMarginalRelief": "Marginal Relief Limit",
+    "subtitle": "Manage your application settings",
+    "newYear": "New Year",
+    "addNewYear": "Add New Tax Year",
+    "copyFromYear": "Copy From Year",
+    "newTaxYear": "New Tax Year",
+    "effectiveFrom": "Effective From",
+    "effectiveTo": "Effective To",
+    "yearExists": "This tax year already exists",
+    "addYearFailed": "Failed to add tax year"
   },
   "navigation": {
     "home": "Home",

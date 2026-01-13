@@ -374,7 +374,16 @@
     "reconcile": "Mutabakat",
     "current": "Vadesiz",
     "savings": "Tasarruf",
-    "balance": "Bakiye"
+    "balance": "Bakiye",
+    "bankDetails": "Banka Bilgileri",
+    "bankName": "Banka Adı",
+    "accountName": "Hesap Adı",
+    "sortCode": "Sort Kodu",
+    "accountNumber": "Hesap Numarası",
+    "accountType": "Hesap Türü",
+    "openingBalance": "Açılış Bakiyesi",
+    "addAccountSubtitle": "Yeni banka hesabı ekleyin",
+    "fillRequired": "Lütfen tüm zorunlu alanları doldurun"
   },
   "settings": {
     "title": "Ayarlar",
@@ -432,7 +441,16 @@
     "rateSmallProfits": "Küçük Kar Oranı",
     "rateMain": "Ana Oran",
     "rateSmallProfitsLimit": "Küçük Kar Limiti",
-    "rateMarginalRelief": "Marjinal İndirim Limiti"
+    "rateMarginalRelief": "Marjinal İndirim Limiti",
+    "subtitle": "Uygulama ayarlarınızı yönetin",
+    "newYear": "Yeni Yıl",
+    "addNewYear": "Yeni Vergi Yılı Ekle",
+    "copyFromYear": "Kopyalanacak Yıl",
+    "newTaxYear": "Yeni Vergi Yılı",
+    "effectiveFrom": "Başlangıç Tarihi",
+    "effectiveTo": "Bitiş Tarihi",
+    "yearExists": "Bu vergi yılı zaten mevcut",
+    "addYearFailed": "Vergi yılı eklenemedi"
   },
   "navigation": {
     "home": "Ana Sayfa",
