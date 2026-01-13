@@ -196,8 +196,12 @@
   },
   "suppliers": {
     "title": "Tedarikçiler",
+    "subtitle": "Tedarikçi kayıtlarınızı yönetin",
     "addSupplier": "Tedarikçi Ekle",
     "editSupplier": "Tedarikçi Düzenle",
+    "createSubtitle": "Yeni tedarikçi kaydı oluşturun",
+    "editSubtitle": "Tedarikçi bilgilerini güncelleyin",
+    "basicInfo": "Temel Bilgiler",
     "name": "Ad",
     "email": "E-posta",
     "phone": "Telefon",
@@ -210,7 +214,9 @@
     "addressLine2": "Adres Satırı 2",
     "city": "Şehir",
     "postcode": "Posta Kodu",
+    "country": "Ülke",
     "paymentTerms": "Ödeme Vadesi",
+    "immediate": "Hemen",
     "noSuppliers": "Tedarikçi bulunamadı",
     "addFirst": "İlk tedarikçinizi ekleyin"
   },

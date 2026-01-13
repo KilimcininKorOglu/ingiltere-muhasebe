@@ -196,8 +196,12 @@
   },
   "suppliers": {
     "title": "Suppliers",
+    "subtitle": "Manage your supplier records",
     "addSupplier": "Add Supplier",
     "editSupplier": "Edit Supplier",
+    "createSubtitle": "Add a new supplier record",
+    "editSubtitle": "Update supplier information",
+    "basicInfo": "Basic Information",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -210,7 +214,9 @@
     "addressLine2": "Address Line 2",
     "city": "City",
     "postcode": "Postcode",
+    "country": "Country",
     "paymentTerms": "Payment Terms",
+    "immediate": "Immediate",
     "noSuppliers": "No suppliers found",
     "addFirst": "Add your first supplier"
   },
