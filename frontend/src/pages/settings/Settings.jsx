@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from '../../components/layout/Header';
+import { authService } from '../../services/api';
+import api from '../../services/api';
 import '../transactions/Transactions.css';
 import './Settings.css';
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('general');
+  const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({
     language: i18n.language || 'en',
     currency: 'GBP',
@@ -18,6 +21,29 @@ const Settings = () => {
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await authService.me();
+        const user = response.data?.data?.user || response.data?.user || response.data;
+        if (user) {
+          setSettings((prev) => ({
+            ...prev,
+            businessName: user.businessName || '',
+            businessAddress: user.businessAddress || '',
+            vatNumber: user.vatNumber || '',
+            vatScheme: user.vatScheme || 'standard',
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,10 +58,20 @@ const Settings = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await api.put('/users/me', {
+        businessName: settings.businessName,
+        businessAddress: settings.businessAddress,
+        vatNumber: settings.vatNumber,
+        vatScheme: settings.vatScheme,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const tabs = [
