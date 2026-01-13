@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { payrollService, employeeService } from '../../services/api';
-import { ArrowLeft, Calculator, User, Calendar, Banknote, AlertCircle, Loader2, Check } from 'lucide-react';
+import { ArrowLeft, Calculator, User, Calendar, Banknote, AlertCircle, Loader2, Check, Search, ChevronDown, X } from 'lucide-react';
 
 const PayrollForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const dropdownRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -15,6 +16,9 @@ const PayrollForm = () => {
   const [error, setError] = useState('');
   const [employees, setEmployees] = useState([]);
   const [calculation, setCalculation] = useState(null);
+
+  const [employeeDropdownOpen, setEmployeeDropdownOpen] = useState(false);
+  const [employeeSearch, setEmployeeSearch] = useState('');
 
   const [formData, setFormData] = useState({
     employeeId: searchParams.get('employeeId') || '',
@@ -24,6 +28,16 @@ const PayrollForm = () => {
     bonus: '0',
     deductions: '0',
   });
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setEmployeeDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchEmployees();
@@ -50,6 +64,27 @@ const PayrollForm = () => {
       console.error('Failed to fetch employees:', err);
     }
   };
+
+  const handleEmployeeSelect = (emp) => {
+    setFormData((prev) => ({ ...prev, employeeId: emp.id.toString() }));
+    setEmployeeDropdownOpen(false);
+    setEmployeeSearch('');
+    setError('');
+    setCalculation(null);
+
+    const annualSalary = (emp.annualSalary || emp.salary || 0) / 100;
+    const monthlySalary = annualSalary / 12;
+    setFormData((prev) => ({ ...prev, employeeId: emp.id.toString(), grossPay: monthlySalary.toFixed(2) }));
+  };
+
+  const filteredEmployees = employees.filter((emp) => {
+    const searchLower = employeeSearch.toLowerCase();
+    return (
+      emp.firstName?.toLowerCase().includes(searchLower) ||
+      emp.lastName?.toLowerCase().includes(searchLower) ||
+      emp.taxCode?.toLowerCase().includes(searchLower)
+    );
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -181,20 +216,71 @@ const PayrollForm = () => {
 
           <div>
             <label className={labelClass}>{t('payroll.employee')} *</label>
-            <select
-              name="employeeId"
-              value={formData.employeeId}
-              onChange={handleChange}
-              className={inputClass}
-              required
-            >
-              <option value="">{t('common.select')}</option>
-              {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.firstName} {emp.lastName} - {emp.taxCode}
-                </option>
-              ))}
-            </select>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setEmployeeDropdownOpen(!employeeDropdownOpen)}
+                className={`${inputClass} text-left flex items-center justify-between`}
+              >
+                <span className={selectedEmployee ? 'text-white' : 'text-zinc-500'}>
+                  {selectedEmployee
+                    ? `${selectedEmployee.firstName} ${selectedEmployee.lastName} - ${selectedEmployee.taxCode}`
+                    : t('common.select')}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${employeeDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {employeeDropdownOpen && (
+                <div className="absolute z-50 mt-1 w-full bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl max-h-64 overflow-hidden">
+                  <div className="p-2 border-b border-zinc-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                      <input
+                        type="text"
+                        value={employeeSearch}
+                        onChange={(e) => setEmployeeSearch(e.target.value)}
+                        placeholder={t('common.search')}
+                        className="w-full pl-10 pr-8 py-2 bg-zinc-900 border border-zinc-600 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                        autoFocus
+                      />
+                      {employeeSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setEmployeeSearch('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-700 rounded"
+                        >
+                          <X className="w-3 h-3 text-zinc-400" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="overflow-y-auto max-h-48">
+                    {filteredEmployees.length === 0 ? (
+                      <div className="px-4 py-3 text-zinc-500 text-sm">{t('employees.noEmployees')}</div>
+                    ) : (
+                      filteredEmployees.map((emp) => (
+                        <button
+                          key={emp.id}
+                          type="button"
+                          onClick={() => handleEmployeeSelect(emp)}
+                          className={`w-full px-4 py-2.5 text-left hover:bg-zinc-700 flex items-center gap-3 transition-colors ${
+                            formData.employeeId === emp.id.toString() ? 'bg-emerald-500/10 text-emerald-400' : 'text-white'
+                          }`}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-purple-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{emp.firstName} {emp.lastName}</div>
+                            <div className="text-xs text-zinc-400">{emp.taxCode}</div>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {selectedEmployee && (
