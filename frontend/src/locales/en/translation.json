@@ -34,7 +34,10 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "confirmDelete": "Are you sure you want to delete?",
-    "calculating": "Calculating..."
+    "calculating": "Calculating...",
+    "description": "Description",
+    "amount": "Amount",
+    "refresh": "Refresh"
   },
   "nav": {
     "dashboard": "Dashboard",

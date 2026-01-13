@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { vatService, transactionService } from '../../services/api';
 import VatReturnWizard from '../../components/vat/VatReturnWizard';
 import Header from '../../components/layout/Header';
-import './Vat.css';
 
 const VatReturnNew = () => {
   const { t } = useTranslation();

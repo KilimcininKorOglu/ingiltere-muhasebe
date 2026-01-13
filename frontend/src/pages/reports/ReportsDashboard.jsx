@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { reportService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import '../transactions/Transactions.css';
-import './Reports.css';
 
 const ReportsDashboard = () => {
   const { t } = useTranslation();

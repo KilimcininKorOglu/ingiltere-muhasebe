@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import Header from '../../components/layout/Header';
 import { authService, taxRatesService } from '../../services/api';
 import api from '../../services/api';
-import '../transactions/Transactions.css';
-import './Settings.css';
 
 const Settings = () => {
   const { t, i18n } = useTranslation();

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { transactionService, categoryService, customerService, supplierService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import './Transactions.css';
 
 const TransactionForm = () => {
   const { t } = useTranslation();

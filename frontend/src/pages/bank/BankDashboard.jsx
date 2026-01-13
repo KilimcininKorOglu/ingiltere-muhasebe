@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { bankAccountService, bankTransactionService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import '../transactions/Transactions.css';
-import './Bank.css';
 
 const BankDashboard = () => {
   const { t } = useTranslation();

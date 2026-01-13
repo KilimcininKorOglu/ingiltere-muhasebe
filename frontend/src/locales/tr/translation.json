@@ -34,7 +34,10 @@
     "startDate": "Başlangıç Tarihi",
     "endDate": "Bitiş Tarihi",
     "confirmDelete": "Silmek istediğinizden emin misiniz?",
-    "calculating": "Hesaplanıyor..."
+    "calculating": "Hesaplanıyor...",
+    "description": "Açıklama",
+    "amount": "Tutar",
+    "refresh": "Yenile"
   },
   "nav": {
     "dashboard": "Panel",

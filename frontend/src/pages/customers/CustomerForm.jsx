@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { customerService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import '../transactions/Transactions.css';
 
 const CustomerForm = () => {
   const { t } = useTranslation();

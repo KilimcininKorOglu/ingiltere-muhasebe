@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { vatService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import '../transactions/Transactions.css';
-import './Vat.css';
 
 const VatReturns = () => {
   const { t } = useTranslation();

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { transactionService, categoryService } from '../../services/api';
 import Header from '../../components/layout/Header';
-import './Transactions.css';
 
 const TransactionList = () => {
   const { t } = useTranslation();
