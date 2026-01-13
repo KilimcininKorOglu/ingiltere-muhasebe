@@ -47,7 +47,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Input sanitization middleware - sanitize all inputs against XSS
 app.use(sanitizeInput({
-  skipFields: ['password', 'confirmPassword', 'currentPassword', 'newPassword']
+  skipFields: ['password', 'confirmPassword', 'currentPassword', 'newPassword', 'dateFormat']
 }));
 
 // Localization middleware - detect and set request locale

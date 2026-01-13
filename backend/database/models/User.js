@@ -201,6 +201,30 @@ const fieldDefinitions = {
       }
       return null;
     }
+  },
+  currency: {
+    type: 'string',
+    required: false,
+    default: 'GBP',
+    validate: (value) => {
+      const validCurrencies = ['GBP', 'EUR', 'USD'];
+      if (value && !validCurrencies.includes(value)) {
+        return `Invalid currency. Must be one of: ${validCurrencies.join(', ')}`;
+      }
+      return null;
+    }
+  },
+  dateFormat: {
+    type: 'string',
+    required: false,
+    default: 'DD/MM/YYYY',
+    validate: (value) => {
+      const validFormats = ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'];
+      if (value && !validFormats.includes(value)) {
+        return `Invalid date format. Must be one of: ${validFormats.join(', ')}`;
+      }
+      return null;
+    }
   }
 };
 
@@ -373,18 +397,20 @@ async function createUser(userData) {
       preferredLanguage: userData.preferredLanguage || 'en',
       invoicePrefix: userData.invoicePrefix?.trim().toUpperCase() || 'INV',
       nextInvoiceNumber: userData.nextInvoiceNumber || 1,
-      vatScheme: userData.vatScheme || 'standard'
+      vatScheme: userData.vatScheme || 'standard',
+      currency: userData.currency || 'GBP',
+      dateFormat: userData.dateFormat || 'DD/MM/YYYY'
     };
 
     const result = execute(`
       INSERT INTO users (
         email, passwordHash, name, businessName, businessAddress,
         vatNumber, isVatRegistered, companyNumber, taxYearStart, preferredLanguage,
-        invoicePrefix, nextInvoiceNumber, vatScheme
+        invoicePrefix, nextInvoiceNumber, vatScheme, currency, dateFormat
       ) VALUES (
         @email, @passwordHash, @name, @businessName, @businessAddress,
         @vatNumber, @isVatRegistered, @companyNumber, @taxYearStart, @preferredLanguage,
-        @invoicePrefix, @nextInvoiceNumber, @vatScheme
+        @invoicePrefix, @nextInvoiceNumber, @vatScheme, @currency, @dateFormat
       )
     `, insertData);
 
@@ -544,6 +570,16 @@ async function updateUser(id, userData) {
     if (userData.vatScheme !== undefined) {
       updateFields.push('vatScheme = @vatScheme');
       updateParams.vatScheme = userData.vatScheme || 'standard';
+    }
+
+    if (userData.currency !== undefined) {
+      updateFields.push('currency = @currency');
+      updateParams.currency = userData.currency || 'GBP';
+    }
+
+    if (userData.dateFormat !== undefined) {
+      updateFields.push('dateFormat = @dateFormat');
+      updateParams.dateFormat = userData.dateFormat || 'DD/MM/YYYY';
     }
 
     // Always update the updatedAt timestamp

@@ -118,7 +118,9 @@ async function updateProfile(req, res) {
       taxYearStart,
       preferredLanguage,
       invoicePrefix,
-      nextInvoiceNumber
+      nextInvoiceNumber,
+      currency,
+      dateFormat
     } = req.body;
 
     // Build update data object with only provided fields
@@ -156,6 +158,12 @@ async function updateProfile(req, res) {
     }
     if (nextInvoiceNumber !== undefined) {
       updateData.nextInvoiceNumber = nextInvoiceNumber;
+    }
+    if (currency !== undefined) {
+      updateData.currency = currency;
+    }
+    if (dateFormat !== undefined) {
+      updateData.dateFormat = dateFormat;
     }
 
     // Check if there are any fields to update

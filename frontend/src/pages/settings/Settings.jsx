@@ -12,8 +12,8 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({
     language: i18n.language || 'en',
-    currency: localStorage.getItem('currency') || 'GBP',
-    dateFormat: localStorage.getItem('dateFormat') || 'DD/MM/YYYY',
+    currency: 'GBP',
+    dateFormat: 'DD/MM/YYYY',
     vatScheme: 'standard',
     vatNumber: '',
     businessName: '',
@@ -34,6 +34,8 @@ const Settings = () => {
             businessAddress: user.businessAddress || '',
             vatNumber: user.vatNumber || '',
             vatScheme: user.vatScheme || 'standard',
+            currency: user.currency || 'GBP',
+            dateFormat: user.dateFormat || 'DD/MM/YYYY',
           }));
         }
       } catch (error) {
@@ -59,16 +61,13 @@ const Settings = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Save general settings to localStorage
-      localStorage.setItem('currency', settings.currency);
-      localStorage.setItem('dateFormat', settings.dateFormat);
-
-      // Save business settings to API
       await api.put('/users/me', {
         businessName: settings.businessName,
         businessAddress: settings.businessAddress,
         vatNumber: settings.vatNumber,
         vatScheme: settings.vatScheme,
+        currency: settings.currency,
+        dateFormat: settings.dateFormat,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

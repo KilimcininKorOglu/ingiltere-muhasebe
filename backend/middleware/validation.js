@@ -1451,7 +1451,9 @@ function validateProfileUpdate(req, res, next) {
     taxYearStart, 
     preferredLanguage,
     invoicePrefix,
-    nextInvoiceNumber
+    nextInvoiceNumber,
+    currency,
+    dateFormat
   } = req.body;
 
   // Name validation (optional on update, but if provided must be valid)
@@ -1669,6 +1671,42 @@ function validateProfileUpdate(req, res, next) {
         field: 'nextInvoiceNumber',
         message: 'Next invoice number must be at least 1',
         messageTr: 'Sonraki fatura numarası en az 1 olmalıdır'
+      });
+    }
+  }
+
+  // Currency validation (optional)
+  const VALID_CURRENCIES_PROFILE = ['GBP', 'EUR', 'USD'];
+  if (currency !== undefined && currency !== null && currency !== '') {
+    if (typeof currency !== 'string') {
+      errors.push({
+        field: 'currency',
+        message: 'Currency must be a string',
+        messageTr: 'Para birimi metin olmalıdır'
+      });
+    } else if (!VALID_CURRENCIES_PROFILE.includes(currency)) {
+      errors.push({
+        field: 'currency',
+        message: `Currency must be one of: ${VALID_CURRENCIES_PROFILE.join(', ')}`,
+        messageTr: `Para birimi şunlardan biri olmalıdır: ${VALID_CURRENCIES_PROFILE.join(', ')}`
+      });
+    }
+  }
+
+  // Date format validation (optional)
+  const VALID_DATE_FORMATS = ['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'];
+  if (dateFormat !== undefined && dateFormat !== null && dateFormat !== '') {
+    if (typeof dateFormat !== 'string') {
+      errors.push({
+        field: 'dateFormat',
+        message: 'Date format must be a string',
+        messageTr: 'Tarih formatı metin olmalıdır'
+      });
+    } else if (!VALID_DATE_FORMATS.includes(dateFormat)) {
+      errors.push({
+        field: 'dateFormat',
+        message: `Date format must be one of: ${VALID_DATE_FORMATS.join(', ')}`,
+        messageTr: `Tarih formatı şunlardan biri olmalıdır: ${VALID_DATE_FORMATS.join(', ')}`
       });
     }
   }
