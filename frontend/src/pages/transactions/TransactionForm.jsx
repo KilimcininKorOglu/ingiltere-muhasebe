@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { transactionService, categoryService, customerService, supplierService } from '../../services/api';
-import Header from '../../components/layout/Header';
+import {
+  ArrowLeft,
+  Save,
+  Loader2,
+  AlertCircle,
+  Calculator
+} from 'lucide-react';
 
 const TransactionForm = () => {
   const { t } = useTranslation();
@@ -130,48 +136,103 @@ const TransactionForm = () => {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <Header title={isEdit ? t('transactions.editTransaction') : t('transactions.addTransaction')} />
-        <div className="loading-state">
-          <div className="loading-spinner" />
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+        <p className="text-dark-400 text-sm">{t('common.loading')}</p>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <Header title={isEdit ? t('transactions.editTransaction') : t('transactions.addTransaction')} />
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center gap-4 pt-12 lg:pt-0">
+        <Link
+          to="/transactions"
+          className="p-2 rounded-lg bg-dark-800 border border-dark-700 text-dark-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft size={20} />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {isEdit ? t('transactions.editTransaction') : t('transactions.addTransaction')}
+          </h1>
+          <p className="text-dark-400 text-sm mt-1">
+            {isEdit ? t('transactions.editDesc') : t('transactions.addDesc')}
+          </p>
+        </div>
+      </div>
 
-      <div className="form-container">
-        <form onSubmit={handleSubmit} className="form">
-          {error && <div className="form-error">{error}</div>}
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="w-full">
+        {error && (
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
+        )}
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('transactions.type')}</label>
-              <select name="type" value={formData.type} onChange={handleChange} required>
-                <option value="income">{t('transactions.income')}</option>
-                <option value="expense">{t('transactions.expense')}</option>
-              </select>
+        <div className="glass-card p-6 space-y-6">
+          {/* Type & Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.type')}
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, type: 'income', categoryId: '' }))}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                    formData.type === 'income'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      : 'bg-dark-800 text-dark-400 border border-dark-700 hover:border-dark-600'
+                  }`}
+                >
+                  {t('transactions.income')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, type: 'expense', categoryId: '' }))}
+                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+                    formData.type === 'expense'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : 'bg-dark-800 text-dark-400 border border-dark-700 hover:border-dark-600'
+                  }`}
+                >
+                  {t('transactions.expense')}
+                </button>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>{t('common.date')}</label>
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('common.date')}
+              </label>
               <input
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
                 required
+                className="input-field w-full"
               />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('transactions.category')}</label>
-              <select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
+          {/* Category & Payment Method */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.category')}
+              </label>
+              <select
+                name="categoryId"
+                value={formData.categoryId}
+                onChange={handleChange}
+                required
+                className="input-field w-full"
+              >
                 <option value="">{t('common.select')}</option>
                 {filteredCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -181,9 +242,16 @@ const TransactionForm = () => {
               </select>
             </div>
 
-            <div className="form-group">
-              <label>{t('transactions.paymentMethod')}</label>
-              <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.paymentMethod')}
+              </label>
+              <select
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleChange}
+                className="input-field w-full"
+              >
                 <option value="bank_transfer">{t('transactions.bankTransfer')}</option>
                 <option value="cash">{t('transactions.cash')}</option>
                 <option value="card">{t('transactions.card')}</option>
@@ -193,8 +261,11 @@ const TransactionForm = () => {
             </div>
           </div>
 
-          <div className="form-group">
-            <label>{t('transactions.description')}</label>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">
+              {t('transactions.description')}
+            </label>
             <input
               type="text"
               name="description"
@@ -202,27 +273,42 @@ const TransactionForm = () => {
               onChange={handleChange}
               placeholder={t('transactions.descriptionPlaceholder')}
               required
+              className="input-field w-full"
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('transactions.amount')} (GBP)</label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                required
-              />
+          {/* Amount & VAT */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.amount')} (GBP)
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-500">£</span>
+                <input
+                  type="number"
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  required
+                  className="input-field w-full pl-8 font-mono"
+                />
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>{t('transactions.vatRate')}</label>
-              <select name="vatRate" value={formData.vatRate} onChange={handleChange}>
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.vatRate')}
+              </label>
+              <select
+                name="vatRate"
+                value={formData.vatRate}
+                onChange={handleChange}
+                className="input-field w-full"
+              >
                 <option value="0">0% - {t('vat.zeroRated')}</option>
                 <option value="5">5% - {t('vat.reducedRate')}</option>
                 <option value="20">20% - {t('vat.standardRate')}</option>
@@ -230,25 +316,44 @@ const TransactionForm = () => {
             </div>
           </div>
 
-          <div className="calculation-summary">
-            <div className="calc-row">
-              <span>{t('transactions.netAmount')}:</span>
-              <span>£{(parseFloat(formData.amount) || 0).toFixed(2)}</span>
+          {/* Calculation Summary */}
+          <div className="bg-dark-800/50 rounded-xl p-4 border border-dark-700">
+            <div className="flex items-center gap-2 mb-3">
+              <Calculator size={16} className="text-emerald-500" />
+              <span className="text-sm font-medium text-dark-300">{t('transactions.summary')}</span>
             </div>
-            <div className="calc-row">
-              <span>{t('transactions.vat')} ({formData.vatRate}%):</span>
-              <span>£{vatAmount.toFixed(2)}</span>
-            </div>
-            <div className="calc-row total">
-              <span>{t('transactions.total')}:</span>
-              <span>£{totalAmount.toFixed(2)}</span>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-dark-400">{t('transactions.netAmount')}</span>
+                <span className="text-dark-300 font-mono">£{(parseFloat(formData.amount) || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-dark-400">{t('transactions.vat')} ({formData.vatRate}%)</span>
+                <span className="text-dark-300 font-mono">£{vatAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm pt-2 border-t border-dark-700">
+                <span className="text-white font-medium">{t('transactions.total')}</span>
+                <span className={`font-mono font-bold ${
+                  formData.type === 'income' ? 'text-emerald-400' : 'text-red-400'
+                }`}>
+                  £{totalAmount.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
 
-          {formData.type === 'income' && (
-            <div className="form-group">
-              <label>{t('transactions.customer')}</label>
-              <select name="customerId" value={formData.customerId} onChange={handleChange}>
+          {/* Customer/Supplier */}
+          {formData.type === 'income' && customers.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.customer')}
+              </label>
+              <select
+                name="customerId"
+                value={formData.customerId}
+                onChange={handleChange}
+                className="input-field w-full"
+              >
                 <option value="">{t('common.none')}</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -257,10 +362,17 @@ const TransactionForm = () => {
             </div>
           )}
 
-          {formData.type === 'expense' && (
-            <div className="form-group">
-              <label>{t('transactions.supplier')}</label>
-              <select name="supplierId" value={formData.supplierId} onChange={handleChange}>
+          {formData.type === 'expense' && suppliers.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.supplier')}
+              </label>
+              <select
+                name="supplierId"
+                value={formData.supplierId}
+                onChange={handleChange}
+                className="input-field w-full"
+              >
                 <option value="">{t('common.none')}</option>
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
@@ -269,27 +381,45 @@ const TransactionForm = () => {
             </div>
           )}
 
-          <div className="form-group">
-            <label>{t('transactions.reference')}</label>
+          {/* Reference */}
+          <div>
+            <label className="block text-sm font-medium text-dark-300 mb-2">
+              {t('transactions.reference')}
+            </label>
             <input
               type="text"
               name="reference"
               value={formData.reference}
               onChange={handleChange}
               placeholder={t('transactions.referencePlaceholder')}
+              className="input-field w-full"
             />
           </div>
+        </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/transactions')}>
-              {t('common.cancel')}
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? t('common.saving') : t('common.save')}
-            </button>
-          </div>
-        </form>
-      </div>
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={() => navigate('/transactions')}
+            className="btn-secondary"
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary flex items-center gap-2"
+          >
+            {saving ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Save size={18} />
+            )}
+            {saving ? t('common.saving') : t('common.save')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

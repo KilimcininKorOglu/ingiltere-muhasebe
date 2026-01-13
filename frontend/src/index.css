@@ -160,6 +160,32 @@
     border-color: var(--color-dark-500);
   }
 
+  .input-field {
+    background: var(--color-dark-800);
+    border: 1px solid var(--color-dark-600);
+    border-radius: 10px;
+    padding: 0.625rem 0.875rem;
+    color: white;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+  }
+
+  .input-field::placeholder {
+    color: var(--color-dark-500);
+  }
+
+  .input-field:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .input-dark {
     background: var(--color-dark-800);
     border: 1px solid var(--color-dark-600);

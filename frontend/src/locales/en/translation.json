@@ -37,7 +37,10 @@
     "calculating": "Calculating...",
     "description": "Description",
     "amount": "Amount",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "filters": "Filters",
+    "showing": "Showing",
+    "of": "of"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -96,8 +99,11 @@
   },
   "transactions": {
     "title": "Transactions",
+    "subtitle": "{{count}} transactions total",
     "addTransaction": "Add Transaction",
     "editTransaction": "Edit Transaction",
+    "addDesc": "Create a new transaction record",
+    "editDesc": "Update transaction details",
     "description": "Description",
     "descriptionPlaceholder": "Enter transaction description",
     "category": "Category",
@@ -109,9 +115,11 @@
     "vat": "VAT",
     "vatRate": "VAT Rate",
     "total": "Total",
+    "summary": "Summary",
     "allTypes": "All Types",
     "allCategories": "All Categories",
     "noTransactions": "No transactions found",
+    "noTransactionsDesc": "Start tracking your income and expenses",
     "addFirst": "Add your first transaction",
     "paymentMethod": "Payment Method",
     "bankTransfer": "Bank Transfer",

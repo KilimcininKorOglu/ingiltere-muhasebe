@@ -37,7 +37,10 @@
     "calculating": "Hesaplanıyor...",
     "description": "Açıklama",
     "amount": "Tutar",
-    "refresh": "Yenile"
+    "refresh": "Yenile",
+    "filters": "Filtreler",
+    "showing": "Gösterilen",
+    "of": "/"
   },
   "nav": {
     "dashboard": "Panel",
@@ -96,8 +99,11 @@
   },
   "transactions": {
     "title": "İşlemler",
+    "subtitle": "Toplam {{count}} işlem",
     "addTransaction": "İşlem Ekle",
     "editTransaction": "İşlem Düzenle",
+    "addDesc": "Yeni işlem kaydı oluştur",
+    "editDesc": "İşlem detaylarını güncelle",
     "description": "Açıklama",
     "descriptionPlaceholder": "İşlem açıklamasını girin",
     "category": "Kategori",
@@ -109,9 +115,11 @@
     "vat": "KDV",
     "vatRate": "KDV Oranı",
     "total": "Toplam",
+    "summary": "Özet",
     "allTypes": "Tüm Türler",
     "allCategories": "Tüm Kategoriler",
     "noTransactions": "İşlem bulunamadı",
+    "noTransactionsDesc": "Gelir ve giderlerinizi takip etmeye başlayın",
     "addFirst": "İlk işleminizi ekleyin",
     "paymentMethod": "Ödeme Yöntemi",
     "bankTransfer": "Banka Transferi",
