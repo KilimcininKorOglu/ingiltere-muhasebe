@@ -259,6 +259,101 @@ const Settings = () => {
     );
   };
 
+  // Tax rate descriptions for tooltips
+  const rateDescriptions = {
+    vat: {
+      registration: {
+        tr: 'Son 12 ayda bu tutarı aşan ciroya sahip işletmeler KDV kaydı yaptırmalıdır',
+        en: 'Businesses with turnover exceeding this amount in the last 12 months must register for VAT'
+      },
+      deregistration: {
+        tr: 'Cironuz bu tutarın altına düşerse KDV kaydınızı iptal ettirebilirsiniz',
+        en: 'You can deregister for VAT if your turnover falls below this amount'
+      },
+      standard: {
+        tr: 'Çoğu mal ve hizmet için uygulanan standart KDV oranı',
+        en: 'Standard VAT rate applied to most goods and services'
+      },
+      reduced: {
+        tr: 'Ev enerjisi, çocuk araba koltukları vb. için indirimli oran',
+        en: 'Reduced rate for home energy, child car seats, etc.'
+      },
+      zero: {
+        tr: 'Gıda, kitap, çocuk giysileri vb. için sıfır oran',
+        en: 'Zero rate for food, books, children\'s clothing, etc.'
+      }
+    },
+    income_tax: {
+      personal_allowance: {
+        tr: 'Yıllık gelirin bu tutarına kadar vergi ödenmez',
+        en: 'No tax is paid on annual income up to this amount'
+      },
+      basic: {
+        tr: 'Kişisel ödenek sonrası £37,700\'e kadar gelire uygulanan oran',
+        en: 'Rate applied to income up to £37,700 after personal allowance'
+      },
+      higher: {
+        tr: '£37,701 - £125,140 arası gelire uygulanan oran',
+        en: 'Rate applied to income between £37,701 and £125,140'
+      },
+      additional: {
+        tr: '£125,140 üzeri gelire uygulanan en yüksek oran',
+        en: 'Highest rate applied to income over £125,140'
+      }
+    },
+    national_insurance: {
+      primary_threshold: {
+        tr: 'Çalışan NI katkı payı bu eşiğin üzerindeki kazançlardan başlar',
+        en: 'Employee NI contributions start on earnings above this threshold'
+      },
+      upper_earnings_limit: {
+        tr: 'Bu limitin üzerinde daha düşük NI oranı uygulanır',
+        en: 'A lower NI rate applies above this limit'
+      },
+      employee_main: {
+        tr: 'Birincil eşik ile üst kazanç limiti arasındaki kazançlara uygulanan çalışan NI oranı',
+        en: 'Employee NI rate on earnings between primary threshold and upper earnings limit'
+      },
+      employer: {
+        tr: 'İkincil eşik üzerindeki kazançlara uygulanan işveren NI oranı',
+        en: 'Employer NI rate on earnings above secondary threshold'
+      }
+    },
+    corporation_tax: {
+      small_profits: {
+        tr: '£50,000\'a kadar kârlara uygulanan küçük işletme oranı',
+        en: 'Small business rate applied to profits up to £50,000'
+      },
+      small_profits_limit: {
+        tr: 'Bu tutara kadar kârlar küçük kâr oranından vergilendirilir',
+        en: 'Profits up to this amount are taxed at the small profits rate'
+      },
+      main: {
+        tr: '£250,000 üzeri kârlara uygulanan ana kurumlar vergisi oranı',
+        en: 'Main corporation tax rate applied to profits over £250,000'
+      }
+    }
+  };
+
+  // Get description for a rate
+  const getRateDescription = (category, name) => {
+    const lang = i18n.language;
+    return rateDescriptions[category]?.[name]?.[lang] || rateDescriptions[category]?.[name]?.['en'] || '';
+  };
+
+  // Render rate name with tooltip
+  const renderRateName = (label, category, name) => {
+    const description = getRateDescription(category, name);
+    return (
+      <td className="rate-name-cell">
+        <span className="rate-name">{label}</span>
+        {description && (
+          <span className="rate-info" title={description}>ⓘ</span>
+        )}
+      </td>
+    );
+  };
+
   // Generate next tax year string (e.g., "2025-26" -> "2026-27")
   const getNextTaxYear = () => {
     if (taxYears.length === 0) return '2025-26';
@@ -536,23 +631,23 @@ const Settings = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{t('settings.rateRegistration')}</td>
+                        {renderRateName(t('settings.rateRegistration'), 'vat', 'registration')}
                         {renderEditableCell(getRawRate('vat', 'registration', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateDeregistration')}</td>
+                        {renderRateName(t('settings.rateDeregistration'), 'vat', 'deregistration')}
                         {renderEditableCell(getRawRate('vat', 'deregistration', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateStandard')}</td>
+                        {renderRateName(t('settings.rateStandard'), 'vat', 'standard')}
                         {renderEditableCell(getRawRate('vat', 'standard', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateReduced')}</td>
+                        {renderRateName(t('settings.rateReduced'), 'vat', 'reduced')}
                         {renderEditableCell(getRawRate('vat', 'reduced', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateZero')}</td>
+                        {renderRateName(t('settings.rateZero'), 'vat', 'zero')}
                         {renderEditableCell(getRawRate('vat', 'zero', 'rate'), '', '%')}
                       </tr>
                     </tbody>
@@ -572,19 +667,19 @@ const Settings = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{t('settings.ratePersonalAllowance')}</td>
+                        {renderRateName(t('settings.ratePersonalAllowance'), 'income_tax', 'personal_allowance')}
                         {renderEditableCell(getRawRate('income_tax', 'personal_allowance', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateBasic')}</td>
+                        {renderRateName(t('settings.rateBasic'), 'income_tax', 'basic')}
                         {renderEditableCell(getRawRate('income_tax', 'basic', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateHigher')}</td>
+                        {renderRateName(t('settings.rateHigher'), 'income_tax', 'higher')}
                         {renderEditableCell(getRawRate('income_tax', 'higher', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateAdditional')}</td>
+                        {renderRateName(t('settings.rateAdditional'), 'income_tax', 'additional')}
                         {renderEditableCell(getRawRate('income_tax', 'additional', 'rate'), '', '%')}
                       </tr>
                     </tbody>
@@ -604,19 +699,19 @@ const Settings = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{t('settings.ratePrimaryThreshold')}</td>
+                        {renderRateName(t('settings.ratePrimaryThreshold'), 'national_insurance', 'primary_threshold')}
                         {renderEditableCell(getRawRate('national_insurance', 'primary_threshold', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateUpperEarnings')}</td>
+                        {renderRateName(t('settings.rateUpperEarnings'), 'national_insurance', 'upper_earnings_limit')}
                         {renderEditableCell(getRawRate('national_insurance', 'upper_earnings_limit', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateEmployeeMain')}</td>
+                        {renderRateName(t('settings.rateEmployeeMain'), 'national_insurance', 'employee_main')}
                         {renderEditableCell(getRawRate('national_insurance', 'employee_main', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateEmployer')}</td>
+                        {renderRateName(t('settings.rateEmployer'), 'national_insurance', 'employer')}
                         {renderEditableCell(getRawRate('national_insurance', 'employer', 'rate'), '', '%')}
                       </tr>
                     </tbody>
@@ -636,15 +731,15 @@ const Settings = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>{t('settings.rateSmallProfits')}</td>
+                        {renderRateName(t('settings.rateSmallProfits'), 'corporation_tax', 'small_profits')}
                         {renderEditableCell(getRawRate('corporation_tax', 'small_profits', 'rate'), '', '%')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateSmallProfitsLimit')}</td>
+                        {renderRateName(t('settings.rateSmallProfitsLimit'), 'corporation_tax', 'small_profits_limit')}
                         {renderEditableCell(getRawRate('corporation_tax', 'small_profits_limit', 'threshold'), '£', '')}
                       </tr>
                       <tr>
-                        <td>{t('settings.rateMain')}</td>
+                        {renderRateName(t('settings.rateMain'), 'corporation_tax', 'main')}
                         {renderEditableCell(getRawRate('corporation_tax', 'main', 'rate'), '', '%')}
                       </tr>
                     </tbody>
