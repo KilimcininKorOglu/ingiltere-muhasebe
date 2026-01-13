@@ -19,7 +19,8 @@ const BankDashboard = () => {
     try {
       setLoading(true);
       const response = await bankAccountService.getAll();
-      setAccounts(response.data?.data || response.data || []);
+      const data = response.data?.data || response.data || {};
+      setAccounts(data.bankAccounts || []);
     } catch (err) {
       console.error('Failed to fetch bank accounts:', err);
     } finally {

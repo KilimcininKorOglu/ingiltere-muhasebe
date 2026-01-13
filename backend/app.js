@@ -28,6 +28,8 @@ const payrollRoutes = require('./routes/payroll');
 const reportsRoutes = require('./routes/reports');
 const vatRoutes = require('./routes/vat');
 const dashboardRoutes = require('./routes/dashboard');
+const bankAccountsRoutes = require('./routes/bankAccounts');
+const bankTransactionsRoutes = require('./routes/bankTransactions');
 
 // Initialize Express app
 const app = express();
@@ -237,6 +239,8 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/vat', vatRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/bank-accounts', bankAccountsRoutes);
+app.use('/api/bank-transactions', bankTransactionsRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
