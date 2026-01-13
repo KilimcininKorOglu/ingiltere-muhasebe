@@ -27,6 +27,9 @@ const Settings = () => {
   const [selectedTaxYear, setSelectedTaxYear] = useState('');
   const [editingRate, setEditingRate] = useState(null);
   const [editValue, setEditValue] = useState('');
+  const [showAddYearModal, setShowAddYearModal] = useState(false);
+  const [newYearData, setNewYearData] = useState({ fromYear: '', toYear: '', effectiveFrom: '', effectiveTo: '' });
+  const [addingYear, setAddingYear] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -256,6 +259,65 @@ const Settings = () => {
     );
   };
 
+  // Generate next tax year string (e.g., "2025-26" -> "2026-27")
+  const getNextTaxYear = () => {
+    if (taxYears.length === 0) return '2025-26';
+    const lastYear = taxYears[0]; // Already sorted descending
+    const [startYear] = lastYear.split('-').map(Number);
+    const nextStart = startYear + 1;
+    const nextEnd = (nextStart + 1) % 100;
+    return `${nextStart}-${nextEnd.toString().padStart(2, '0')}`;
+  };
+
+  // Open add year modal with defaults
+  const openAddYearModal = () => {
+    const nextYear = getNextTaxYear();
+    const [startYear] = nextYear.split('-').map(Number);
+    setNewYearData({
+      fromYear: taxYears[0] || '2024-25',
+      toYear: nextYear,
+      effectiveFrom: `${startYear}-04-06`,
+      effectiveTo: `${startYear + 1}-04-05`
+    });
+    setShowAddYearModal(true);
+  };
+
+  // Add new tax year by copying from existing
+  const handleAddTaxYear = async () => {
+    if (!newYearData.fromYear || !newYearData.toYear || !newYearData.effectiveFrom) {
+      alert(i18n.language === 'tr' ? 'Tüm alanları doldurunuz' : 'Please fill all fields');
+      return;
+    }
+
+    if (taxYears.includes(newYearData.toYear)) {
+      alert(i18n.language === 'tr' ? 'Bu vergi yılı zaten mevcut' : 'This tax year already exists');
+      return;
+    }
+
+    setAddingYear(true);
+    try {
+      await taxRatesService.copyYear({
+        fromYear: newYearData.fromYear,
+        toYear: newYearData.toYear,
+        effectiveFrom: newYearData.effectiveFrom,
+        effectiveTo: newYearData.effectiveTo
+      });
+
+      // Refresh tax years
+      const yearsRes = await taxRatesService.getYears();
+      const taxYearsData = yearsRes.data?.data?.taxYears || [];
+      setTaxYears(taxYearsData);
+      setSelectedTaxYear(newYearData.toYear);
+      setShowAddYearModal(false);
+    } catch (error) {
+      console.error('Failed to add tax year:', error);
+      alert((i18n.language === 'tr' ? 'Vergi yılı eklenemedi: ' : 'Failed to add tax year: ') + 
+        (error.response?.data?.error?.message || error.message));
+    } finally {
+      setAddingYear(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSettings((prev) => ({ ...prev, [name]: value }));
@@ -441,16 +503,25 @@ const Settings = () => {
               <h2>{t('settings.taxRates')}</h2>
               <p className="section-description">{t('settings.taxRatesDesc')}</p>
 
-              <div className="form-group">
+              <div className="form-group tax-year-selector">
                 <label>{t('settings.taxYear')}</label>
-                <select
-                  value={selectedTaxYear}
-                  onChange={(e) => setSelectedTaxYear(e.target.value)}
-                >
-                  {taxYears.map((year) => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
+                <div className="tax-year-controls">
+                  <select
+                    value={selectedTaxYear}
+                    onChange={(e) => setSelectedTaxYear(e.target.value)}
+                  >
+                    {taxYears.map((year) => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary btn-add-year"
+                    onClick={openAddYearModal}
+                  >
+                    + {i18n.language === 'tr' ? 'Yeni Yıl' : 'New Year'}
+                  </button>
+                </div>
               </div>
 
               {taxRates.vat && (
@@ -597,6 +668,74 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {showAddYearModal && (
+        <div className="modal-overlay" onClick={() => setShowAddYearModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>{i18n.language === 'tr' ? 'Yeni Vergi Yılı Ekle' : 'Add New Tax Year'}</h3>
+            
+            <div className="form-group">
+              <label>{i18n.language === 'tr' ? 'Kopyalanacak Yıl' : 'Copy From Year'}</label>
+              <select 
+                value={newYearData.fromYear}
+                onChange={(e) => setNewYearData(prev => ({ ...prev, fromYear: e.target.value }))}
+              >
+                {taxYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{i18n.language === 'tr' ? 'Yeni Vergi Yılı' : 'New Tax Year'}</label>
+              <input
+                type="text"
+                value={newYearData.toYear}
+                onChange={(e) => setNewYearData(prev => ({ ...prev, toYear: e.target.value }))}
+                placeholder="2026-27"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{i18n.language === 'tr' ? 'Başlangıç Tarihi' : 'Effective From'}</label>
+              <input
+                type="date"
+                value={newYearData.effectiveFrom}
+                onChange={(e) => setNewYearData(prev => ({ ...prev, effectiveFrom: e.target.value }))}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{i18n.language === 'tr' ? 'Bitiş Tarihi' : 'Effective To'}</label>
+              <input
+                type="date"
+                value={newYearData.effectiveTo}
+                onChange={(e) => setNewYearData(prev => ({ ...prev, effectiveTo: e.target.value }))}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                type="button" 
+                className="btn btn-secondary"
+                onClick={() => setShowAddYearModal(false)}
+              >
+                {i18n.language === 'tr' ? 'İptal' : 'Cancel'}
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={handleAddTaxYear}
+                disabled={addingYear}
+              >
+                {addingYear 
+                  ? (i18n.language === 'tr' ? 'Ekleniyor...' : 'Adding...') 
+                  : (i18n.language === 'tr' ? 'Ekle' : 'Add')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
