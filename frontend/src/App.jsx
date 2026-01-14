@@ -26,6 +26,7 @@ import VatReturnDetail from './pages/vat/VatReturnDetail';
 import ReportsDashboard from './pages/reports/ReportsDashboard';
 import BankDashboard from './pages/bank/BankDashboard';
 import BankAccountForm from './pages/bank/BankAccountForm';
+import BankTransactions from './pages/bank/BankTransactions';
 import Settings from './pages/settings/Settings';
 
 import './i18n';
@@ -89,7 +90,7 @@ const App = () => {
               <Route path="bank" element={<BankDashboard />} />
               <Route path="bank/accounts/new" element={<BankAccountForm />} />
               <Route path="bank/accounts/:id/edit" element={<BankAccountForm />} />
-              <Route path="bank/accounts/:id/transactions" element={<BankDashboard />} />
+              <Route path="bank/accounts/:id/transactions" element={<BankTransactions />} />
               <Route path="bank/accounts/:id/reconcile" element={<BankDashboard />} />
               
               <Route path="settings" element={<Settings />} />

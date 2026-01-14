@@ -144,6 +144,7 @@ export const bankAccountService = {
   create: (data) => api.post('/bank-accounts', data),
   update: (id, data) => api.put(`/bank-accounts/${id}`, data),
   delete: (id) => api.delete(`/bank-accounts/${id}`),
+  getTransactions: (id, params) => api.get(`/bank-accounts/${id}/transactions`, { params }),
 };
 
 export const bankTransactionService = {

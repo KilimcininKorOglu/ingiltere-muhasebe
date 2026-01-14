@@ -387,7 +387,15 @@
     "editAccountSubtitle": "Edit bank account details",
     "addAccountSubtitle": "Add a new bank account",
     "fillRequired": "Please fill in all required fields",
-    "currency": "Currency"
+    "currency": "Currency",
+    "noTransactions": "No transactions found",
+    "description": "Description",
+    "reference": "Reference",
+    "amount": "Amount",
+    "runningBalance": "Balance",
+    "status": "Status",
+    "reconciled": "Reconciled",
+    "pending": "Pending"
   },
   "settings": {
     "title": "Settings",

@@ -387,7 +387,15 @@
     "editAccountSubtitle": "Banka hesabı bilgilerini düzenleyin",
     "addAccountSubtitle": "Yeni banka hesabı ekleyin",
     "fillRequired": "Lütfen tüm zorunlu alanları doldurun",
-    "currency": "Para Birimi"
+    "currency": "Para Birimi",
+    "noTransactions": "İşlem bulunamadı",
+    "description": "Açıklama",
+    "reference": "Referans",
+    "amount": "Tutar",
+    "runningBalance": "Bakiye",
+    "status": "Durum",
+    "reconciled": "Mutabık",
+    "pending": "Beklemede"
   },
   "settings": {
     "title": "Ayarlar",
