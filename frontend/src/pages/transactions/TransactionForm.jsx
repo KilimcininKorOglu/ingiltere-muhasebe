@@ -140,6 +140,10 @@ const TransactionForm = () => {
     (cat) => cat.type === formData.type
   );
 
+  const selectedBankAccount = bankAccounts.find(acc => acc.id?.toString() === formData.bankAccountId);
+  const currency = selectedBankAccount?.currency || 'GBP';
+  const currencySymbol = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' }[currency] || currency;
+
   const vatAmount = (parseFloat(formData.amount) || 0) * (parseFloat(formData.vatRate) / 100);
   const totalAmount = (parseFloat(formData.amount) || 0) + vatAmount;
 
@@ -312,10 +316,10 @@ const TransactionForm = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-dark-300 mb-2">
-                {t('transactions.amount')} (GBP)
+                {t('transactions.amount')} ({currency})
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-500">£</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-500">{currencySymbol}</span>
                 <input
                   type="number"
                   name="amount"
@@ -356,18 +360,18 @@ const TransactionForm = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-dark-400">{t('transactions.netAmount')}</span>
-                <span className="text-dark-300 font-mono">£{(parseFloat(formData.amount) || 0).toFixed(2)}</span>
+                <span className="text-dark-300 font-mono">{currencySymbol}{(parseFloat(formData.amount) || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-dark-400">{t('transactions.vat')} ({formData.vatRate}%)</span>
-                <span className="text-dark-300 font-mono">£{vatAmount.toFixed(2)}</span>
+                <span className="text-dark-300 font-mono">{currencySymbol}{vatAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm pt-2 border-t border-dark-700">
                 <span className="text-white font-medium">{t('transactions.total')}</span>
                 <span className={`font-mono font-bold ${
                   formData.type === 'income' ? 'text-emerald-400' : 'text-red-400'
                 }`}>
-                  £{totalAmount.toFixed(2)}
+                  {currencySymbol}{totalAmount.toFixed(2)}
                 </span>
               </div>
             </div>
