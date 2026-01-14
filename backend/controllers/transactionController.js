@@ -65,7 +65,8 @@ async function create(req, res) {
       notes,
       isRecurring,
       recurringFrequency,
-      linkedTransactionId
+      linkedTransactionId,
+      bankAccountId
     } = req.body;
 
     // Validate category if provided
@@ -152,7 +153,8 @@ async function create(req, res) {
       notes: notes || null,
       isRecurring: isRecurring || false,
       recurringFrequency: recurringFrequency || null,
-      linkedTransactionId: linkedTransactionId || null
+      linkedTransactionId: linkedTransactionId || null,
+      bankAccountId: bankAccountId || null
     };
 
     // Create the transaction
@@ -377,7 +379,8 @@ async function update(req, res) {
       notes,
       isRecurring,
       recurringFrequency,
-      linkedTransactionId
+      linkedTransactionId,
+      bankAccountId
     } = req.body;
 
     // Validate category type if both categoryId and type are being updated
@@ -446,6 +449,7 @@ async function update(req, res) {
     if (isRecurring !== undefined) updateData.isRecurring = isRecurring;
     if (recurringFrequency !== undefined) updateData.recurringFrequency = recurringFrequency;
     if (linkedTransactionId !== undefined) updateData.linkedTransactionId = linkedTransactionId;
+    if (bankAccountId !== undefined) updateData.bankAccountId = bankAccountId;
 
     // Recalculate VAT if amount or vatRate changed but vatAmount/totalAmount weren't provided
     if ((amount !== undefined || vatRate !== undefined) && 

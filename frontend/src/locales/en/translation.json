@@ -132,7 +132,9 @@
     "customer": "Customer",
     "supplier": "Supplier",
     "reference": "Reference",
-    "referencePlaceholder": "Invoice or reference number"
+    "referencePlaceholder": "Invoice or reference number",
+    "bankAccount": "Bank Account",
+    "selectBankAccount": "Select bank account"
   },
   "invoices": {
     "title": "Invoices",

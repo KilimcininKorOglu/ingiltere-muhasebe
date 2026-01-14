@@ -220,6 +220,16 @@ const fieldDefinitions = {
       }
       return null;
     }
+  },
+  bankAccountId: {
+    type: 'number',
+    required: false,
+    validate: (value) => {
+      if (value !== null && value !== undefined && (!Number.isInteger(value) || value <= 0)) {
+        return 'bankAccountId must be a positive integer or null';
+      }
+      return null;
+    }
   }
 };
 
@@ -409,7 +419,8 @@ function createTransaction(transactionData) {
       notes: transactionData.notes?.trim() || null,
       isRecurring: transactionData.isRecurring ? 1 : 0,
       recurringFrequency: transactionData.recurringFrequency || null,
-      linkedTransactionId: transactionData.linkedTransactionId || null
+      linkedTransactionId: transactionData.linkedTransactionId || null,
+      bankAccountId: transactionData.bankAccountId || null
     };
 
     const result = execute(`
@@ -417,12 +428,12 @@ function createTransaction(transactionData) {
         userId, categoryId, type, status, transactionDate,
         description, reference, amount, vatAmount, totalAmount,
         vatRate, currency, paymentMethod, payee, receiptPath,
-        notes, isRecurring, recurringFrequency, linkedTransactionId
+        notes, isRecurring, recurringFrequency, linkedTransactionId, bankAccountId
       ) VALUES (
         @userId, @categoryId, @type, @status, @transactionDate,
         @description, @reference, @amount, @vatAmount, @totalAmount,
         @vatRate, @currency, @paymentMethod, @payee, @receiptPath,
-        @notes, @isRecurring, @recurringFrequency, @linkedTransactionId
+        @notes, @isRecurring, @recurringFrequency, @linkedTransactionId, @bankAccountId
       )
     `, insertData);
 
@@ -728,6 +739,11 @@ function updateTransaction(id, transactionData) {
     if (transactionData.linkedTransactionId !== undefined) {
       updateFields.push('linkedTransactionId = @linkedTransactionId');
       updateParams.linkedTransactionId = transactionData.linkedTransactionId || null;
+    }
+
+    if (transactionData.bankAccountId !== undefined) {
+      updateFields.push('bankAccountId = @bankAccountId');
+      updateParams.bankAccountId = transactionData.bankAccountId || null;
     }
 
     // Always update the updatedAt timestamp

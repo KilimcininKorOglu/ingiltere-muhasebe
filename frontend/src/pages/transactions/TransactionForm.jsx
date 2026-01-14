@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { transactionService, categoryService, customerService, supplierService } from '../../services/api';
+import { transactionService, categoryService, customerService, supplierService, bankAccountService } from '../../services/api';
 import {
   ArrowLeft,
   Save,
@@ -22,6 +22,7 @@ const TransactionForm = () => {
   const [categories, setCategories] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [bankAccounts, setBankAccounts] = useState([]);
 
   const [formData, setFormData] = useState({
     type: 'expense',
@@ -34,6 +35,7 @@ const TransactionForm = () => {
     supplierId: '',
     paymentMethod: 'bank_transfer',
     reference: '',
+    bankAccountId: '',
   });
 
   useEffect(() => {
@@ -44,19 +46,22 @@ const TransactionForm = () => {
   const fetchFormData = async () => {
     setLoading(true);
     try {
-      const [catRes, custRes, suppRes] = await Promise.all([
+      const [catRes, custRes, suppRes, bankRes] = await Promise.all([
         categoryService.getAll(),
         customerService.getAll().catch(() => ({ data: { data: [] } })),
         supplierService.getAll().catch(() => ({ data: { data: [] } })),
+        bankAccountService.getAll().catch(() => ({ data: { data: [] } })),
       ]);
 
       const catData = catRes.data?.data?.categories || catRes.data?.data || catRes.data;
       const custData = custRes.data?.data?.customers || custRes.data?.data || custRes.data;
       const suppData = suppRes.data?.data?.suppliers || suppRes.data?.data || suppRes.data;
+      const bankData = bankRes.data?.data?.bankAccounts || bankRes.data?.data || bankRes.data;
 
       setCategories(Array.isArray(catData) ? catData : []);
       setCustomers(Array.isArray(custData) ? custData : []);
       setSuppliers(Array.isArray(suppData) ? suppData : []);
+      setBankAccounts(Array.isArray(bankData) ? bankData : []);
 
       if (isEdit) {
         const txRes = await transactionService.getById(id);
@@ -72,6 +77,7 @@ const TransactionForm = () => {
           supplierId: tx.supplierId?.toString() || '',
           paymentMethod: tx.paymentMethod || 'bank_transfer',
           reference: tx.reference || '',
+          bankAccountId: tx.bankAccountId?.toString() || '',
         });
       }
     } catch (err) {
@@ -111,6 +117,9 @@ const TransactionForm = () => {
       }
       if (formData.supplierId) {
         payload.supplierId = parseInt(formData.supplierId);
+      }
+      if (formData.bankAccountId) {
+        payload.bankAccountId = parseInt(formData.bankAccountId);
       }
 
       if (isEdit) {
@@ -260,6 +269,28 @@ const TransactionForm = () => {
               </select>
             </div>
           </div>
+
+          {/* Bank Account - show when payment method is bank_transfer */}
+          {formData.paymentMethod === 'bank_transfer' && bankAccounts.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-dark-300 mb-2">
+                {t('transactions.bankAccount')}
+              </label>
+              <select
+                name="bankAccountId"
+                value={formData.bankAccountId}
+                onChange={handleChange}
+                className="input-field w-full"
+              >
+                <option value="">{t('transactions.selectBankAccount')}</option>
+                {bankAccounts.map((acc) => (
+                  <option key={acc.id} value={acc.id}>
+                    {acc.bankName} - {acc.accountName} ({acc.currency})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Description */}
           <div>

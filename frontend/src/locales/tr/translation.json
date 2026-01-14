@@ -132,7 +132,9 @@
     "customer": "Müşteri",
     "supplier": "Tedarikçi",
     "reference": "Referans",
-    "referencePlaceholder": "Fatura veya referans numarası"
+    "referencePlaceholder": "Fatura veya referans numarası",
+    "bankAccount": "Banka Hesabı",
+    "selectBankAccount": "Banka hesabı seçin"
   },
   "invoices": {
     "title": "Faturalar",
