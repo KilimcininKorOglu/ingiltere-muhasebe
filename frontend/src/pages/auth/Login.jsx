@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { Mail, Lock, LogIn, Loader2, AlertCircle } from 'lucide-react';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -41,63 +42,104 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1 className="auth-title">UK Accounting</h1>
-          <p className="auth-subtitle">{t('auth.loginTitle')}</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          {(error || authError) && (
-            <div className="auth-error">
-              {error || authError}
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="glass-card p-8">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 mb-4">
+              <span className="text-2xl font-bold text-white">£</span>
             </div>
-          )}
-
-          <div className="form-group">
-            <label htmlFor="email">{t('auth.email')}</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder={t('auth.emailPlaceholder')}
-              required
-              autoComplete="email"
-            />
+            <h1 className="text-2xl font-bold text-white mb-2">UK Accounting</h1>
+            <p className="text-dark-400">{t('auth.loginTitle')}</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">{t('auth.password')}</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder={t('auth.passwordPlaceholder')}
-              required
-              autoComplete="current-password"
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {(error || authError) && (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-400">{error || authError}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-dark-300">
+                {t('auth.email')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-dark-500" />
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder={t('auth.emailPlaceholder')}
+                  required
+                  autoComplete="email"
+                  className="input-field pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-dark-300">
+                {t('auth.password')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-dark-500" />
+                </div>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  required
+                  autoComplete="current-password"
+                  className="input-field pl-10"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full flex items-center justify-center gap-2 py-3"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  {t('common.loading')}
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-5 h-5" />
+                  {t('auth.login')}
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-dark-400">
+              {t('auth.noAccount')}{' '}
+              <Link 
+                to="/register" 
+                className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+              >
+                {t('auth.register')}
+              </Link>
+            </p>
           </div>
-
-          <button
-            type="submit"
-            className="auth-button"
-            disabled={loading}
-          >
-            {loading ? t('common.loading') : t('auth.login')}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <p>
-            {t('auth.noAccount')}{' '}
-            <Link to="/register">{t('auth.register')}</Link>
-          </p>
         </div>
+
+        <p className="mt-8 text-center text-sm text-dark-500">
+          &copy; {new Date().getFullYear()} UK Accounting. All rights reserved.
+        </p>
       </div>
     </div>
   );
