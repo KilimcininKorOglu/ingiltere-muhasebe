@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { bankAccountService } from '../../services/api';
 import { ArrowLeft, Building2, CreditCard, Wallet, Loader2, AlertCircle } from 'lucide-react';
 
 const BankAccountForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
@@ -26,6 +30,35 @@ const BankAccountForm = () => {
     { code: 'USD', symbol: '$', name: 'US Dollar' },
     { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
   ];
+
+  useEffect(() => {
+    if (isEditMode) {
+      fetchAccount();
+    }
+  }, [id]);
+
+  const fetchAccount = async () => {
+    try {
+      setLoading(true);
+      const response = await bankAccountService.getById(id);
+      const account = response.data?.data?.bankAccount || response.data?.bankAccount || response.data;
+      if (account) {
+        setFormData({
+          bankName: account.bankName || '',
+          accountName: account.accountName || '',
+          accountNumber: account.accountNumber || '',
+          sortCode: account.sortCode || '',
+          accountType: account.accountType || 'current',
+          currency: account.currency || 'GBP',
+          balance: ((account.currentBalance || account.openingBalance || 0) / 100).toString(),
+        });
+      }
+    } catch (err) {
+      setError(err.response?.data?.error?.message?.en || err.response?.data?.error?.message || t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,10 +79,17 @@ const BankAccountForm = () => {
 
     try {
       const { balance, ...rest } = formData;
-      await bankAccountService.create({
+      const balanceInPence = Math.round(parseFloat(balance || 0) * 100);
+      const payload = {
         ...rest,
-        openingBalance: Math.round(parseFloat(balance || 0) * 100),
-      });
+        ...(isEditMode ? { currentBalance: balanceInPence } : { openingBalance: balanceInPence }),
+      };
+
+      if (isEditMode) {
+        await bankAccountService.update(id, payload);
+      } else {
+        await bankAccountService.create(payload);
+      }
       navigate('/bank');
     } catch (err) {
       setError(err.response?.data?.error?.message?.en || err.response?.data?.error?.message || t('common.error'));
@@ -60,6 +100,14 @@ const BankAccountForm = () => {
 
   const inputClass = "w-full px-4 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent";
   const labelClass = "block text-sm font-medium text-zinc-300 mb-1.5";
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -72,8 +120,12 @@ const BankAccountForm = () => {
           <ArrowLeft className="w-5 h-5 text-zinc-400" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-white">{t('bank.addAccount')}</h1>
-          <p className="text-zinc-400 text-sm mt-1">{t('bank.addAccountSubtitle')}</p>
+          <h1 className="text-2xl font-bold text-white">
+            {isEditMode ? t('bank.editAccount') : t('bank.addAccount')}
+          </h1>
+          <p className="text-zinc-400 text-sm mt-1">
+            {isEditMode ? t('bank.editAccountSubtitle') : t('bank.addAccountSubtitle')}
+          </p>
         </div>
       </div>
 
@@ -190,7 +242,9 @@ const BankAccountForm = () => {
             <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
               <span className="text-emerald-400 font-bold">{currencies.find(c => c.code === formData.currency)?.symbol || '£'}</span>
             </div>
-            <h2 className="text-lg font-semibold text-white">{t('bank.openingBalance')}</h2>
+            <h2 className="text-lg font-semibold text-white">
+              {isEditMode ? t('bank.currentBalance') : t('bank.openingBalance')}
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

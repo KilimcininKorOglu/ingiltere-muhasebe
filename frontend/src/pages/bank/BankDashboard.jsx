@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { bankAccountService } from '../../services/api';
-import { Building2, Plus, CreditCard, Wallet, ArrowRight, Trash2, Loader2, Landmark } from 'lucide-react';
+import { Building2, Plus, CreditCard, Wallet, ArrowRight, Trash2, Loader2, Landmark, Pencil } from 'lucide-react';
 
 const BankDashboard = () => {
   const { t } = useTranslation();
@@ -167,6 +167,12 @@ const BankDashboard = () => {
                   >
                     {t('bank.viewTransactions')}
                     <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                  <Link
+                    to={`/bank/accounts/${account.id}/edit`}
+                    className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => handleDelete(account.id)}

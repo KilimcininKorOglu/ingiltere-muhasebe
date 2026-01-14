@@ -382,6 +382,9 @@
     "accountNumber": "Account Number",
     "accountType": "Account Type",
     "openingBalance": "Opening Balance",
+    "currentBalance": "Current Balance",
+    "editAccount": "Edit Account",
+    "editAccountSubtitle": "Edit bank account details",
     "addAccountSubtitle": "Add a new bank account",
     "fillRequired": "Please fill in all required fields",
     "currency": "Currency"

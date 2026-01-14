@@ -88,6 +88,7 @@ const App = () => {
               
               <Route path="bank" element={<BankDashboard />} />
               <Route path="bank/accounts/new" element={<BankAccountForm />} />
+              <Route path="bank/accounts/:id/edit" element={<BankAccountForm />} />
               <Route path="bank/accounts/:id/transactions" element={<BankDashboard />} />
               <Route path="bank/accounts/:id/reconcile" element={<BankDashboard />} />
               

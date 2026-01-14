@@ -382,6 +382,9 @@
     "accountNumber": "Hesap Numarası",
     "accountType": "Hesap Türü",
     "openingBalance": "Açılış Bakiyesi",
+    "currentBalance": "Mevcut Bakiye",
+    "editAccount": "Hesabı Düzenle",
+    "editAccountSubtitle": "Banka hesabı bilgilerini düzenleyin",
     "addAccountSubtitle": "Yeni banka hesabı ekleyin",
     "fillRequired": "Lütfen tüm zorunlu alanları doldurun",
     "currency": "Para Birimi"
