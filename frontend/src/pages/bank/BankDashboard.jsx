@@ -49,6 +49,15 @@ const BankDashboard = () => {
 
   const totalBalance = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
 
+  const balancesByCurrency = accounts.reduce((acc, account) => {
+    const currency = account.currency || 'GBP';
+    if (!acc[currency]) {
+      acc[currency] = 0;
+    }
+    acc[currency] += account.currentBalance || 0;
+    return acc;
+  }, {});
+
   const getAccountIcon = (type) => {
     switch (type) {
       case 'current':
@@ -85,22 +94,47 @@ const BankDashboard = () => {
         </Link>
       </div>
 
-      {/* Total Balance Card */}
-      <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-xl border border-emerald-500/30 p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-emerald-500/30 flex items-center justify-center">
-            <Building2 className="w-7 h-7 text-emerald-400" />
+      {/* Total Balance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Object.entries(balancesByCurrency).map(([currency, balance]) => {
+          const accountCount = accounts.filter(acc => (acc.currency || 'GBP') === currency).length;
+          const currencySymbols = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' };
+          return (
+            <div
+              key={currency}
+              className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-xl border border-emerald-500/30 p-5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/30 flex items-center justify-center">
+                  <span className="text-xl font-bold text-emerald-400">{currencySymbols[currency] || currency}</span>
+                </div>
+                <div>
+                  <p className="text-xs text-zinc-400">{currency}</p>
+                  <p className={`text-xl font-bold ${balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {formatCurrency(balance, currency)}
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    {accountCount} {t('bank.accounts')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {Object.keys(balancesByCurrency).length === 0 && (
+          <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-xl border border-emerald-500/30 p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/30 flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-xs text-zinc-400">{t('bank.totalBalance')}</p>
+                <p className="text-xl font-bold text-emerald-400">{formatCurrency(0)}</p>
+                <p className="text-xs text-zinc-500">0 {t('bank.accounts')}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-zinc-400">{t('bank.totalBalance')}</p>
-            <p className={`text-3xl font-bold ${totalBalance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              {formatCurrency(totalBalance)}
-            </p>
-            <p className="text-sm text-zinc-500 mt-1">
-              {accounts.length} {t('bank.accounts')}
-            </p>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Accounts */}
