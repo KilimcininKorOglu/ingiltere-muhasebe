@@ -45,10 +45,10 @@ const BankAccountForm = () => {
     setError('');
 
     try {
+      const { balance, ...rest } = formData;
       await bankAccountService.create({
-        ...formData,
-        balance: Math.round(parseFloat(formData.balance || 0) * 100),
-        currency: formData.currency,
+        ...rest,
+        openingBalance: Math.round(parseFloat(balance || 0) * 100),
       });
       navigate('/bank');
     } catch (err) {

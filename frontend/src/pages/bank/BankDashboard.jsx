@@ -40,14 +40,14 @@ const BankDashboard = () => {
     }
   };
 
-  const formatCurrency = (amount, currency = 'GBP') => {
+  const formatCurrency = (amountInPence, currency = 'GBP') => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: currency,
-    }).format(amount || 0);
+    }).format((amountInPence || 0) / 100);
   };
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
+  const totalBalance = accounts.reduce((sum, acc) => sum + (acc.currentBalance || 0), 0);
 
   const getAccountIcon = (type) => {
     switch (type) {
@@ -154,8 +154,8 @@ const BankDashboard = () => {
                 {/* Balance */}
                 <div className="mb-4 p-3 bg-zinc-900/50 rounded-lg">
                   <p className="text-xs text-zinc-500 mb-1">{t('bank.balance')} ({account.currency || 'GBP'})</p>
-                  <p className={`text-xl font-bold ${account.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {formatCurrency(account.balance, account.currency || 'GBP')}
+                  <p className={`text-xl font-bold ${account.currentBalance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {formatCurrency(account.currentBalance, account.currency || 'GBP')}
                   </p>
                 </div>
 
