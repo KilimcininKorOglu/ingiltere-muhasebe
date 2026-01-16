@@ -69,7 +69,19 @@
     "invalidCompanyNumber": "Lütfen geçerli bir UK şirket sicil numarası girin",
     "invalidDate": "Lütfen geçerli bir tarih girin",
     "mustBePositive": "Değer sıfırdan büyük olmalıdır",
-    "mustBeNonNegative": "Değer negatif olamaz"
+    "mustBeNonNegative": "Değer negatif olamaz",
+    "startDateRequired": "Başlangıç tarihi gereklidir",
+    "endDateRequired": "Bitiş tarihi gereklidir",
+    "invalidStartDateFormat": "Geçersiz başlangıç tarihi formatı",
+    "invalidEndDateFormat": "Geçersiz bitiş tarihi formatı",
+    "startDateBeforeEndDate": "Başlangıç tarihi bitiş tarihinden önce olmalıdır",
+    "dateRangeExceedsYear": "Tarih aralığı 1 yılı aşamaz",
+    "dateRangeExceeds366Days": "Tarih aralığı 366 günü aşamaz",
+    "invalidDateRange": "Geçersiz tarih aralığı",
+    "taxYearRequired": "Vergi yılı gereklidir",
+    "invalidTaxYearFormat": "Geçersiz vergi yılı formatı",
+    "quarterBetween1And4": "Çeyrek 1 ile 4 arasında olmalıdır",
+    "invalidQuarter": "Geçersiz çeyrek"
   },
   "categoryNames": {
     "1000": "Nakit",

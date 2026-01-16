@@ -12,11 +12,43 @@ const vatSummaryService = require('../services/vatSummaryService');
 const cashFlowService = require('../services/cashFlowService');
 const balanceSheetService = require('../services/balanceSheetService');
 const { HTTP_STATUS, ERROR_CODES } = require('../utils/errorCodes');
+const { tBilingual } = require('../utils/i18n');
 
 // Import export generators
 const csvGenerator = require('../services/csvGenerator');
 const reportPdfGenerator = require('../services/reportPdfGenerator');
 const { findById } = require('../database/models/User');
+
+/**
+ * Maps validation error messages to i18n keys.
+ */
+const validationErrorKeyMap = {
+  'Start date is required': 'validation.startDateRequired',
+  'End date is required': 'validation.endDateRequired',
+  'Invalid start date format': 'validation.invalidStartDateFormat',
+  'Invalid end date format': 'validation.invalidEndDateFormat',
+  'Start date must be before end date': 'validation.startDateBeforeEndDate',
+  'Date range cannot exceed 1 year': 'validation.dateRangeExceedsYear',
+  'Date range cannot exceed 366 days': 'validation.dateRangeExceeds366Days',
+  'Invalid date range': 'validation.invalidDateRange',
+  'Tax year is required': 'validation.taxYearRequired',
+  'Invalid tax year format': 'validation.invalidTaxYearFormat',
+  'Quarter must be between 1 and 4': 'validation.quarterBetween1And4',
+  'Invalid quarter': 'validation.invalidQuarter'
+};
+
+/**
+ * Gets bilingual validation error message.
+ * @param {string} error - English error message
+ * @returns {{ en: string, tr: string }} Bilingual message object
+ */
+function getValidationErrorMessage(error) {
+  const key = validationErrorKeyMap[error];
+  if (key) {
+    return tBilingual(key);
+  }
+  return { en: error, tr: error };
+}
 
 /**
  * Generates a PAYE summary report for a date range.
@@ -60,10 +92,7 @@ function getPayeSummary(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: validation.error,
-            tr: validation.error // TODO: Add Turkish translations
-          }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -384,10 +413,7 @@ function getProfitLoss(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: validation.error,
-            tr: validation.error
-          }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -707,10 +733,7 @@ function getVatSummary(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: validation.error,
-            tr: validation.error
-          }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -1046,10 +1069,7 @@ function getCashFlow(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: {
-            en: validation.error,
-            tr: validation.error
-          }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -1702,7 +1722,7 @@ async function exportProfitLoss(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: { en: validation.error, tr: validation.error }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -1798,7 +1818,7 @@ async function exportVatSummary(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: { en: validation.error, tr: validation.error }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -1895,7 +1915,7 @@ async function exportCashFlow(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: { en: validation.error, tr: validation.error }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }
@@ -1993,7 +2013,7 @@ async function exportPayeSummary(req, res) {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: { en: validation.error, tr: validation.error }
+          message: getValidationErrorMessage(validation.error)
         }
       });
     }

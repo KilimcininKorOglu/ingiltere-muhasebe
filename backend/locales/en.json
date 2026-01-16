@@ -69,7 +69,19 @@
     "invalidCompanyNumber": "Please enter a valid UK company registration number",
     "invalidDate": "Please enter a valid date",
     "mustBePositive": "Value must be greater than zero",
-    "mustBeNonNegative": "Value cannot be negative"
+    "mustBeNonNegative": "Value cannot be negative",
+    "startDateRequired": "Start date is required",
+    "endDateRequired": "End date is required",
+    "invalidStartDateFormat": "Invalid start date format",
+    "invalidEndDateFormat": "Invalid end date format",
+    "startDateBeforeEndDate": "Start date must be before end date",
+    "dateRangeExceedsYear": "Date range cannot exceed 1 year",
+    "dateRangeExceeds366Days": "Date range cannot exceed 366 days",
+    "invalidDateRange": "Invalid date range",
+    "taxYearRequired": "Tax year is required",
+    "invalidTaxYearFormat": "Invalid tax year format",
+    "quarterBetween1And4": "Quarter must be between 1 and 4",
+    "invalidQuarter": "Invalid quarter"
   },
   "categoryNames": {
     "1000": "Cash",
