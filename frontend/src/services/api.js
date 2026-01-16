@@ -26,9 +26,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const currentPath = window.location.pathname;
+      // Don't redirect if already on login/register page
+      if (currentPath !== '/login' && currentPath !== '/register') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        // Dispatch custom event for auth state change instead of hard redirect
+        window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: { from: currentPath } }));
+      }
     }
     return Promise.reject(error);
   }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -8,6 +9,19 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleUnauthorized = useCallback(() => {
+    setUser(null);
+    setError('Session expired. Please login again.');
+    navigate('/login', { replace: true });
+  }, [navigate]);
+
+  useEffect(() => {
+    const handler = () => handleUnauthorized();
+    window.addEventListener('auth:unauthorized', handler);
+    return () => window.removeEventListener('auth:unauthorized', handler);
+  }, [handleUnauthorized]);
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('token');
