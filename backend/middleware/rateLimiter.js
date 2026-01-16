@@ -3,7 +3,11 @@
  * Provides rate limiting functionality to protect against abuse.
  * Uses an in-memory sliding window approach.
  * 
- * For production, consider using Redis for distributed rate limiting.
+ * Note: This implementation uses in-memory storage which is suitable for
+ * single-instance deployments. For horizontally scaled deployments,
+ * implement Redis-based storage by setting RATE_LIMIT_STORE=redis.
+ * Rate limit data resetting on restart is acceptable as it doesn't
+ * pose a security risk (attackers still face limits on new requests).
  * 
  * @module middleware/rateLimiter
  */
