@@ -113,7 +113,7 @@ const PayrollForm = () => {
 
     try {
       const response = await payrollService.calculate({
-        employeeId: parseInt(formData.employeeId),
+        employeeId: parseInt(formData.employeeId, 10),
         grossPay: parseFloat(formData.grossPay) + parseFloat(formData.bonus || 0),
       });
       setCalculation(response.data?.data || response.data);
@@ -137,7 +137,7 @@ const PayrollForm = () => {
 
     try {
       const payload = {
-        employeeId: parseInt(formData.employeeId),
+        employeeId: parseInt(formData.employeeId, 10),
         payPeriodStart: formData.payPeriodStart,
         payPeriodEnd: formData.payPeriodEnd,
         payDate: formData.payPeriodEnd,

@@ -101,7 +101,7 @@ const TransactionForm = () => {
     try {
       const payload = {
         type: formData.type,
-        categoryId: parseInt(formData.categoryId),
+        categoryId: parseInt(formData.categoryId, 10),
         transactionDate: formData.date,
         description: formData.description,
         amount: parseFloat(formData.amount),
@@ -113,13 +113,13 @@ const TransactionForm = () => {
       };
 
       if (formData.customerId) {
-        payload.customerId = parseInt(formData.customerId);
+        payload.customerId = parseInt(formData.customerId, 10);
       }
       if (formData.supplierId) {
-        payload.supplierId = parseInt(formData.supplierId);
+        payload.supplierId = parseInt(formData.supplierId, 10);
       }
       if (formData.bankAccountId) {
-        payload.bankAccountId = parseInt(formData.bankAccountId);
+        payload.bankAccountId = parseInt(formData.bankAccountId, 10);
       }
 
       if (isEdit) {

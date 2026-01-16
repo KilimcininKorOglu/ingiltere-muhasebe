@@ -122,7 +122,7 @@ const InvoiceForm = () => {
 
     try {
       const payload = {
-        customerId: parseInt(formData.customerId),
+        customerId: parseInt(formData.customerId, 10),
         invoiceDate: formData.issueDate,
         dueDate: formData.dueDate,
         notes: formData.notes || null,
