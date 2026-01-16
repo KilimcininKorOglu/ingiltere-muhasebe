@@ -144,7 +144,7 @@ const TransactionForm = () => {
   const currency = selectedBankAccount?.currency || 'GBP';
   const currencySymbol = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' }[currency] || currency;
 
-  const vatAmount = (parseFloat(formData.amount) || 0) * (parseFloat(formData.vatRate) / 100);
+  const vatAmount = (parseFloat(formData.amount) || 0) * ((parseFloat(formData.vatRate) || 0) / 100);
   const totalAmount = (parseFloat(formData.amount) || 0) + vatAmount;
 
   if (loading) {
