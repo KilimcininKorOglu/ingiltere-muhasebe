@@ -24,7 +24,7 @@ const fs = require('fs');
  */
 const defaultConfig = {
   path: process.env.DATABASE_PATH || path.join(__dirname, '../../data/database.sqlite'),
-  verbose: process.env.NODE_ENV === 'development' ? console.log : null,
+  verbose: process.env.DB_DEBUG === 'true' ? console.log : null,
   readonly: false,
   fileMustExist: false
 };
