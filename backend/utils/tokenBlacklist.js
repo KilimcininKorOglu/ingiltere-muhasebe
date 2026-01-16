@@ -1,21 +1,21 @@
 /**
  * Token Blacklist Utility
- * Provides in-memory storage for invalidated JWT tokens (logged out).
- * Tokens are stored with their expiration time and automatically cleaned up.
- * 
- * For production, this should be replaced with Redis or database storage.
+ * Provides persistent storage for invalidated JWT tokens (logged out).
+ * Tokens are stored in SQLite database with in-memory cache for performance.
+ * Persists across server restarts.
  * 
  * @module utils/tokenBlacklist
  */
 
 const { decodeToken } = require('./jwt');
+const { openDatabase } = require('../database');
 
 /**
- * In-memory blacklist storage.
+ * In-memory cache for blacklisted tokens (performance optimization).
  * Map of token -> expiration timestamp
  * @type {Map<string, number>}
  */
-const blacklist = new Map();
+const blacklistCache = new Map();
 
 /**
  * Cleanup interval in milliseconds (5 minutes)
@@ -33,6 +33,7 @@ let cleanupTimer = null;
  * Adds a token to the blacklist.
  * The token will be stored until its expiration time,
  * after which it will be automatically removed during cleanup.
+ * Persists to database for cross-restart durability.
  * 
  * @param {string} token - The JWT token to blacklist
  * @returns {boolean} True if token was added, false if invalid
@@ -47,12 +48,26 @@ function addToBlacklist(token) {
 
   // Decode to get expiration time
   const decoded = decodeToken(cleanToken);
+  let expirationTime;
   if (!decoded || !decoded.exp) {
     // If no expiration, set to 24 hours from now
-    const expirationTime = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
-    blacklist.set(cleanToken, expirationTime);
+    expirationTime = Math.floor(Date.now() / 1000) + (24 * 60 * 60);
   } else {
-    blacklist.set(cleanToken, decoded.exp);
+    expirationTime = decoded.exp;
+  }
+
+  // Add to cache
+  blacklistCache.set(cleanToken, expirationTime);
+
+  // Persist to database
+  try {
+    const db = openDatabase();
+    db.prepare('INSERT OR REPLACE INTO token_blacklist (token, expirationTime) VALUES (?, ?)').run(cleanToken, expirationTime);
+  } catch (error) {
+    // Table might not exist yet, cache-only mode
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Failed to persist token to blacklist:', error.message);
+    }
   }
 
   // Start cleanup if not already running
@@ -63,6 +78,7 @@ function addToBlacklist(token) {
 
 /**
  * Checks if a token is blacklisted.
+ * Checks cache first, then falls back to database.
  * 
  * @param {string} token - The JWT token to check
  * @returns {boolean} True if token is blacklisted, false otherwise
@@ -75,7 +91,26 @@ function isBlacklisted(token) {
   // Remove 'Bearer ' prefix if present
   const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-  return blacklist.has(cleanToken);
+  // Check cache first
+  if (blacklistCache.has(cleanToken)) {
+    return true;
+  }
+
+  // Fall back to database check
+  try {
+    const db = openDatabase();
+    const now = Math.floor(Date.now() / 1000);
+    const row = db.prepare('SELECT token, expirationTime FROM token_blacklist WHERE token = ? AND expirationTime > ?').get(cleanToken, now);
+    if (row) {
+      // Add to cache for future lookups
+      blacklistCache.set(cleanToken, row.expirationTime);
+      return true;
+    }
+  } catch (error) {
+    // Table might not exist yet, cache-only mode
+  }
+
+  return false;
 }
 
 /**
@@ -93,12 +128,23 @@ function removeFromBlacklist(token) {
   // Remove 'Bearer ' prefix if present
   const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-  return blacklist.delete(cleanToken);
+  // Remove from cache
+  const wasInCache = blacklistCache.delete(cleanToken);
+
+  // Remove from database
+  try {
+    const db = openDatabase();
+    const result = db.prepare('DELETE FROM token_blacklist WHERE token = ?').run(cleanToken);
+    return wasInCache || result.changes > 0;
+  } catch (error) {
+    return wasInCache;
+  }
 }
 
 /**
  * Cleans up expired tokens from the blacklist.
  * Called periodically to prevent memory leaks.
+ * Removes from both cache and database.
  * 
  * @returns {number} Number of tokens removed
  */
@@ -106,15 +152,25 @@ function cleanupExpiredTokens() {
   const now = Math.floor(Date.now() / 1000);
   let removedCount = 0;
 
-  for (const [token, expTime] of blacklist.entries()) {
+  // Clean cache
+  for (const [token, expTime] of blacklistCache.entries()) {
     if (expTime < now) {
-      blacklist.delete(token);
+      blacklistCache.delete(token);
       removedCount++;
     }
   }
 
+  // Clean database
+  try {
+    const db = openDatabase();
+    const result = db.prepare('DELETE FROM token_blacklist WHERE expirationTime < ?').run(now);
+    removedCount = Math.max(removedCount, result.changes);
+  } catch (error) {
+    // Table might not exist yet
+  }
+
   // Stop cleanup if blacklist is empty
-  if (blacklist.size === 0) {
+  if (blacklistCache.size === 0) {
     stopCleanup();
   }
 
@@ -151,7 +207,16 @@ function stopCleanup() {
  * @returns {void}
  */
 function clearBlacklist() {
-  blacklist.clear();
+  blacklistCache.clear();
+  
+  // Clear database
+  try {
+    const db = openDatabase();
+    db.prepare('DELETE FROM token_blacklist').run();
+  } catch (error) {
+    // Table might not exist yet
+  }
+  
   stopCleanup();
 }
 
@@ -161,7 +226,7 @@ function clearBlacklist() {
  * @returns {number} Number of tokens in the blacklist
  */
 function getBlacklistSize() {
-  return blacklist.size;
+  return blacklistCache.size;
 }
 
 module.exports = {
