@@ -103,7 +103,7 @@ async function updateTaxRate(req, res) {
       });
     }
 
-    const updated = taxRatesService.updateTaxRate(parseInt(id), {
+    const updated = taxRatesService.updateTaxRate(parseInt(id, 10), {
       value,
       description,
       isActive
@@ -186,7 +186,7 @@ async function createTaxRate(req, res) {
 async function deleteTaxRate(req, res) {
   try {
     const { id } = req.params;
-    taxRatesService.deleteTaxRate(parseInt(id));
+    taxRatesService.deleteTaxRate(parseInt(id, 10));
 
     res.json({
       success: true,
