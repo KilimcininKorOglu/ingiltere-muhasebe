@@ -19,7 +19,7 @@ function dateToTimestamp(dateStr) {
   if (!match) return null;
   
   const [, year, month, day] = match;
-  const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+  const date = new Date(Date.UTC(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10)));
   
   if (isNaN(date.getTime())) return null;
   
@@ -89,12 +89,12 @@ function isValidDateString(dateStr) {
   if (!match) return false;
   
   const [, year, month, day] = match;
-  const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+  const date = new Date(Date.UTC(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10)));
   
   return !isNaN(date.getTime()) &&
-    date.getUTCFullYear() === parseInt(year) &&
-    date.getUTCMonth() + 1 === parseInt(month) &&
-    date.getUTCDate() === parseInt(day);
+    date.getUTCFullYear() === parseInt(year, 10) &&
+    date.getUTCMonth() + 1 === parseInt(month, 10) &&
+    date.getUTCDate() === parseInt(day, 10);
 }
 
 /**

@@ -288,7 +288,7 @@ function calculateCurrentPeriodEarnings(userId, asOfDate) {
   const { startDate: periodStart } = getTaxYearDates(taxYear);
   
   // If as-of date is before the tax year start, use as-of date as period end
-  const effectivePeriodStart = periodStart > asOfDate ? `${parseInt(taxYear.split('-')[0]) - 1}-04-06` : periodStart;
+  const effectivePeriodStart = periodStart > asOfDate ? `${parseInt(taxYear.split('-')[0], 10) - 1}-04-06` : periodStart;
   
   const result = queryOne(`
     SELECT 
