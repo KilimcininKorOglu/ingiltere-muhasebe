@@ -1,0 +1,43 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3847:3847"
+    environment:
+      - NODE_ENV=development
+      - PORT=3847
+      - JWT_SECRET=docker-dev-secret-change-in-production
+      - JWT_EXPIRES_IN=7d
+      - JWT_ISSUER=uk-accounting-api
+      - ALLOWED_ORIGINS=http://localhost:5173
+      - DB_DEBUG=false
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./data:/app/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3847/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
