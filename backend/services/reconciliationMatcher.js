@@ -18,6 +18,7 @@ const Transaction = require('../database/models/Transaction');
 const Reconciliation = require('../database/models/Reconciliation');
 const BankAccount = require('../database/models/BankAccount');
 const { query, queryOne, execute, openDatabase, transaction: dbTransaction } = require('../database/index');
+const logger = require('../utils/logger');
 
 /**
  * Matching configuration defaults
@@ -305,7 +306,7 @@ function findPotentialMatches(bankTransactionId, options = {}) {
       matchesAboveThreshold: matches.length
     };
   } catch (error) {
-    console.error('Error finding potential matches:', error.message);
+    logger.error('Error finding potential matches:', { error: error.message });
     return { success: false, error: 'Failed to find potential matches' };
   }
 }
@@ -404,7 +405,7 @@ function createMatch(bankTransactionId, transactionId, userId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error creating match:', error.message);
+    logger.error('Error creating match:', { error: error.message });
     return { success: false, error: 'Failed to create reconciliation match' };
   }
 }
@@ -469,7 +470,7 @@ function removeMatch(reconciliationId, userId) {
       }
     };
   } catch (error) {
-    console.error('Error removing match:', error.message);
+    logger.error('Error removing match:', { error: error.message });
     return { success: false, error: 'Failed to remove reconciliation' };
   }
 }
@@ -526,7 +527,7 @@ function unreconcileBankTransaction(bankTransactionId, userId) {
       }
     };
   } catch (error) {
-    console.error('Error unreconciling bank transaction:', error.message);
+    logger.error('Error unreconciling bank transaction:', { error: error.message });
     return { success: false, error: 'Failed to unreconcile bank transaction' };
   }
 }
@@ -619,7 +620,7 @@ function autoReconcile(bankAccountId, userId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error in auto-reconcile:', error.message);
+    logger.error('Error in auto-reconcile:', { error: error.message });
     return { success: false, error: 'Failed to auto-reconcile transactions' };
   }
 }

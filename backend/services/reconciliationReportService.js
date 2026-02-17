@@ -16,6 +16,7 @@ const BankTransaction = require('../database/models/BankTransaction');
 const Reconciliation = require('../database/models/Reconciliation');
 const BankAccount = require('../database/models/BankAccount');
 const ReconciliationStatusService = require('./reconciliationStatusService');
+const logger = require('../utils/logger');
 
 /**
  * Report data types
@@ -488,7 +489,7 @@ function generateReconciliationReport(bankAccountId, options = {}) {
     };
 
   } catch (error) {
-    console.error('Error generating reconciliation report:', error.message);
+    logger.error('Error generating reconciliation report:', { error: error.message });
     return { success: false, error: 'Failed to generate reconciliation report' };
   }
 }

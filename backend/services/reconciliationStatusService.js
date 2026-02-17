@@ -13,6 +13,7 @@ const BankTransaction = require('../database/models/BankTransaction');
 const Reconciliation = require('../database/models/Reconciliation');
 const BankAccount = require('../database/models/BankAccount');
 const { timestampToDate, dateToTimestamp } = require('../utils/dateUtils');
+const logger = require('../utils/logger');
 
 /**
  * Reconciliation status summary object
@@ -119,7 +120,7 @@ function getReconciliationStatusSummary(bankAccountId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error getting reconciliation status summary:', error.message);
+    logger.error('Error getting reconciliation status summary:', { error: error.message });
     return { success: false, error: 'Failed to get reconciliation status summary' };
   }
 }
@@ -215,7 +216,7 @@ function calculateBalances(bankAccountId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error calculating balances:', error.message);
+    logger.error('Error calculating balances:', { error: error.message });
     return { success: false, error: 'Failed to calculate balances' };
   }
 }
@@ -316,7 +317,7 @@ function getUnreconciledTotals(bankAccountId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error getting unreconciled totals:', error.message);
+    logger.error('Error getting unreconciled totals:', { error: error.message });
     return { success: false, error: 'Failed to get unreconciled totals' };
   }
 }
@@ -393,7 +394,7 @@ function getLastReconciliationDate(bankAccountId) {
       }
     };
   } catch (error) {
-    console.error('Error getting last reconciliation date:', error.message);
+    logger.error('Error getting last reconciliation date:', { error: error.message });
     return { success: false, error: 'Failed to get last reconciliation date' };
   }
 }
@@ -451,7 +452,7 @@ function getFullReconciliationStatus(bankAccountId, options = {}) {
       }
     };
   } catch (error) {
-    console.error('Error getting full reconciliation status:', error.message);
+    logger.error('Error getting full reconciliation status:', { error: error.message });
     return { success: false, error: 'Failed to get full reconciliation status' };
   }
 }
@@ -545,7 +546,7 @@ function getReconciliationStatusByUser(userId) {
       }
     };
   } catch (error) {
-    console.error('Error getting reconciliation status by user:', error.message);
+    logger.error('Error getting reconciliation status by user:', { error: error.message });
     return { success: false, error: 'Failed to get reconciliation status by user' };
   }
 }

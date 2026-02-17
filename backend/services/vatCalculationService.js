@@ -21,6 +21,7 @@
  */
 
 const { query, queryOne } = require('../database/index');
+const logger = require('../utils/logger');
 const {
   calculateAllBoxes,
   validateBoxCalculations,
@@ -319,7 +320,7 @@ function calculateVatReturn(userId, periodStart, periodEnd, options = {}) {
     return result;
     
   } catch (error) {
-    console.error('Error calculating VAT return:', error.message);
+    logger.error('Error calculating VAT return:', { error: error.message });
     return {
       success: false,
       errors: {

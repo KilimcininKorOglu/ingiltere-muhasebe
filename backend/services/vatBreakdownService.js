@@ -20,6 +20,7 @@
 
 const { query, queryOne } = require('../database/index');
 const { ACCOUNTING_SCHEMES } = require('../utils/vatBoxCalculator');
+const logger = require('../utils/logger');
 
 /**
  * VAT rate names for display.
@@ -936,7 +937,7 @@ function getBoxBreakdown(userId, periodStart, periodEnd, boxNumber, options = {}
     };
     
   } catch (error) {
-    console.error('Error getting box breakdown:', error.message);
+    logger.error('Error getting box breakdown:', { error: error.message });
     return {
       success: false,
       errors: { general: 'Failed to get box breakdown' }
@@ -1097,7 +1098,7 @@ function getFullVatReturnBreakdown(userId, periodStart, periodEnd, options = {})
     };
     
   } catch (error) {
-    console.error('Error getting full VAT return breakdown:', error.message);
+    logger.error('Error getting full VAT return breakdown:', { error: error.message });
     return {
       success: false,
       errors: { general: 'Failed to get VAT return breakdown' }
@@ -1253,7 +1254,7 @@ function getBreakdownByVatRate(userId, periodStart, periodEnd, vatRate, options 
     };
     
   } catch (error) {
-    console.error('Error getting breakdown by VAT rate:', error.message);
+    logger.error('Error getting breakdown by VAT rate:', { error: error.message });
     return {
       success: false,
       errors: { general: 'Failed to get VAT rate breakdown' }
@@ -1342,7 +1343,7 @@ function getAvailableVatRates(userId, periodStart, periodEnd, lang = 'en') {
     };
     
   } catch (error) {
-    console.error('Error getting available VAT rates:', error.message);
+    logger.error('Error getting available VAT rates:', { error: error.message });
     return {
       success: false,
       errors: { general: 'Failed to get available VAT rates' }
