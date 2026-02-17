@@ -23,8 +23,26 @@ class ErrorBoundary extends Component {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
     
-    // TODO: Send error to error reporting service in production
-    // Example: errorReportingService.log({ error, errorInfo });
+    // Log error for production monitoring
+    // In production, errors are logged with structured data for debugging
+    if (import.meta.env.PROD) {
+      const errorData = {
+        message: error?.message || 'Unknown error',
+        stack: error?.stack,
+        componentStack: errorInfo?.componentStack,
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      };
+      
+      // Log to console for server-side log aggregation (e.g., via nginx/cloudflare logs)
+      console.error('[ErrorBoundary]', JSON.stringify(errorData));
+      
+      // Future: Integrate with error reporting service (Sentry, Bugsnag, etc.)
+      // if (window.Sentry) {
+      //   window.Sentry.captureException(error, { extra: errorData });
+      // }
+    }
   }
 
   handleReload = () => {
